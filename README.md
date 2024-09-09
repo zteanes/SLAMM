@@ -1,6 +1,6 @@
 # SLAMM
 
-<font size=5>**S**ign **L**anguage **A**nalytics and **M**obile **M**achine Learning.</font>
+**S**ign **L**anguage **A**nalytics and **M**obile **M**achine Learning.
 
 This project is a part of WCU's Capstone projects for the 2024-2025 academic year.
 
