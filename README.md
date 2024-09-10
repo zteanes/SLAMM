@@ -20,11 +20,11 @@ Alexander Charlot - [GitHub](https://github.com/Al-Charlot) - [LinkedIn](https:/
 
 ## Introduction
 
-TODO
+This project aims to create a mobile app for both iOS and Android devices which brings together machine learning and image recognition to help communicate via American Sign Language (ASL). This app will be able to recognize and translate ASL to English in real time, creating a more inclusive environment for the deaf and hard of hearing community.
 
 ## Installation
 
-This project aims to create a mobile app for both iOS and Android devices which brings together machine learning and image recognition to help communicate via American Sign Language (ASL). This app will be able to recognize and translate ASL to English in real time, creating a more inclusive environment for the deaf and hard of hearing community.
+TODO
 
 ## Usage
 

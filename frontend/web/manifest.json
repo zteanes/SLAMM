@@ -1,6 +1,6 @@
 {
-    "name": "learning_app",
-    "short_name": "learning_app",
+    "name": "frontend",
+    "short_name": "frontend",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
