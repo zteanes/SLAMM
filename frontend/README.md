@@ -1,4 +1,4 @@
-# learning_app
+# frontend
 
 A new Flutter project.
 
