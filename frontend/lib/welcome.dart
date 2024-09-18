@@ -1,39 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/settings.dart';
 import 'constants.dart';
-import 'analytics_screen.dart';
-import 'camera.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+class PageOne extends StatefulWidget {
+  const PageOne({Key? key}) : super(key: key);
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-
-
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Welcome Screen',
-      theme: ThemeData(
-        primaryColor: primaryColor,
-        scaffoldBackgroundColor: bgColor,
-      ),
-      home: WelcomeScreen(),
-      routes: {
-        "analytics": (context) => const AnalyticsScreen(),
-        "welcome": (context) => WelcomeScreen(),
-        "camera": (context) => CameraScreen(),
-        "settings": (context) => SettingsScreen(),
-      }
-    );
-  }
+  State<PageOne> createState() => WelcomeState();
 }
 
-class WelcomeScreen extends StatelessWidget {
+
+class WelcomeState extends State<PageOne> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,10 +58,7 @@ class WelcomeScreen extends StatelessWidget {
                   child: const Text("Let's Get Started", style: TextStyle(fontSize: 20, color: Colors.white)), 
                   // open our next page, the analytics page
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const AnalyticsScreen()),
-                    );
+                    Navigator.of(context).pushNamed("analytics");
                   },
                 ),
               ),
