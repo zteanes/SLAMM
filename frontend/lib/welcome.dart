@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'constants.dart';
 
 class PageOne extends StatefulWidget {
-  const PageOne({Key? key}) : super(key: key);
+  const PageOne({super.key});
 
   @override
   State<PageOne> createState() => WelcomeState();
