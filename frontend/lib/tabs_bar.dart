@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class BottomTabBar extends StatefulWidget {
-  const BottomTabBar({Key? key}) : super(key: key);
+  const BottomTabBar({super.key});
 
   @override
   State<BottomTabBar> createState() => BottomTabBarState();

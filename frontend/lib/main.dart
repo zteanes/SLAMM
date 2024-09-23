@@ -9,7 +9,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
 
 
@@ -22,18 +22,20 @@ class MyApp extends StatelessWidget {
         primaryColor: primaryColor,
         scaffoldBackgroundColor: bgColor,
       ),
-      home: WelcomeScreen(),
+      home: const WelcomeScreen(),
       routes: {
         "analytics": (context) => const AnalyticsScreen(),
-        "welcome": (context) => WelcomeScreen(),
-        "camera": (context) => CameraScreen(),
-        "settings": (context) => SettingsScreen(),
+        "welcome": (context) => const WelcomeScreen(),
+        "camera": (context) => const CameraScreen(),
+        "settings": (context) => const SettingsScreen(),
       }
     );
   }
 }
 
 class WelcomeScreen extends StatelessWidget {
+  const WelcomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
