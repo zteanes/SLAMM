@@ -22,7 +22,9 @@ def video_to_tensor(pic):
 
 
 def load_rgb_frames_from_video(vid_root, vid, start, num):
-    video_path = os.path.join(vid_root, vid + '.mp4')
+    print(vid_root)
+    print(vid)
+    video_path = os.path.join(vid_root, vid['video_id'] + '.mp4')
 
     vidcap = cv2.VideoCapture(video_path)
     # vidcap = cv2.VideoCapture('/home/dxli/Desktop/dm_256.mp4')
@@ -89,22 +91,27 @@ def make_dataset(split_file, split, root, mode, num_classes):
 
     i = 0
     for vid in data.keys():
-        if data[vid]['subset'] != "test":
-            continue
-        video_path = os.path.join(root, vid + '.mp4')
-        if not os.path.exists(video_path):
-            continue
-        # num_frames = data[vid]['action'][2] - data[vid]['action'][1]
-        num_frames = int(cv2.VideoCapture(video_path).get(cv2.CAP_PROP_FRAME_COUNT))
-        if mode == 'flow':
-            num_frames = num_frames // 2
+        vid = data[vid]
+        for instance in vid['instances']:
+            if instance['split'] != split:
+                continue # skip to the next instance of loop since it's not our split
 
-        label = np.zeros((num_classes, num_frames), np.float32)
+            # get the id in instance for the video path
+            path_to_video = os.getcwd() + "/data/start_kit/raw_videos_mp4" 
+            video_path = os.path.join(path_to_video, instance['video_id'] + '.mp4')
+            if not os.path.exists(video_path):
+                continue
+            # num_frames = data[vid]['action'][2] - data[vid]['action'][1]
+            num_frames = int(cv2.VideoCapture(video_path).get(cv2.CAP_PROP_FRAME_COUNT))
+            if mode == 'flow':
+                num_frames = num_frames // 2
 
-        # dataset.append((vid, data[vid]['action'][0], data[vid]['action'][1], data[vid]['action'][2], "{}".format(vid)))
-        dataset.append((vid, data[vid]['action'][0], 0, num_frames, "{}".format(vid)))
-        # dataset.append((vid, label, 0, data[vid]['action'][2] - data[vid]['action'][1], "{}".format(vid)))
-        i += 1
+            label = np.zeros((num_classes, num_frames), np.float32)
+
+            # dataset.append((vid, data[vid]['action'][0], data[vid]['action'][1], data[vid]['action'][2], "{}".format(vid)))
+            dataset.append((vid, instance['instance_id'], 0, num_frames, "{}".format(vid)))
+            # dataset.append((vid, label, 0, data[vid]['action'][2] - data[vid]['action'][1], "{}".format(vid)))
+            i += 1
     print(len(dataset))
     return dataset
 
@@ -114,9 +121,26 @@ def get_num_class(split_file):
 
     content = json.load(open(split_file))
 
+    # # since we have sub dictionaries, we have to break down json file for use of .keys()
+    # new_content = {}
+    # # iterate every dictionary present in our json
+    # for dic in content:
+    #     # create entry with the key of gloss mapped to an empty dictionary
+    #     new_content[dic['gloss']] = {}
+    #     for y in dic.keys():
+    #         if y == 'gloss': continue
+    #         new_content[dic['gloss']][y] = dic[y]
+
+    # # dump edited json back into a new json
+    # with open('new_WLASL_v0.3.json', 'w') as f:
+    #     json.dump(new_content, f, indent=4)
+
+    # content = new_content
+
     for vid in content.keys():
-        class_id = content[vid]['action'][0]
-        classes.add(class_id)
+        # class_id = content[vid]['action'][0]
+        # classes.add(class_id)
+        classes.add(vid)
 
     return len(classes)
 
