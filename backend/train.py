@@ -47,7 +47,7 @@ print("Loading WLASL dataset...")
 # possible solutions to variables for loadings and using dataset
 root = os.getcwd() + "/data/start_kit/raw_videos"
 mode = 'rgb'
-train_split = os.getcwd() + "/data/start_kit/WLASL_v0.3.json"
+train_split = os.getcwd() + "/data/start_kit/new_WLASL_v0.3.json"
 
 # build our dataset from WLASL given information 
 train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
@@ -55,9 +55,14 @@ train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
 test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
 # create a dataset object for each split
+print("Creating the datasets...")
+import json
 dataset = Dataset(train_split, 'train', root, mode, train_transforms)
+print("Training dataset created!")
 test_dataset = Dataset(train_split, 'test', root, mode, test_transforms)
+print("Test dataset created!")
 val_dataset = Dataset(train_split, 'val', root, mode, test_transforms)
+print("Validation dataset created!")
 
 # create a dictionary of our datasets for easy access
 datasets = {'train': dataset, 'test': test_dataset, 'val': val_dataset}
@@ -74,7 +79,7 @@ val_steps = len(val_loader.dataset)
 # Begin our LeNet model (hooray!)
 print("Creating the LeNet model...")
 # 3 channels for RGB images, classes is the num of classes in data
-model = LeNet(numChannels = 3, classes = len(train_loader.dataset.classes)).to(device) 
+model = LeNet(numChannels = 3, classes = train_loader.dataset.num_classes).to(device) 
 
 # make optimizer and loss functions 
 optimizer = Adam(model.parameters(), lr=INIT_LR)
@@ -85,7 +90,7 @@ History = { "train_loss" : [],
             "val_loss" : [],
             "train_acc" : [],
             "val_acc" : [] 
-        }
+          }
 
 
 
@@ -94,7 +99,7 @@ print("Training the model...")
 start = time.time()
 
 # loop epochs
-for epoch in range(0, epochs):
+for epoch in range(0, EPOCHS):
     # training mode for model
     model.train()
 
