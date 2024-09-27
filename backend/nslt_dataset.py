@@ -18,13 +18,20 @@ def video_to_tensor(pic):
     Returns:
          Tensor: Converted video.
     """
-    return torch.from_numpy(pic.transpose([3, 0, 1, 2]))
+    tensor = torch.from_numpy(pic.transpose([3, 0, 1, 2]))
+
+    return torch.cat([tensor, tensor, tensor, tensor], 0)
+    
+
+    # resize the tensors to all be the same size
+
 
 
 def load_rgb_frames_from_video(vid_root, vid, start, num):
-    print(vid_root)
-    print(vid)
     video_path = os.path.join(vid_root, vid['video_id'] + '.mp4')
+
+    if not os.path.exists(video_path):
+        return None
 
     vidcap = cv2.VideoCapture(video_path)
     # vidcap = cv2.VideoCapture('/home/dxli/Desktop/dm_256.mp4')
@@ -35,16 +42,20 @@ def load_rgb_frames_from_video(vid_root, vid, start, num):
     for offset in range(num):
         success, img = vidcap.read()
 
-        w, h, c = img.shape
-        if w < 226 or h < 226:
-            d = 226. - min(w, h)
-            sc = 1 + d / min(w, h)
-            img = cv2.resize(img, dsize=(0, 0), fx=sc, fy=sc)
-        img = (img / 255.) * 2 - 1
+        if img is not None:
+            w, h, c = img.shape
+            if w < 226 or h < 226:
+                d = 226. - min(w, h)
+                sc = 1 + d / min(w, h)
+                img = cv2.resize(img, dsize=(0, 0), fx=sc, fy=sc)
+            img = (img / 255.) * 2 - 1
 
         frames.append(img)
 
-    return np.asarray(frames, dtype=np.float32)
+    try:
+        return np.asarray(frames, dtype=np.float32)
+    except:
+        return None
 
 
 def load_rgb_frames(image_dir, vid, start, end):
@@ -169,7 +180,16 @@ class NSLT(data_utl.Dataset):
         if self.mode == 'rgb':
             # imgs = load_rgb_frames(self.root, vid, start_f, start_e)
             # imgs = load_rgb_frames(self.root, vid, start_f, start_e)
-            imgs = load_rgb_frames_from_video(self.root, vid, start_f, start_e)
+            for instance in vid['instances']:
+                imgs = load_rgb_frames_from_video(self.root, instance, start_f, start_e)
+                print("what imgs currently is:", imgs)
+
+                if imgs is not None:
+                    imgs = self.transforms(imgs)
+                    ret_img = video_to_tensor(imgs)
+
+                    # make sure every tensor is the same size
+                    return ret_img, label, instance
         else:
             imgs = load_flow_frames(self.root, vid, start_f, start_e)
         # label = label[:, start_f:start_e]
