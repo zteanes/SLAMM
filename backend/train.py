@@ -18,7 +18,8 @@ import time
 import videotransforms
 import os
 
-from nslt_dataset import NSLT as Dataset
+#from nslt_dataset import NSLT as Dataset
+from sign_dataset import Sign_Dataset as Dataset
 
 # construct the argument parser and parse the arguments as needed 
 ap = argparse.ArgumentParser()
@@ -45,9 +46,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Loading WLASL dataset...")
 
 # possible solutions to variables for loadings and using dataset
-root = os.getcwd() + "/data/start_kit/raw_videos"
-mode = 'rgb'
-train_split = os.getcwd() + "/data/start_kit/new_WLASL_v0.3.json"
+root = os.getcwd() + "/data/start_kit/videos"
+mode = 'rnd_start'
+train_split = os.getcwd() + "/data/start_kit/splits/asl100.json"
+#train_split = os.getcwd() + "/data/start_kit/new_WLASL_v0.3.json"
 
 # build our dataset from WLASL given information 
 train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
@@ -55,15 +57,31 @@ train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
 test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
 # create a dataset object for each split
-print("Creating the datasets...")
-import json
-dataset = Dataset(train_split, 'train', root, mode, train_transforms)
-print("Training dataset created!")
-test_dataset = Dataset(train_split, 'test', root, mode, test_transforms)
-print("Test dataset created!")
-val_dataset = Dataset(train_split, 'val', root, mode, test_transforms)
-print("Validation dataset created!")
+print("Creating the datasets...")# dataset = Dataset(train_split, 'train', root, mode, train_transforms)
+# print("Training dataset created!")
+# test_dataset = Dataset(train_split, 'test', root, mode, test_transforms)
+# print("Test dataset created!")
+# val_dataset = Dataset(train_split, 'val', root, mode, test_transforms)
+# print("Validation dataset created!")
 
+dataset = Dataset(index_file_path = train_split, 
+                  split = 'train', 
+                  pose_root = root)
+print("Training dataset created!")
+
+test_dataset = Dataset(index_file_path = train_split, 
+                  split = 'test', 
+                  pose_root = root)
+print("Test dataset created!")
+
+val_dataset = Dataset(index_file_path = train_split, 
+                  split = 'val', 
+                  pose_root = root)
+print("Validation dataset created!")
+# display the datasets
+print(f"Training dataset size: {dataset.__len__()}")
+print(f"Test dataset size: {len(test_dataset)}")
+print(f"Validation dataset size: {len(val_dataset)}")
 # create a dictionary of our datasets for easy access
 datasets = {'train': dataset, 'test': test_dataset, 'val': val_dataset}
 
@@ -79,7 +97,8 @@ val_steps = len(val_loader.dataset)
 # Begin our LeNet model (hooray!)
 print("Creating the LeNet model...")
 # 3 channels for RGB images, classes is the num of classes in data
-model = LeNet(numChannels = 3, classes = train_loader.dataset.num_classes).to(device) 
+num_classes = 2000 # gotten from the dataset when we used nslt_dataset.py 
+model = LeNet(numChannels = 3, classes = num_classes).to(device) 
 
 # make optimizer and loss functions 
 optimizer = Adam(model.parameters(), lr=INIT_LR)
