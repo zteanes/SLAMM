@@ -37,7 +37,7 @@ class LeNet(Module):
         # call parent constructor to initialize with PyTorch specific operations
         super(LeNet, self).__init__()
 
-        # first set of CONV => RELU => POOL
+        # first set of CONV => RELU => POOL        
         self.conv1 = Conv2d(in_channels = numChannels, # 20 filters with 5x5
                             out_channels = 20,
                             kernel_size = 5)
@@ -47,13 +47,15 @@ class LeNet(Module):
 
         # second set of CONV => RELU => POOL
         self.conv2 = Conv2d(in_channels = 20, # do again with larger filter amount
-                            out_channels = 50,
+                            out_channels = 64,
                             kernel_size = 5)
         self.relu2 = ReLU()
         self.pool2 = MaxPool2d(kernel_size = (2, 2), stride = (2, 2))
 
         # single set of FC => RELU layers
-        self.fc1 = Linear(in_features = 800, out_features = 500)
+        # self.fc1 = Linear(in_features = 800, out_features = 500)
+        self.fc1 = Linear(in_features = 90, out_features = 500)
+
         self.relu3 = ReLU()
 
         # softmax classifier
@@ -70,6 +72,12 @@ class LeNet(Module):
             x (tensor): input data/tensor to the model
         """
         # follow the architecture of the model
+        # RuntimeError: Given groups=1, weight of size [20, 64, 5, 5], expected input[1, 34, 55, 50] to have 64 channels, but got 34 channels instead
+        # if the input image has wrong number of channels, change it to 64 
+        print(x.shape)
+        # if x.shape[1] != 64:
+        #     x = x.repeat(1, 64, 1, 1)
+
         x = self.conv1(x)
         x = self.relu1(x)
         x = self.pool1(x)

@@ -138,6 +138,7 @@ for epoch in range(0, EPOCHS):
 
         # forward pass and calculate loss
         prediction = model(x)
+        print("!!!!!!!!!! WE MADE PREDICTIONS !!!!!!!!!!!")
         loss = loss_func(prediction, y)
 
         # zero out gradients, backward pass, update the weights
