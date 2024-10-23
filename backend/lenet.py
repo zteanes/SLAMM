@@ -60,30 +60,30 @@ class LeNet(Module):
         self.fc2 = Linear(in_features = 500, out_features = classes)
         self.logSoftmax = LogSoftmax(dim = 1) # used to get predicted probabilities during evaluation
 
-        def forward(self, x):
-            """
-            Overridden forward pass method for the LeNet model. 
-            This function defines the network architecture itself, connecting layers together
-            from the constructor of the class.
-            
-            Args:
-                x (tensor): input data/tensor to the model
-            """
-            # follow the architecture of the model
-            x = self.conv1(x)
-            x = self.relu1(x)
-            x = self.pool1(x)
+    def forward(self, x):
+        """
+        Overridden forward pass method for the LeNet model. 
+        This function defines the network architecture itself, connecting layers together
+        from the constructor of the class.
+        
+        Args:
+            x (tensor): input data/tensor to the model
+        """
+        # follow the architecture of the model
+        x = self.conv1(x)
+        x = self.relu1(x)
+        x = self.pool1(x)
 
-            x = self.conv2(x)
-            x = self.relu2(x)
-            x = self.pool2(x)
+        x = self.conv2(x)
+        x = self.relu2(x)
+        x = self.pool2(x)
 
-            x = flatten(x, 1)
-            x = self.fc1(x)
-            x = self.relu3(x)
+        x = flatten(x, 1)
+        x = self.fc1(x)
+        x = self.relu3(x)
 
-            x = self.fc2(x)
-            predictions = self.logSoftmax(x)
+        x = self.fc2(x)
+        predictions = self.logSoftmax(x)
 
-            # return the output predictions
-            return predictions
+        # return the output predictions
+        return predictions

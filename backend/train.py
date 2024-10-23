@@ -33,7 +33,7 @@ args = vars(ap.parse_args())
 INIT_LR = 1e-3 # initial learning rate
 BATCH_SIZE = 64 # batch size for training 
 # NOTE: epochs can be increased for higher accuracy, but must avoid overfitting
-EPOCHS = 10 # number of epochs to train 
+EPOCHS = 1 # number of epochs to train TODO: increase this number; lower now to get results working
 
 # define the train and val splits
 TRAIN_SPLIT = 0.75
@@ -46,10 +46,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Loading WLASL dataset...")
 
 # possible solutions to variables for loadings and using dataset
-root = os.getcwd() + "/data/start_kit/videos"
 mode = 'rnd_start'
-train_split = os.getcwd() + "/data/start_kit/splits/asl100.json"
 #train_split = os.getcwd() + "/data/start_kit/new_WLASL_v0.3.json"
+train_split = os.getcwd() + "/data/start_kit/splits/asl100.json"
+poses = os.getcwd() + "/data/start_kit/pose_per_individual_videos"
 
 # build our dataset from WLASL given information 
 train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
@@ -66,17 +66,17 @@ print("Creating the datasets...")# dataset = Dataset(train_split, 'train', root,
 
 dataset = Dataset(index_file_path = train_split, 
                   split = 'train', 
-                  pose_root = root)
+                  pose_root = poses)
 print("Training dataset created!")
 
 test_dataset = Dataset(index_file_path = train_split, 
                   split = 'test', 
-                  pose_root = root)
+                  pose_root = poses)
 print("Test dataset created!")
 
 val_dataset = Dataset(index_file_path = train_split, 
                   split = 'val', 
-                  pose_root = root)
+                  pose_root = poses)
 print("Validation dataset created!")
 # display the datasets
 print(f"Training dataset size: {dataset.__len__()}")
@@ -98,7 +98,7 @@ val_steps = len(val_loader.dataset)
 print("Creating the LeNet model...")
 # 3 channels for RGB images, classes is the num of classes in data
 num_classes = 2000 # gotten from the dataset when we used nslt_dataset.py 
-model = LeNet(numChannels = 3, classes = num_classes).to(device) 
+model = LeNet(numChannels = 64, classes = num_classes).to(device) 
 
 # make optimizer and loss functions 
 optimizer = Adam(model.parameters(), lr=INIT_LR)
@@ -128,7 +128,11 @@ for epoch in range(0, EPOCHS):
     val_correct = 0 # keep track of correct predictions during validation
 
     # loop training data
-    for (x, y) in train_loader:
+    for (x, y, z) in train_loader:
+        print(x, '\n', y, '\n', z)
+        # TODO: do we need to implement z? w/o z, it crashes because three 
+        #       values are returned from train_loader
+        print("!!!!!!!!!! WE LOADED DATA !!!!!!!!!!!")
         x = x.to(device)
         y = y.to(device)
 
