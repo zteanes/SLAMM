@@ -41,8 +41,12 @@ def read_pose_file(filepath):
 
     frame_id = path_parts[1][:11]
     vid = os.path.split(path_parts[0])[-1]
+    
+    # save_to = os.path.join('/home/dxli/workspace/nslt/code/Pose-GCN/posegcn/features', vid)
+    # NOTE: this past MUST exist before execution or this will not work. either make 
+        #       the directory or change to one that already exists
+    save_to = os.path.join('data/start_kit/poselenet/features', vid)
 
-    save_to = os.path.join('/home/dxli/workspace/nslt/code/Pose-GCN/posegcn/features', vid)
 
     try:
         ft = torch.load(os.path.join(save_to, frame_id + '_ft.pt'))
@@ -53,7 +57,6 @@ def read_pose_file(filepath):
         return xy
 
     except FileNotFoundError:
-        print(filepath)
         body_pose = content["pose_keypoints_2d"]
         left_hand_pose = content["hand_left_keypoints_2d"]
         right_hand_pose = content["hand_right_keypoints_2d"]
@@ -86,9 +89,14 @@ def read_pose_file(filepath):
         frame_id = path_parts[1][:11]
         vid = os.path.split(path_parts[0])[-1]
 
-        save_to = os.path.join('code/Pose-GCN/posegcn/features', vid)
+        #save_to = os.path.join('code/Pose-GCN/posegcn/features', vid)
+        # NOTE: this past MUST exist before execution or this will not work. either make 
+        #       the directory or change to one that already exists
+        save_to = os.path.join('data/start_kit/poselenet/features', vid)
+        
         if not os.path.exists(save_to):
             os.mkdir(save_to)
+
         torch.save(ft, os.path.join(save_to, frame_id + '_ft.pt'))
 
         xy = ft[:, :2]
@@ -183,7 +191,7 @@ class Sign_Dataset(Dataset):
             frames_to_sample = sequential_sampling(frame_start, frame_end, num_samples)
         elif sample_strategy == 'k_copies':
             frames_to_sample = k_copies_fixed_length_sequential_sampling(frame_start, frame_end, num_samples,
-                                                                         self.num_copies)
+                                                                self.num_copies)
         else:
             raise NotImplementedError('Unimplemented sample strategy found: {}.'.format(sample_strategy))
 
