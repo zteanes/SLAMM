@@ -17,6 +17,7 @@ import torch
 import time
 import videotransforms
 import os
+from torch.nn import Conv2d 
 
 #from nslt_dataset import NSLT as Dataset
 from sign_dataset import Sign_Dataset as Dataset
@@ -129,16 +130,26 @@ for epoch in range(0, EPOCHS):
 
     # loop training data
     for (x, y, z) in train_loader:
-        print(x, '\n', y, '\n', z)
+        # print(x, '\n', y, '\n', z)
         # TODO: do we need to implement z? w/o z, it crashes because three 
         #       values are returned from train_loader
-        print("!!!!!!!!!! WE LOADED DATA !!!!!!!!!!!")
+        print("\n!!!!!!!!!! WE LOADED DATA !!!!!!!!!!!")
         x = x.to(device)
         y = y.to(device)
 
         # forward pass and calculate loss
         prediction = model(x)
         print("!!!!!!!!!! WE MADE PREDICTIONS !!!!!!!!!!!")
+        print("shape of predictions:", prediction.shape)
+        print("shape of y:", y.shape)
+
+        # if we had to change the channels in x, do so for y as well
+        if y.shape[0] != 64:
+            # change x back to 34 channels 
+            conv_reverse = nn.Conv2d(in_channels=64, out_channels=34, kernel_size=1)
+            prediction = conv_reverse(prediction.unsqueeze(1)).squeeze(0).squeeze(1)
+            print("prediction after reshape:", prediction.shape)
+
         loss = loss_func(prediction, y)
 
         # zero out gradients, backward pass, update the weights
@@ -152,17 +163,26 @@ for epoch in range(0, EPOCHS):
         # calculate accuracy
         train_correct += (prediction.argmax(1) == y).type(torch.float).sum().item()
 
+    print("train correct:", train_correct)
+    print("total train loss:", total_train_loss)
     # disable autograd for validation
     with torch.no_grad():
         model.eval()
 
         # loop validation data
-        for (x, y) in val_loader:
+        for (x, y, z) in val_loader:
             x = x.to(device)
             y = y.to(device)
 
             # make predictions and find loss 
             prediction = model(x)
+
+            if y.shape[0] != 64:
+                # change x back to 18 channels 
+                conv_reverse = nn.Conv2d(in_channels=64, out_channels=18, kernel_size=1)
+                prediction = conv_reverse(prediction.unsqueeze(1)).squeeze(0).squeeze(1)
+                print("prediction after reshape:", prediction.shape)
+
             total_val_loss += loss_func(prediction, y)
 
             # sum number of correct predictions
@@ -183,7 +203,7 @@ for epoch in range(0, EPOCHS):
     History["train_loss"].append(val_correct)
 
     # display our info from this epoch
-    print(f"EPOCH: {e + 1}/{EPOCHS}")
+    print(f"EPOCH: {epoch + 1}/{EPOCHS}")
     print(f"Training Loss: {avg_train_loss}, Train Accuracy {train_correct}")
     print(f"Validation Loss: {avg_val_loss}, Train Accuracy {val_correct}")
 
@@ -198,7 +218,7 @@ with torch.no_grad():
     # set model to evaluation and make list of predictions
     model.eval()
     predictions = []
-    for (x, y) in test_loader:
+    for (x, y, z) in test_loader:
         x = x.to(device)
 
         # make our predictions and add

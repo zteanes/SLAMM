@@ -3,6 +3,9 @@ This file outlines the LeNet model for image classification using PyTorch. LeNet
 Neural Network (CNN) architecture that's fairly shallow and simple, but still good for machine 
 learning.
 
+File is modeled after the LeNet architecture, outlined in the following article:
+    https://pyimagesearch.com/2021/07/19/pytorch-training-your-first-convolutional-neural-network-cnn/
+
 Authors: Zachary Eanes and Alex Charlot
 Date: 09/23/2024
 Version: 0.1
@@ -15,6 +18,7 @@ from torch.nn import ReLU       # activation function
 from torch.nn import MaxPool2d  # 2D max pooling to reduce spatial dimensions of input
 from torch.nn import Linear     # fully connected layer
 from torch import flatten       # flattens input to then apply fully connected layer
+from torch.nn import functional as F # used to interpolate our tensor to correct size
 from torch.nn import LogSoftmax # use for softmax classifier to return predicted probabilities 
 
 
@@ -75,8 +79,25 @@ class LeNet(Module):
         # RuntimeError: Given groups=1, weight of size [20, 64, 5, 5], expected input[1, 34, 55, 50] to have 64 channels, but got 34 channels instead
         # if the input image has wrong number of channels, change it to 64 
         print(x.shape)
-        # if x.shape[1] != 64:
-        #     x = x.repeat(1, 64, 1, 1)
+        if x.shape[0] != 64:
+            print("oh yikes we got a bad number of channels...")
+            
+            # Reshape the tensor to (batch_size, channels, height, width) format
+            temp_tensor = x.unsqueeze(0)  # Add a batch dimension, shape is now (1, 34, 55, 50)
+
+            # Use a 1x1 convolution to change the number of channels from 34 to 64
+            try:
+                conv = Conv2d(in_channels=34, out_channels=64, kernel_size=1)
+                output = conv(temp_tensor)
+            except RuntimeError as e:
+                conv = Conv2d(in_channels=18, out_channels=64, kernel_size=1)
+                output = conv(temp_tensor)
+
+
+            # Remove the batch dimension if needed
+            x = output.squeeze(0)
+            
+            print("alright so we padded it, check it:", x.shape)
 
         x = self.conv1(x)
         x = self.relu1(x)
