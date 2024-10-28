@@ -80,7 +80,7 @@ class LeNet(Module):
         # if the input image has wrong number of channels, change it to 64 
         #print(x.shape)
         if x.shape[0] != 64:
-            print("oh yikes we got a bad number of channels...")
+            #print("oh yikes we got a bad number of channels...")
             
             # interpolate the tensor to the correct size
             temp_tensor = x.unsqueeze(0)  # Add a batch dimension, shape is now (1, _, 55, 50)
