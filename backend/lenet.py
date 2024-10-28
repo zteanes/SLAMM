@@ -78,26 +78,22 @@ class LeNet(Module):
         # follow the architecture of the model
         # RuntimeError: Given groups=1, weight of size [20, 64, 5, 5], expected input[1, 34, 55, 50] to have 64 channels, but got 34 channels instead
         # if the input image has wrong number of channels, change it to 64 
-        print(x.shape)
+        #print(x.shape)
         if x.shape[0] != 64:
             print("oh yikes we got a bad number of channels...")
             
-            # Reshape the tensor to (batch_size, channels, height, width) format
-            temp_tensor = x.unsqueeze(0)  # Add a batch dimension, shape is now (1, 34, 55, 50)
+            # interpolate the tensor to the correct size
+            temp_tensor = x.unsqueeze(0)  # Add a batch dimension, shape is now (1, _, 55, 50)
 
-            # Use a 1x1 convolution to change the number of channels from 34 to 64
-            try:
-                conv = Conv2d(in_channels=34, out_channels=64, kernel_size=1)
-                output = conv(temp_tensor)
-            except RuntimeError as e:
-                conv = Conv2d(in_channels=18, out_channels=64, kernel_size=1)
-                output = conv(temp_tensor)
+            # make conv layer to take any shape of x and change to 64 to fit rest of processing
+            conv = Conv2d(in_channels=x.shape[0], out_channels=64, kernel_size=1) 
+            output = conv(temp_tensor)
 
 
             # Remove the batch dimension if needed
             x = output.squeeze(0)
             
-            print("alright so we padded it, check it:", x.shape)
+            #print("alright so we padded it, check it:", x.shape)
 
         x = self.conv1(x)
         x = self.relu1(x)
