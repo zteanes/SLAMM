@@ -7,11 +7,11 @@ from sklearn.metrics import classification_report # helps get info about testing
 from torch.utils.data import random_split # makes train/test split for us to use
 from torch.utils.data import DataLoader # data loader that allows us to build data pipelines to train CNN
 from torchvision.transforms import ToTensor # function converts input data -> PyTorch tensors
-from torch.optim import Adam # The optimizer we will use to train our modelf
+from torch.optim import Adam # The optimizer we will use to train our model
 from torchvision import transforms # transforms for our dataset
 from torch import nn # PyTorch's neural network implementations
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import argparse
 import torch
 import time
@@ -34,7 +34,7 @@ args = vars(ap.parse_args())
 INIT_LR = 1e-3 # initial learning rate
 BATCH_SIZE = 64 # batch size for training 
 # NOTE: epochs can be increased for higher accuracy, but must avoid overfitting
-EPOCHS = 1 # number of epochs to train TODO: increase this number; lower now to get results working
+EPOCHS = 10 # number of epochs to train TODO: increase this number; lower now to get results working
 
 # define the train and val splits
 TRAIN_SPLIT = 0.75
@@ -58,12 +58,7 @@ train_transforms = transforms.Compose([videotransforms.RandomCrop(224),
 test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
 # create a dataset object for each split
-print("Creating the datasets...")# dataset = Dataset(train_split, 'train', root, mode, train_transforms)
-# print("Training dataset created!")
-# test_dataset = Dataset(train_split, 'test', root, mode, test_transforms)
-# print("Test dataset created!")
-# val_dataset = Dataset(train_split, 'val', root, mode, test_transforms)
-# print("Validation dataset created!")
+print("Creating the datasets...")
 
 dataset = Dataset(index_file_path = train_split, 
                   split = 'train', 
@@ -98,7 +93,8 @@ val_steps = len(val_loader.dataset)
 # Begin our LeNet model (hooray!)
 print("Creating the LeNet model...")
 # 3 channels for RGB images, classes is the num of classes in data
-num_classes = 2000 # gotten from the dataset when we used nslt_dataset.py 
+num_classes = len(dataset.label_encoder.classes_) # gotten from the dataset when we used nslt_dataset.py
+print("NUMBER OF CLASSES", num_classes) 
 model = LeNet(numChannels = 64, classes = num_classes).to(device) 
 
 # make optimizer and loss functions 
@@ -133,22 +129,22 @@ for epoch in range(0, EPOCHS):
         # print(x, '\n', y, '\n', z)
         # TODO: do we need to implement z? w/o z, it crashes because three 
         #       values are returned from train_loader
-        print("\n!!!!!!!!!! WE LOADED DATA !!!!!!!!!!!")
+        #print("\n!!!!!!!!!! WE LOADED DATA !!!!!!!!!!!")
         x = x.to(device)
         y = y.to(device)
 
         # forward pass and calculate loss
         prediction = model(x)
-        print("!!!!!!!!!! WE MADE PREDICTIONS !!!!!!!!!!!")
-        print("shape of predictions:", prediction.shape)
-        print("shape of y:", y.shape)
+        #print("!!!!!!!!!! WE MADE PREDICTIONS !!!!!!!!!!!")
+        # print("shape of predictions:", prediction.shape)
+        # print("shape of y:", y.shape)
 
         # if we had to change the channels in x, do so for y as well
         if y.shape[0] != 64:
             # change x back to 34 channels 
-            conv_reverse = nn.Conv2d(in_channels=64, out_channels=34, kernel_size=1)
+            conv_reverse = nn.Conv2d(in_channels=64, out_channels=y.shape[0], kernel_size=1)
             prediction = conv_reverse(prediction.unsqueeze(1)).squeeze(0).squeeze(1)
-            print("prediction after reshape:", prediction.shape)
+            #print("prediction after reshape:", prediction.shape)
 
         loss = loss_func(prediction, y)
 
@@ -178,10 +174,10 @@ for epoch in range(0, EPOCHS):
             prediction = model(x)
 
             if y.shape[0] != 64:
-                # change x back to 18 channels 
-                conv_reverse = nn.Conv2d(in_channels=64, out_channels=18, kernel_size=1)
+                # reshape predictions to correct match y
+                conv_reverse = nn.Conv2d(in_channels=64, out_channels=y.shape[0], kernel_size=1)
                 prediction = conv_reverse(prediction.unsqueeze(1)).squeeze(0).squeeze(1)
-                print("prediction after reshape:", prediction.shape)
+                #print("prediction after reshape:", prediction.shape)
 
             total_val_loss += loss_func(prediction, y)
 
@@ -226,22 +222,33 @@ with torch.no_grad():
         predictions.extend(prediction.argmax(1).cpu().numpy())
 
 # get classification report
-print(classification_report(test_dataset.targets.cpu().numpy(), 
-                            np.array(predictions), 
-                            target_names = test_dataset.classes))
+# print(classification_report(test_dataset.label_encoder.classes_, 
+#                             np.array(predictions), 
+#                             target_names = test_dataset.label_encoder.classes_))
 
-# make a plot of everything 
-plt.style.use("ggplot")
-plt.figure()
-plt.plot(np.arange(0, EPOCHS), History["train_loss"], label = "train_loss")
-plt.plot(np.arange(0, EPOCHS), History["val_loss"], label = "val_loss")
-plt.plot(np.arange(0, EPOCHS), History["train_acc"], label = "train_acc")
-plt.plot(np.arange(0, EPOCHS), History["val_acc"], label = "val_acc")
-plt.title("Training Loss and Accuracy using WLASL Dataset")
-plt.xlabel("Epoch #")
-plt.ylabel("Loss/Accuracy")
+
+# Loss plot
+plt.subplot(1, 2, 1)
+plt.plot(History['train_loss'], label='Training Loss')
+plt.plot(History['val_loss'], label='Validation Loss')
+plt.title('Training and Validation Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
 plt.legend()
-plt.savefig(args["plot"])
+
+# Accuracy plot
+plt.subplot(1, 2, 2)
+plt.plot(History['train_acc'], label='Training Accuracy')
+plt.plot(History['val_acc'], label='Validation Accuracy')
+plt.title('Training and Validation Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+
+# Save plot to specified path
+plt.tight_layout()
+plt.savefig(os.getcwd() + "/backend/output/model_plot.png")
+print(f"Plot saved to {os.getcwd()}/backend/output/model_plot.png")
 
 # save the model to disk
-torch.save(model.state_dict(), args["model"])
+torch.save(model.state_dict(), os.getcwd() + "/backend/output/model.pth")
