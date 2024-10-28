@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'constants.dart';
+//import 'theme.dart';
 
-class PageOne extends StatefulWidget {
-  const PageOne({super.key});
+class WelcomeScreen extends StatefulWidget {
+  const WelcomeScreen({super.key});
 
   @override
-  State<PageOne> createState() => WelcomeState();
+  State<WelcomeScreen> createState() => WelcomeScreenState();
 }
 
-
-class WelcomeState extends State<PageOne> {
+class WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,20 +27,20 @@ class WelcomeState extends State<PageOne> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 200),
-              const Text(
+              Text(
                 'Welcome to', 
-                style: TextStyle(color: primaryColor, fontSize: 36),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 36),
               ),
-              const Text(
+              Text(
                 'SLAMM', 
-                style: TextStyle(color: primaryColor, fontSize: 48, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 48, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(left: 45, right: 45),
                 child: Text(
                   'Sign Language Analytics and Mobile Machine Learning',
-                  style: TextStyle(color: Colors.white, fontSize: 24),
+                  style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 24),
                   textAlign: TextAlign.center,
                   ),
               ),
@@ -55,7 +55,7 @@ class WelcomeState extends State<PageOne> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: const Text("Let's Get Started", style: TextStyle(fontSize: 20, color: Colors.white)), 
+                  child: Text("Let's Get Started", style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.secondary)), 
                   // open our next page, the analytics page
                   onPressed: () {
                     Navigator.of(context).pushNamed("analytics");
@@ -67,13 +67,13 @@ class WelcomeState extends State<PageOne> {
                 width: 300,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
                     padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: const Text("Sign In", style: TextStyle(fontSize: 20, color: primaryColor)),
+                  child: Text("Sign In", style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.primary)),
                   onPressed: () {},
                 ),
               )
