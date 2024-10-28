@@ -18,8 +18,6 @@ import time
 import videotransforms
 import os
 from torch.nn import Conv2d 
-
-#from nslt_dataset import NSLT as Dataset
 from sign_dataset import Sign_Dataset as Dataset
 
 # construct the argument parser and parse the arguments as needed 
@@ -34,7 +32,7 @@ args = vars(ap.parse_args())
 INIT_LR = 1e-3 # initial learning rate
 BATCH_SIZE = 64 # batch size for training 
 # NOTE: epochs can be increased for higher accuracy, but must avoid overfitting
-EPOCHS = 10 # number of epochs to train TODO: increase this number; lower now to get results working
+EPOCHS = 5 # number of epochs to train
 
 # define the train and val splits
 TRAIN_SPLIT = 0.75
@@ -49,7 +47,7 @@ print("Loading WLASL dataset...")
 # possible solutions to variables for loadings and using dataset
 mode = 'rnd_start'
 #train_split = os.getcwd() + "/data/start_kit/new_WLASL_v0.3.json"
-train_split = os.getcwd() + "/data/start_kit/splits/asl100.json"
+train_split = os.getcwd() + "/data/start_kit/splits/asl300.json"
 poses = os.getcwd() + "/data/start_kit/pose_per_individual_videos"
 
 # build our dataset from WLASL given information 
@@ -125,6 +123,7 @@ for epoch in range(0, EPOCHS):
     val_correct = 0 # keep track of correct predictions during validation
 
     # loop training data
+    print(train_loader)
     for (x, y, z) in train_loader:
         # print(x, '\n', y, '\n', z)
         # TODO: do we need to implement z? w/o z, it crashes because three 
@@ -166,6 +165,7 @@ for epoch in range(0, EPOCHS):
         model.eval()
 
         # loop validation data
+        print(val_loader)
         for (x, y, z) in val_loader:
             x = x.to(device)
             y = y.to(device)
@@ -196,10 +196,10 @@ for epoch in range(0, EPOCHS):
     History["train_loss"].append(avg_train_loss.cpu().detach().numpy())
     History["val_loss"].append(avg_val_loss.cpu().detach().numpy())
     History["train_acc"].append(train_correct)
-    History["train_loss"].append(val_correct)
+    History["val_acc"].append(val_correct)
 
     # display our info from this epoch
-    print(f"EPOCH: {epoch + 1}/{EPOCHS}")
+    print(f"\n\n\nEPOCH: {epoch + 1}/{EPOCHS}")
     print(f"Training Loss: {avg_train_loss}, Train Accuracy {train_correct}")
     print(f"Validation Loss: {avg_val_loss}, Train Accuracy {val_correct}")
 
@@ -229,6 +229,8 @@ with torch.no_grad():
 
 # Loss plot
 plt.subplot(1, 2, 1)
+print(f"train_loss at the end:{History['train_loss']}")
+print(f"val_loss at the end:{History['val_loss']}")
 plt.plot(History['train_loss'], label='Training Loss')
 plt.plot(History['val_loss'], label='Validation Loss')
 plt.title('Training and Validation Loss')
@@ -238,6 +240,8 @@ plt.legend()
 
 # Accuracy plot
 plt.subplot(1, 2, 2)
+print(f"train_acc at the end: {History['train_acc']}")
+print(f"val_acc at the end: {History['val_acc']}")
 plt.plot(History['train_acc'], label='Training Accuracy')
 plt.plot(History['val_acc'], label='Validation Accuracy')
 plt.title('Training and Validation Accuracy')
