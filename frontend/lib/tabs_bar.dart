@@ -15,14 +15,17 @@ class BottomTabBarState extends State<BottomTabBar> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           IconButton(
+            color: Theme.of(context).colorScheme.primary,
             icon: const Icon(Icons.analytics),
             onPressed: () => Navigator.pushNamed(context, "analytics")
           ),
           IconButton( 
+            color: Theme.of(context).colorScheme.primary,
             icon: const Icon(Icons.camera_alt_outlined),
             onPressed: () => Navigator.pushNamed(context, "camera")
           ),
           IconButton( 
+            color: Theme.of(context).colorScheme.primary,
             icon: const Icon(Icons.settings),
             onPressed: () => Navigator.pushNamed(context, "settings")
           ),
