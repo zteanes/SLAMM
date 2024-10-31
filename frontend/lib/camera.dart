@@ -25,9 +25,9 @@ class CameraScreenState extends State<CameraScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   'Camera', 
-                  style: TextStyle(color: primaryColor, fontSize: 36),
+                  style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 36),
                 ),
                 const SizedBox(height: 200),
                 const SizedBox(height: 20),
@@ -59,19 +59,19 @@ class CameraScreenState extends State<CameraScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
-              color: primaryColor,
+              color: Theme.of(context).colorScheme.primary,
               icon: const Icon(Icons.analytics),
               tooltip: "Analytics",
               onPressed: () => Navigator.pushNamed(context, "analytics")
             ),
             IconButton( 
-              color: primaryColor,
+              color: Theme.of(context).colorScheme.primary,
               tooltip: "Camera",
               icon: const Icon(Icons.camera_alt_outlined),
               onPressed: () => Navigator.pushNamed(context, "camera")
             ),
             IconButton( 
-              color: primaryColor,
+              color: Theme.of(context).colorScheme.primary,
               tooltip: "Settings",
               icon: const Icon(Icons.settings),
               onPressed: () => Navigator.pushNamed(context, "settings")

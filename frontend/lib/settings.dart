@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
+import 'main.dart'; // used for the theme notifier
 
 class SettingsScreen extends StatefulWidget{
   const SettingsScreen({super.key});
@@ -25,9 +26,32 @@ class SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   'Settings',
-                  style: TextStyle(color: primaryColor, fontSize: 36),
+                  style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 36),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Toggle between light and dark mode',
+                  style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 16),
+                ),
+                // listen to the theme notifier and update the switch accordingly
+                ValueListenableBuilder(
+                  valueListenable: themeNotifier,
+                  builder: (context, ThemeMode currentTheme, _) {
+                    // switch to actually go between light and dark mode
+                    return Switch(
+                      value: currentTheme == ThemeMode.dark, // if the current theme is dark, set the switch to true
+                      onChanged: (isDarkMode) {
+                        setState(() {
+                          // change value of themeNotifier based on the switch
+                          themeNotifier.value = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+                        });
+                      },
+                      activeTrackColor: Theme.of(context).colorScheme.secondary,
+                      activeColor: Theme.of(context).colorScheme.primary,
+                    );
+                  },
                 ),
                 const SizedBox(height: 200),
                 const SizedBox(height: 20),
@@ -59,19 +83,19 @@ class SettingsScreenState extends State<SettingsScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             IconButton(
-              color: primaryColor,
+              color: Theme.of(context).colorScheme.primary,
               icon: const Icon(Icons.analytics),
               tooltip: "Analytics",
               onPressed: () => Navigator.pushNamed(context, "analytics")
             ),
             IconButton( 
-              color: primaryColor,
+              color: Theme.of(context).colorScheme.primary,
               tooltip: "Camera",
               icon: const Icon(Icons.camera_alt_outlined),
               onPressed: () => Navigator.pushNamed(context, "camera")
             ),
             IconButton( 
-              color: primaryColor,
+              color: Theme.of(context).colorScheme.primary,
               tooltip: "Settings",
               icon: const Icon(Icons.settings),
               onPressed: () => Navigator.pushNamed(context, "settings")

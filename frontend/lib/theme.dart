@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 ThemeData lightmode = ThemeData(
   brightness: Brightness.light,
-  scaffoldBackgroundColor: Colors.black,
+  scaffoldBackgroundColor: Colors.grey,
   colorScheme: const ColorScheme.light(
-    primary: Color.fromARGB(255, 9, 1, 156),
-    secondary: Colors.white,
-    surface: Colors.black,
+    primary: Color.fromARGB(255, 9, 255, 156),
+    secondary: Colors.black,
+    surface: Colors.white,
   ),
 );
 
