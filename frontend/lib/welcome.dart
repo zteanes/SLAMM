@@ -13,9 +13,8 @@ class WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     // used to check if we're in light or dark mode
-    var brightness = MediaQuery.of(context).platformBrightness;
-    bool isDarkMode = brightness == Brightness.dark;
-    print('Is dark mode: $isDarkMode');
+    // var brightness = MediaQuery.of(context).platformBrightness;
+    // bool isDarkMode = brightness == Brightness.dark;
     return Scaffold(
       body: Stack(
       children: [
