@@ -63,6 +63,7 @@ class ResNet34(nn.Module):
                                         nn.Flatten(), 
                                         nn.Dropout(0.2),
                                         nn.Linear(512, num_classes))
+        print("resnet num_classes: ", num_classes)
         self.apply(self.init_weights)
 
     def init_weights(self,m):
