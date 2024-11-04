@@ -11,15 +11,19 @@ class CameraScreen extends StatefulWidget{
   State<CameraScreen> createState() => CameraScreenState();
 }
 
+// CameraApp is a StatefulWidget because we may need to 
+// change the state later, for example, to switch cameras or take pictures
 class CameraApp extends StatefulWidget{
   CameraAppState createState() => CameraAppState();
 }
 
+// CameraAppState is the state of the CameraApp widget
 class CameraAppState extends State<CameraApp> {
   late CameraController controller;
   @override
   void initState(){
     super.initState();
+    // change from front (0) to back (1) camera
     controller = CameraController(cameras[1], ResolutionPreset.medium);
     controller.initialize().then((_) {
       if (!mounted) {
@@ -28,13 +32,16 @@ class CameraAppState extends State<CameraApp> {
       setState(() {});
     });
   }
-
+  // dispose of the controller when the widget is removed
+  // to prevent memory leaks
   @override
   void dispose(){
     controller.dispose();
     super.dispose();
   }
 
+  // build the camera preview
+  // if the controller is not initialized, return an empty container
   @override
   Widget build(BuildContext context){
     if(!controller.value.isInitialized){
