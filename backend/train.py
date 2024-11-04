@@ -3,6 +3,7 @@ matplotlib.use('Agg') # now figures can be saved in the background
 
 # import the rest of the needed libraries 
 from lenet import LeNet # this our model 
+from resnet34 import ResNet34 # this is the model we are comparing to
 from sklearn.metrics import classification_report # helps get info about testing set
 from torch.utils.data import random_split # makes train/test split for us to use
 from torch.utils.data import DataLoader # data loader that allows us to build data pipelines to train CNN
@@ -32,7 +33,7 @@ args = vars(ap.parse_args())
 INIT_LR = 1e-3 # initial learning rate
 BATCH_SIZE = 64 # batch size for training 
 # NOTE: epochs can be increased for higher accuracy, but must avoid overfitting
-EPOCHS = 5 # number of epochs to train
+EPOCHS = 1 # number of epochs to train
 
 # define the train and val splits
 TRAIN_SPLIT = 0.75
@@ -47,7 +48,7 @@ print("Loading WLASL dataset...")
 # possible solutions to variables for loadings and using dataset
 mode = 'rnd_start'
 #train_split = os.getcwd() + "/data/start_kit/new_WLASL_v0.3.json"
-train_split = os.getcwd() + "/data/start_kit/splits/asl300.json"
+train_split = os.getcwd() + "/data/start_kit/splits/asl100.json"
 poses = os.getcwd() + "/data/start_kit/pose_per_individual_videos"
 
 # build our dataset from WLASL given information 
@@ -89,11 +90,11 @@ train_steps = len(train_loader.dataset)
 val_steps = len(val_loader.dataset)
 
 # Begin our LeNet model (hooray!)
-print("Creating the LeNet model...")
+print("Creating the model...")
 # 3 channels for RGB images, classes is the num of classes in data
-num_classes = len(dataset.label_encoder.classes_) # gotten from the dataset when we used nslt_dataset.py
+num_classes = len(dataset.label_encoder.classes_) # get number of classes in dataset
 print("NUMBER OF CLASSES", num_classes) 
-model = LeNet(numChannels = 64, classes = num_classes).to(device) 
+model = ResNet34(in_channels = 64, num_classes = num_classes).to(device) 
 
 # make optimizer and loss functions 
 optimizer = Adam(model.parameters(), lr=INIT_LR)
@@ -123,27 +124,29 @@ for epoch in range(0, EPOCHS):
     val_correct = 0 # keep track of correct predictions during validation
 
     # loop training data
-    print(train_loader)
     for (x, y, z) in train_loader:
         # print(x, '\n', y, '\n', z)
         # TODO: do we need to implement z? w/o z, it crashes because three 
         #       values are returned from train_loader
-        #print("\n!!!!!!!!!! WE LOADED DATA !!!!!!!!!!!")
+        print("\n!!!!!!!!!! WE LOADED DATA !!!!!!!!!!!")
         x = x.to(device)
         y = y.to(device)
 
         # forward pass and calculate loss
+        x = x.unsqueeze(0)
+        print(x.shape)
         prediction = model(x)
-        #print("!!!!!!!!!! WE MADE PREDICTIONS !!!!!!!!!!!")
-        # print("shape of predictions:", prediction.shape)
-        # print("shape of y:", y.shape)
+        print("!!!!!!!!!! WE MADE PREDICTIONS !!!!!!!!!!!")
+        prediction = prediction.squeeze(0)
+        print("\n\nshape of predictions:", prediction.shape)
+        print("shape of y:", y.shape)
 
         # if we had to change the channels in x, do so for y as well
-        if y.shape[0] != 64:
-            # change x back to 34 channels 
-            conv_reverse = nn.Conv2d(in_channels=64, out_channels=y.shape[0], kernel_size=1)
-            prediction = conv_reverse(prediction.unsqueeze(1)).squeeze(0).squeeze(1)
-            #print("prediction after reshape:", prediction.shape)
+        if y.shape[0] != prediction.shape[0]:
+            # change prediction back to 34 channels 
+            conv_reverse = nn.Conv2d(in_channels=100, out_channels=y.shape[0], kernel_size=1)
+            prediction = conv_reverse(prediction.unsqueeze(1).unsqueeze(1)).squeeze(0).squeeze(1).squeeze(1)
+            print("prediction after reshape:", prediction.shape)
 
         loss = loss_func(prediction, y)
 
@@ -156,7 +159,7 @@ for epoch in range(0, EPOCHS):
         total_train_loss += loss 
 
         # calculate accuracy
-        train_correct += (prediction.argmax(1) == y).type(torch.float).sum().item()
+        train_correct += (prediction.argmax(0) == y).type(torch.float).sum().item()
 
     print("train correct:", train_correct)
     print("total train loss:", total_train_loss)
