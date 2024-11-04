@@ -5,11 +5,16 @@ import 'analytics_screen.dart';
 import 'camera.dart';
 import 'theme.dart';
 import 'welcome.dart';
+import 'package:camera/camera.dart';
 
 // Define a ValueNotifier for theme mode
 final themeNotifier = ValueNotifier(ThemeMode.system);
 
-void main() {
+List<CameraDescription> cameras = [];
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  cameras = await availableCameras();
   runApp(MyApp());
 }
 

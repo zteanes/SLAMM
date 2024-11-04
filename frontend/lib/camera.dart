@@ -1,5 +1,8 @@
- import 'package:flutter/material.dart';
+ import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
+import 'package:frontend/main.dart';
+import 'package:camera/camera.dart';
 
 class CameraScreen extends StatefulWidget{
   const CameraScreen({super.key});
@@ -8,51 +11,89 @@ class CameraScreen extends StatefulWidget{
   State<CameraScreen> createState() => CameraScreenState();
 }
 
+class CameraApp extends StatefulWidget{
+  CameraAppState createState() => CameraAppState();
+}
+
+class CameraAppState extends State<CameraApp> {
+  late CameraController controller;
+  @override
+  void initState(){
+    super.initState();
+    controller = CameraController(cameras[0], ResolutionPreset.medium);
+    controller.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose(){
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context){
+    if(!controller.value.isInitialized){
+      return Container();
+    }
+    return CameraPreview(controller);
+  }
+}
+
 class CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.6,
-              child: Image.asset('assets/images/temp-splash.jpg', fit: BoxFit.cover),
-            ),
-          ),
-          Align(
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Camera', 
-                  style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 36),
-                ),
-                const SizedBox(height: 200),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: 300,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: const Text("Go back", style: TextStyle(fontSize: 20, color: Colors.black)), 
-                    // go back to the welcome/landing page
-                    onPressed: () {
-                      Navigator.pushNamed(context, "welcome");
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      body: CameraApp(),
+      
+      // body: Stack(
+      //   children: [
+      //     Positioned.fill(
+      //       child: Opacity(
+      //         opacity: 0.6,
+      //         child: Image.asset('assets/images/temp-splash.jpg', fit: BoxFit.cover),
+      //       ),
+      //     ),
+      //     Align(
+      //       alignment: Alignment.center,
+      //       child: Column(
+      //         mainAxisAlignment: MainAxisAlignment.center,
+      //         children: [
+      //           Text(
+      //             'Camera', 
+      //             style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 36),
+      //           ),
+      //           const SizedBox(height: 200),
+      //           const SizedBox(height: 20),
+      //           SizedBox(
+
+      //           )
+      //           // SizedBox(
+      //           //   width: 300,
+      //           //   child: ElevatedButton(
+      //           //     style: ElevatedButton.styleFrom(
+      //           //       backgroundColor: Colors.white,
+      //           //       padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 20),
+      //           //       shape: RoundedRectangleBorder(
+      //           //         borderRadius: BorderRadius.circular(30),
+      //           //       ),
+      //           //     ),
+      //           //     child: const Text("Go back", style: TextStyle(fontSize: 20, color: Colors.black)), 
+      //           //     // go back to the welcome/landing page
+      //           //     onPressed: () {
+      //           //       Navigator.pushNamed(context, "welcome");
+      //           //     },
+      //           //   ),
+      //           // ),
+      //         ],
+      //       ),
+      //     ),
+      //   ],
+      // ),
       // add our bottom tab bar
       bottomNavigationBar: BottomAppBar(
         child: Row(
