@@ -33,7 +33,7 @@ args = vars(ap.parse_args())
 INIT_LR = 1e-3 # initial learning rate
 BATCH_SIZE = 64 # batch size for training 
 # NOTE: epochs can be increased for higher accuracy, but must avoid overfitting
-EPOCHS = 1 # number of epochs to train
+EPOCHS = 10 # number of epochs to train
 
 # define the train and val splits
 TRAIN_SPLIT = 0.75
@@ -134,9 +134,9 @@ for epoch in range(0, EPOCHS):
 
         # forward pass and calculate loss
         x = x.unsqueeze(1).expand(-1, 64, -1, -1)
-        print("shape of x:", x.shape)
+        # print("shape of x:", x.shape)
         prediction = model(x)
-        print("!!!!!!!!!! WE MADE PREDICTIONS !!!!!!!!!!!")
+        # print("!!!!!!!!!! WE MADE PREDICTIONS !!!!!!!!!!!")
         prediction = prediction.squeeze(0)
         print("\nshape of predictions:", prediction.shape)
         print("shape of y:", y.shape)
@@ -163,6 +163,7 @@ for epoch in range(0, EPOCHS):
 
     print("train correct:", train_correct)
     print("total train loss:", total_train_loss)
+    
     # disable autograd for validation
     with torch.no_grad():
         model.eval()
