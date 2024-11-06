@@ -55,7 +55,31 @@ class CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CameraApp(),
+      body: Stack(
+        children: [
+          Align(
+            alignment: Alignment.center,
+            child: SizedBox.expand(
+              child: CameraApp(),
+            ),
+          ),
+
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: ElevatedButton(
+                onPressed: () {
+                  // take a picture
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(20),
+                ),
+                child: const Icon(Icons.play_arrow, size: 20),
+              ),
+            ),
+          )
       
       // body: Stack(
       //   children: [
@@ -79,25 +103,25 @@ class CameraScreenState extends State<CameraScreen> {
       //           SizedBox(
 
       //           )
-      //           // SizedBox(
-      //           //   width: 300,
-      //           //   child: ElevatedButton(
-      //           //     style: ElevatedButton.styleFrom(
-      //           //       backgroundColor: Colors.white,
-      //           //       padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 20),
-      //           //       shape: RoundedRectangleBorder(
-      //           //         borderRadius: BorderRadius.circular(30),
-      //           //       ),
-      //           //     ),
-      //           //     child: const Text("Go back", style: TextStyle(fontSize: 20, color: Colors.black)), 
-      //           //     // go back to the welcome/landing page
-      //           //     onPressed: () {
-      //           //       Navigator.pushNamed(context, "welcome");
-      //           //     },
-      //           //   ),
-      //           // ),
-      //         ],
-      //       ),
+                // SizedBox(
+                //   width: 300,
+                //   child: ElevatedButton(
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: Colors.white,
+                //       padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 20),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(30),
+                //       ),
+                //     ),
+                //     child: const Text("Go back", style: TextStyle(fontSize: 20, color: Colors.black)), 
+                //     // go back to the welcome/landing page
+                //     onPressed: () {
+                //       Navigator.pushNamed(context, "welcome");
+                //     },
+                //   ),
+                // ),
+        ],
+      ),
       //     ),
       //   ],
       // ),
