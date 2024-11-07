@@ -31,7 +31,8 @@ class CameraAppState extends State<CameraApp> {
   void initState() {
     super.initState();
     // change from front camera (1) to back camera (0)
-    controller = CameraController(cameras[cameraInUse], ResolutionPreset.medium,);
+    print("cameraInUse: $cameraInUse");
+    controller = CameraController(cameras[frontCamera], ResolutionPreset.medium,);
     controller.initialize().then((_) {
       if (!mounted) {
         return;
@@ -57,6 +58,26 @@ class CameraAppState extends State<CameraApp> {
     }
     return CameraPreview(controller);
   }
+
+  void switchCamera() {
+    // switch from front camera to back camera
+    if (cameraInUse == frontCamera) {
+      print("switching to back camera");
+      cameraInUse = backCamera;
+    } else {
+      print("switching to front camera");
+      cameraInUse = frontCamera;
+    }
+    // dispose old one and initialize new controller
+    controller.dispose();
+    controller = CameraController(cameras[cameraInUse], ResolutionPreset.medium,);
+    controller.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    });
+  }
 }
 
 class CameraScreenState extends State<CameraScreen> {
@@ -66,17 +87,33 @@ class CameraScreenState extends State<CameraScreen> {
       body: Stack(
         children: [
             if (cameraInUse == frontCamera) 
-              Transform(transform: Matrix4.rotationY(math.pi), alignment: Alignment.center, child: const SizedBox.expand( child: CameraApp(),),) 
-            else 
-              Transform(transform: Matrix4.rotationY(0), alignment: Alignment.center, child: const SizedBox.expand( child: CameraApp(),),),
-              
-            // const Align(
-            //   alignment: Alignment.center,
-            //   child: SizedBox.expand(
-            //     child: CameraApp(),
-            //   ),
-            // ),
-
+              Transform(transform: Matrix4.rotationY(0), 
+                        alignment: Alignment.center, 
+                        child: const SizedBox.expand( child: CameraApp(),),
+              ) 
+            else  // rotate the camera preview 180 degrees to make it feel natural
+              Transform(transform: Matrix4.rotationY(0), 
+                        alignment: Alignment.center, 
+                        child: const SizedBox.expand( child: CameraApp(),),
+              ),
+          Align( // button to switch front and back cameras
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    CameraAppState().switchCamera();
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(20),
+                ),
+                child: const Icon(Icons.flip_camera_ios, size: 20),
+              ),
+            ),
+          ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
