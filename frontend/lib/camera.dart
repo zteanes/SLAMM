@@ -27,7 +27,7 @@ class CameraScreen extends StatefulWidget {
 // CameraAppState is the state of the CameraApp widget
 class CameraScreenState extends State<CameraScreen> {
   late CameraController controller;
-  bool isCameraFront = true;
+  bool isCameraFront = false;
   @override
   void initState() {
     super.initState();
