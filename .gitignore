@@ -4,5 +4,10 @@ data/start_kit/raw_videos*/
 data/start_kit/videos/
 data/start_kit/.DS_Store
 data/start_kit/pose*
+data/start_kit/._pose*
+data/start_kit/splits/._a*
+backend/TGCN/archived/._a*
+backend/TGCN/archived/asl*/._*
+._data
 *.DS_Store
 *.pyc
