@@ -43,7 +43,6 @@ class CameraScreenState extends State<CameraScreen> {
       setState(() {});
     });
   }
-
   void switchCamera() {
     setState(() {
       isCameraFront = !isCameraFront;
@@ -64,7 +63,19 @@ class CameraScreenState extends State<CameraScreen> {
       body: Stack(
         children: [
           if(controller.value.isInitialized)
-            CameraPreview(controller),
+            if(isCameraFront)
+              SizedBox.expand(
+                child:
+                  Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.rotationY(math.pi),
+                    child: CameraPreview(controller),
+                  )
+              )
+              else
+                SizedBox.expand(child:
+                  CameraPreview(controller)
+                ),
           Align( // button to switch front and back cameras
             alignment: Alignment.topRight,
             child: Padding(
