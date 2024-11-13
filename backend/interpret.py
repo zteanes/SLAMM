@@ -13,6 +13,7 @@ import torch
 from torchvision import models
 from torchvision import transforms
 from fastapi import FastAPI, File, UploadFile
+from typing import List
 from PIL import Image
 import io
 import os
@@ -62,21 +63,30 @@ def load_model():
     
     
 @app.post("/predict/")
-async def predict(file: UploadFile = File(...), model:model):
+async def predict(file: UploadFile = File(...), model: model):
     """
-    Predict the image.
-
-    Args:
-        file (UploadFile): The image to predict
-        model (model): The model to use for prediction
+    Predict the image from the frontend.
     """
-    # read the image and make necessary conversions TODO: read test_tgcn.py to see how they convert and test images
+    # load the image
     image = Image.open(io.BytesIO(await file.read()))
     image = image.convert('RGB')
-    image = transforms.ToTensor()(image).unsqueeze(0)
+    
+    # transform the image TODO: see how it's transformed/processing in test_tgcn.py
+    transform = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+    
+    image = transform(image).unsqueeze(0)
     
     # get the prediction
-    prediction = model(image)
+    model.eval()
+    with torch.no_grad():
+       # TODO: how do i feel an video/image to the model?
+       prediction = model(image)
+        
     return prediction
 
 if __name__ == '__main__':
