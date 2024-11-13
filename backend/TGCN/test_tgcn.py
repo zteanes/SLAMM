@@ -6,6 +6,9 @@ import numpy as np
 import torch
 from sklearn.metrics import accuracy_score
 
+import os
+import time
+
 from tgcn_model import GCN_muti_att
 
 
@@ -88,16 +91,16 @@ def compute_top_n_accuracy(truths, preds, n):
 if __name__ == '__main__':
 
     # change root and subset accordingly.
-    root = '/media/anudisk/github/WLASL'
+    root = os.getcwd();
     trained_on = 'asl2000'
 
     checkpoint = 'ckpt.pth'
 
-    split_file = os.path.join(root, 'data/splits/{}.json'.format(trained_on))
+    split_file = os.path.join(root, 'data/start_kit/splits/{}.json'.format(trained_on))
     # test_on_split_file = os.path.join(root, 'data/splits-with-dialect-annotated/{}.json'.format(tested_on))
 
-    pose_data_root = os.path.join(root, 'data/pose_per_individual_videos')
-    config_file = os.path.join(root, 'code/TGCN/archived/{}/{}.ini'.format(trained_on, trained_on))
+    pose_data_root = os.path.join(root, 'data/start_kit/pose_per_individual_videos')
+    config_file = os.path.join(root, 'backend/TGCN/archived/{}/{}.ini'.format(trained_on, trained_on))
     configs = Config(config_file)
 
     num_samples = configs.num_samples
@@ -120,8 +123,19 @@ if __name__ == '__main__':
 
     print('Loading model...')
 
-    checkpoint = torch.load(os.path.join(root, 'code/TGCN/archived/{}/{}'.format(trained_on, checkpoint)))
+    checkpoint = torch.load(os.path.join(root, 'backend/TGCN/archived/{}/{}'.format(trained_on, checkpoint)))
     model.load_state_dict(checkpoint)
     print('Finish loading model!')
 
+    # start timer
+    start = time.time()
+    print("Starting timer!")
+
     test(model, data_loader)
+
+    end = time.time()
+
+    time_seconds = end - start
+    time_mins = time_seconds / 60
+
+    print(f'Training ended!\n\tTime in seconds: {time_seconds}\n\tTime in Minutes: {time_mins}')
