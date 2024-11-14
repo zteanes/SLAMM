@@ -1,12 +1,20 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/constants.dart';
 import 'package:frontend/main.dart';
 import 'package:camera/camera.dart';
+import 'package:gal/gal.dart';
+
+
+import 'package:path_provider/path_provider.dart';
 import 'dart:math' as math;
 
 int frontCamera = 1;
 int backCamera = 0;
+
+bool _isRecording = false;
 
 
 class CameraScreen extends StatefulWidget {
@@ -57,12 +65,47 @@ class CameraScreenState extends State<CameraScreen> {
     }
   }
 
+  _recordVideo() async {
+  if (_isRecording) {
+    
+    XFile file = await controller.stopVideoRecording();
+    setState(() => _isRecording = false);
+    // final route = MaterialPageRoute(
+    //   fullscreenDialog: true,
+    //   builder: (_) => VideoPage(filePath: file.path),
+    // );
+    //Navigator.push(context, route);
+        // Save the video file to a permanent location
+    print('-----------------------------------------------------------------------------');
+    print(file.path);
+    Directory? directory;
+    if (Platform.isAndroid) {
+      directory = await getExternalStorageDirectory();
+    } else if (Platform.isIOS) {
+      directory = await getApplicationDocumentsDirectory();
+    }
+    
+    
+    // directory = Directory('${directory!.path}/Videos');
+    // final String newPath = '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.mp4';
+    // await file.saveTo(newPath);
+    
+    await Gal.putVideo(directory!.path);
+
+  } else {
+    await controller.prepareForVideoRecording();
+    await controller.startVideoRecording();
+    setState(() => _isRecording = true);
+  }
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          if(controller.value.isInitialized)
+          if(controller.value.isInitialized) 
             if(isCameraFront)
               SizedBox.expand(
                 child:
@@ -98,13 +141,14 @@ class CameraScreenState extends State<CameraScreen> {
               padding: const EdgeInsets.all(20),
               child: ElevatedButton(
                 onPressed: () {
-                  // take a picture
+                  _recordVideo();
                 },
                 style: ElevatedButton.styleFrom(
                   shape: const CircleBorder(),
                   padding: const EdgeInsets.all(20),
                 ),
-                child: const Icon(Icons.play_arrow, size: 20),
+                child: _isRecording ? const Icon(Icons.stop_circle_outlined, size: 20) : 
+                                      const Icon(Icons.fiber_manual_record, size: 20),
               ),
             ),
           )
