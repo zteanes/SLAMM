@@ -63,9 +63,11 @@ def load_model():
     
     
 @app.post("/predict/")
-async def predict(file: UploadFile = File(...), model: model):
+async def predict(file: UploadFile = File(...)):
     """
     Predict the image from the frontend.
+    
+    TODO: add model as parameter
     """
     # load the image
     image = Image.open(io.BytesIO(await file.read()))
@@ -92,3 +94,4 @@ async def predict(file: UploadFile = File(...), model: model):
 if __name__ == '__main__':
     model = load_model()
     print("Model loaded successfully!")
+    print(Fore.)
