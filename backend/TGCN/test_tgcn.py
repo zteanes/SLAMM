@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     # change root and subset accordingly.
     root = os.getcwd();
-    trained_on = 'asl2000'
+    trained_on = 'asl100'
 
     checkpoint = 'ckpt.pth'
 
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     # test_on_split_file = os.path.join(root, 'data/splits-with-dialect-annotated/{}.json'.format(tested_on))
 
     pose_data_root = os.path.join(root, 'data/start_kit/pose_per_individual_videos')
-    config_file = os.path.join(root, 'backend/TGCN/archived/{}/{}.ini'.format(trained_on, trained_on))
+    config_file = os.path.join(root, 'backend/TGCN/configs/{}.ini'.format(trained_on, trained_on))
     configs = Config(config_file)
 
     num_samples = configs.num_samples

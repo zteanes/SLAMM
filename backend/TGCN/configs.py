@@ -5,6 +5,7 @@ class Config:
     def __init__(self, config_path):
         config = configparser.ConfigParser()
         config.read(config_path)
+        print(config_path)
 
         # training
         train_config = config['TRAIN']

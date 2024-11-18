@@ -37,7 +37,7 @@ def load_model():
     """
     # change root and subset accordingly.
     root = os.getcwd();
-    trained_on = 'asl2000'
+    trained_on = 'asl100'
 
     checkpoint = 'ckpt.pth'
 
@@ -45,7 +45,7 @@ def load_model():
     # test_on_split_file = os.path.join(root, 'data/splits-with-dialect-annotated/{}.json'.format(tested_on))
 
     pose_data_root = os.path.join(root, 'data/start_kit/pose_per_individual_videos')
-    config_file = os.path.join(root, 'backend/TGCN/archived/{}/{}.ini'.format(trained_on, trained_on))
+    config_file = os.path.join(root, 'backend/TGCN/configs/{}.ini'.format(trained_on, trained_on))
     configs = Config(config_file)
 
     num_samples = configs.num_samples
@@ -63,11 +63,13 @@ def load_model():
     
     
 @app.post("/predict/")
-async def predict(file: UploadFile = File(...)):
+async def predict(file: UploadFile = File(...), model: torch.nn.Module = load_model()):
     """
-    Predict the image from the frontend.
+    Predict the image from the frontend, using a model passed in.
     
-    TODO: add model as parameter
+    Args:
+        file: UploadFile - the image to be predicted
+        model: torch.nn.Module - the model to be used for prediction
     """
     # load the image
     image = Image.open(io.BytesIO(await file.read()))
@@ -93,5 +95,7 @@ async def predict(file: UploadFile = File(...)):
 
 if __name__ == '__main__':
     model = load_model()
+
+    # save model to file
+    torch.save(model, "model.pth")
     print("Model loaded successfully!")
-    print(Fore.)
