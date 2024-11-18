@@ -28,7 +28,7 @@ def log(message):
     """
     Print the model.
     """
-    print(f"[interpret.py] {message}")
+    print(f"[interpret.py] {message}" + Fore.RESET)
 
 # method to load the model
 def load_model():
@@ -39,37 +39,34 @@ def load_model():
     root = os.getcwd();
     trained_on = 'asl100'
 
-    checkpoint = 'ckpt.pth'
-
-    split_file = os.path.join(root, 'data/start_kit/splits/{}.json'.format(trained_on))
-    # test_on_split_file = os.path.join(root, 'data/splits-with-dialect-annotated/{}.json'.format(tested_on))
-
-    pose_data_root = os.path.join(root, 'data/start_kit/pose_per_individual_videos')
+    # config file for all information used to load model
     config_file = os.path.join(root, 'backend/TGCN/configs/{}.ini'.format(trained_on, trained_on))
     configs = Config(config_file)
 
+    # necessary variables we get from the config
     num_samples = configs.num_samples
     hidden_size = configs.hidden_size
     drop_p = configs.drop_p
     num_stages = configs.num_stages
-    batch_size = configs.batch_size
 
     # load the model
     log(Fore.CYAN + "Loading model...")
     model = GCN_muti_att(input_feature=num_samples * 2, hidden_feature=hidden_size,
                          num_class=int(trained_on[3:]), p_dropout=drop_p, num_stage=num_stages).cuda()
     log(Fore.CYAN + "Finish loading model!")
+
+    # return the loaded model
     return model
     
     
 @app.post("/predict/")
-async def predict(file: UploadFile = File(...), model: torch.nn.Module = load_model()):
+async def predict(model, file: UploadFile = File(...)):
     """
     Predict the image from the frontend, using a model passed in.
     
     Args:
-        file: UploadFile - the image to be predicted
         model: torch.nn.Module - the model to be used for prediction
+        file: UploadFile - the image to be predicted
     """
     # load the image
     image = Image.open(io.BytesIO(await file.read()))
@@ -94,6 +91,7 @@ async def predict(file: UploadFile = File(...), model: torch.nn.Module = load_mo
     return prediction
 
 if __name__ == '__main__':
+    # load our model to be used for prediction
     model = load_model()
 
     # save model to file
