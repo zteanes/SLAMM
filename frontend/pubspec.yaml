@@ -42,6 +42,7 @@ dependencies:
   path_provider: ^2.0.11
   gal: ^2.3.0
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

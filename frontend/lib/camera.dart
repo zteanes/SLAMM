@@ -11,6 +11,7 @@ import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:math' as math;
 
+
 int frontCamera = 1;
 int backCamera = 0;
 
@@ -43,13 +44,15 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   void _initializeCamera(int cameraPos) {
-    controller = CameraController(cameras[cameraPos], ResolutionPreset.medium,);
+    controller = CameraController(cameras[cameraPos], ResolutionPreset.high,);
     controller.initialize().then((_) {
       if (!mounted) {
         return;
       }
       setState(() {});
     });
+    //Permission.camera.request();
+    //Permission.storage.request();
   }
   void switchCamera() {
     setState(() {
@@ -67,31 +70,38 @@ class CameraScreenState extends State<CameraScreen> {
 
   _recordVideo() async {
   if (_isRecording) {
-    
-    XFile file = await controller.stopVideoRecording();
-    setState(() => _isRecording = false);
-    // final route = MaterialPageRoute(
-    //   fullscreenDialog: true,
-    //   builder: (_) => VideoPage(filePath: file.path),
-    // );
-    //Navigator.push(context, route);
-        // Save the video file to a permanent location
-    print('-----------------------------------------------------------------------------');
-    print(file.path);
-    Directory? directory;
-    if (Platform.isAndroid) {
-      directory = await getExternalStorageDirectory();
-    } else if (Platform.isIOS) {
-      directory = await getApplicationDocumentsDirectory();
-    }
-    
-    
-    // directory = Directory('${directory!.path}/Videos');
-    // final String newPath = '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.mp4';
-    // await file.saveTo(newPath);
-    
-    await Gal.putVideo(directory!.path);
 
+    try{
+      final file = await controller.stopVideoRecording();
+      
+      Directory? directory;
+
+      if (Platform.isAndroid) {
+        // Save to Movies directory on Android
+        directory = await getExternalStorageDirectory();
+        directory = Directory('${directory!.path}/Movies');
+        if (!directory.existsSync()) {
+          directory.createSync(recursive: true);
+        }
+      } else if (Platform.isIOS) {
+        // Use Documents directory for iOS
+        directory = await getApplicationDocumentsDirectory();
+      }
+      // Saves the video as a mp4 file with the current timestamp
+      final newPath = '${directory?.path ?? ''}/${DateTime.now().millisecondsSinceEpoch}.mp4';
+      final newFile = await File(file.path).copy(newPath);
+
+      // Use Gal to process the saved video
+      await Gal.putVideo(newFile.path);
+
+      setState(() => _isRecording = false);
+    } catch (e) {
+      print('-------------------------Error recording video:-------------------------------------');
+      print(e);
+      setState(() {
+        _isRecording = false;
+      });
+    }
   } else {
     await controller.prepareForVideoRecording();
     await controller.startVideoRecording();
