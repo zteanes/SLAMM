@@ -38,6 +38,7 @@ dependencies:
 
   camera: ^0.11.0+2
   image_picker: ^1.1.2
+  pytorch_mobile: ^0.2.2 # used to load models in our application
 
 dev_dependencies:
   flutter_test:

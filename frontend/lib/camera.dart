@@ -5,8 +5,19 @@ import 'package:frontend/main.dart';
 import 'package:camera/camera.dart';
 import 'dart:math' as math;
 
+import 'package:pytorch_mobile/pytorch_mobile.dart';
+import 'package:pytorch_mobile/model.dart';
+
 int frontCamera = 1;
 int backCamera = 0;
+
+// variable to hold our model; accessed throughout the app
+Model? customModel;
+
+// load our model 
+Future<void> loadModel() async {
+  Model customModel = await PyTorchMobile.loadModel('assets/models/asl100.pth');
+}
 
 
 class CameraScreen extends StatefulWidget {
