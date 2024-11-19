@@ -68,6 +68,26 @@ class CameraScreenState extends State<CameraScreen> {
     }
   }
 
+// displays a temporary popup message that video was saved to camera roll or errored out
+void showVideoSaved(text) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(text),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
   _recordVideo() async {
   if (_isRecording) {
 
@@ -96,6 +116,8 @@ class CameraScreenState extends State<CameraScreen> {
 
       setState(() => _isRecording = false);
     } catch (e) {
+      // show popup that video was not saved
+      showVideoSaved("Error recording/saving video, please try again.");
       print('-------------------------Error recording video:-------------------------------------');
       print(e);
       setState(() {
@@ -132,7 +154,7 @@ class CameraScreenState extends State<CameraScreen> {
           Align( // button to switch front and back cameras
             alignment: Alignment.topRight,
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.only(right:20, top:50),
               child: ElevatedButton(
                 onPressed: () {
                   switchCamera();
@@ -152,6 +174,10 @@ class CameraScreenState extends State<CameraScreen> {
               child: ElevatedButton(
                 onPressed: () {
                   _recordVideo();
+                  if (_isRecording) {
+                    // show popup that video was recorded 
+                    showVideoSaved("Video saved to camera roll!");
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   shape: const CircleBorder(),
