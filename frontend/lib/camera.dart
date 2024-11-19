@@ -1,22 +1,18 @@
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/constants.dart';
 import 'package:frontend/main.dart';
-import 'package:camera/camera.dart';
+import 'package:frontend/tabs_bar.dart';
 import 'package:gal/gal.dart';
-
-
 import 'package:path_provider/path_provider.dart';
 import 'dart:math' as math;
 
-
+// cameras used within the app; int representations of the cameras
 int frontCamera = 1;
 int backCamera = 0;
 
+// boolean used to check when camera is in use
 bool _isRecording = false;
-
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -190,28 +186,7 @@ void showVideoSaved(text) {
           )
         ],
       ),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-                color: Theme.of(context).colorScheme.primary,
-                icon: const Icon(Icons.analytics),
-                tooltip: "Analytics",
-                onPressed: () => Navigator.pushNamed(context, "analytics")),
-            IconButton(
-                color: Theme.of(context).colorScheme.primary,
-                tooltip: "Camera",
-                icon: const Icon(Icons.camera_alt_outlined),
-                onPressed: () => Navigator.pushNamed(context, "camera")),
-            IconButton(
-                color: Theme.of(context).colorScheme.primary,
-                tooltip: "Settings",
-                icon: const Icon(Icons.settings),
-                onPressed: () => Navigator.pushNamed(context, "settings")),
-          ],
-        ),
-      ),
+      bottomNavigationBar: BottomTabBar(),
     );
   }
 }
