@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/constants.dart';
+import 'package:frontend/tabs_bar.dart';
 
 class AnalyticsScreen extends StatefulWidget{
   const AnalyticsScreen({super.key});
@@ -35,7 +35,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
                   width: 300,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                       padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 20),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
@@ -54,31 +54,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
         ],
       ),
       // add our bottom tab bar
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              color: Theme.of(context).colorScheme.primary,
-              icon: const Icon(Icons.analytics),
-              tooltip: "Analytics",
-              onPressed: () => Navigator.pushNamed(context, "analytics")
-            ),
-            IconButton( 
-              color: Theme.of(context).colorScheme.primary,
-              tooltip: "Camera",
-              icon: const Icon(Icons.camera_alt_outlined),
-              onPressed: () => Navigator.pushNamed(context, "camera")
-            ),
-            IconButton( 
-              color: Theme.of(context).colorScheme.primary,
-              tooltip: "Settings",
-              icon: const Icon(Icons.settings),
-              onPressed: () => Navigator.pushNamed(context, "settings")
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const BottomTabBar(),
     );
   }
 }

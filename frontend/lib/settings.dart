@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/constants.dart';
+import 'package:frontend/tabs_bar.dart';
 import 'main.dart'; // used for the theme notifier
 
 class SettingsScreen extends StatefulWidget{
@@ -12,6 +12,13 @@ class SettingsScreen extends StatefulWidget{
 class SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
+  // get the system brightness
+  var brightness = MediaQuery.of(context).platformBrightness;
+
+  // change the value of the themeNotifier based on the system brightness
+  if (themeNotifier.value == ThemeMode.system) {
+    themeNotifier.value = brightness == Brightness.dark ? ThemeMode.dark : ThemeMode.light;
+  }
     return Scaffold(
       body: Stack(
         children: [
@@ -32,26 +39,45 @@ class SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Toggle between light and dark mode',
+                  'Toggle between Light and Dark mode',
                   style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 16),
                 ),
                 // listen to the theme notifier and update the switch accordingly
-                ValueListenableBuilder(
-                  valueListenable: themeNotifier,
-                  builder: (context, ThemeMode currentTheme, _) {
-                    // switch to actually go between light and dark mode
-                    return Switch(
-                      value: currentTheme == ThemeMode.dark, // if the current theme is dark, set the switch to true
-                      onChanged: (isDarkMode) {
-                        setState(() {
-                          // change value of themeNotifier based on the switch
-                          themeNotifier.value = isDarkMode ? ThemeMode.dark : ThemeMode.light;
-                        });
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // add light mode icon surrounding the switch
+                    const Icon(Icons.light_mode),
+
+                    // spacing to separate
+                    const SizedBox(width:10),
+
+                    // our switch to change the theme of the app
+                    ValueListenableBuilder(
+                      valueListenable: themeNotifier,
+                      builder: (context, ThemeMode currentTheme, _) {
+                        // switch to actually go between light and dark mode
+                        return Switch(
+                          value: currentTheme == ThemeMode.dark, // if the current theme is dark, set the switch to true
+                          onChanged: (isDarkMode) {
+                            print(currentTheme);
+                            setState(() {
+                              // change value of themeNotifier based on the switch
+                              themeNotifier.value = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+                            });
+                          },
+                          activeTrackColor: Theme.of(context).colorScheme.secondary,
+                          activeColor: Theme.of(context).colorScheme.primary,
+                        );
                       },
-                      activeTrackColor: Theme.of(context).colorScheme.secondary,
-                      activeColor: Theme.of(context).colorScheme.primary,
-                    );
-                  },
+                    ),
+
+                    // another spacing 
+                    const SizedBox(width:10),
+
+                    // icon for dark mode
+                    const Icon(Icons.dark_mode),
+                  ],
                 ),
                 const SizedBox(height: 200),
                 const SizedBox(height: 20),
@@ -59,7 +85,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   width: 300,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                       padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 20),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
@@ -77,32 +103,7 @@ class SettingsScreenState extends State<SettingsScreen> {
           ),
         ],
       ),
-      // add our bottom tab bar
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              color: Theme.of(context).colorScheme.primary,
-              icon: const Icon(Icons.analytics),
-              tooltip: "Analytics",
-              onPressed: () => Navigator.pushNamed(context, "analytics")
-            ),
-            IconButton( 
-              color: Theme.of(context).colorScheme.primary,
-              tooltip: "Camera",
-              icon: const Icon(Icons.camera_alt_outlined),
-              onPressed: () => Navigator.pushNamed(context, "camera")
-            ),
-            IconButton( 
-              color: Theme.of(context).colorScheme.primary,
-              tooltip: "Settings",
-              icon: const Icon(Icons.settings),
-              onPressed: () => Navigator.pushNamed(context, "settings")
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: BottomTabBar(),
     );
   }
 }
