@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'constants.dart';
-
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -70,7 +68,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                 width: 300,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
                     padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
