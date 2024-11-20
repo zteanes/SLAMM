@@ -114,8 +114,6 @@ void showVideoSaved(text) {
     } catch (e) {
       // show popup that video was not saved
       showVideoSaved("Error recording/saving video, please try again.");
-      print('-------------------------Error recording video:-------------------------------------');
-      print(e);
       setState(() {
         _isRecording = false;
       });
@@ -134,19 +132,32 @@ void showVideoSaved(text) {
       body: Stack(
         children: [
           if(controller.value.isInitialized) 
-            if(isCameraFront)
-              SizedBox.expand(
-                child:
-                  Transform(
-                    alignment: Alignment.center,
-                    transform: Matrix4.rotationY(math.pi),
-                    child: CameraPreview(controller),
-                  )
-              )
-              else
-                SizedBox.expand(child:
-                  CameraPreview(controller)
-                ),
+            Center(
+              child: SizedBox(
+                width: 1920,
+                height: 1080,
+                child: isCameraFront ? 
+                      Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.rotationY(math.pi),
+                        child: CameraPreview(controller),
+                      )
+                    : CameraPreview(controller),
+              ),
+            ),
+            // if(isCameraFront)
+            //     SizedBox.expand(
+            //       child:
+            //         Transform(
+            //           alignment: Alignment.center,
+            //           transform: Matrix4.rotationY(math.pi),
+            //           child: CameraPreview(controller),
+            //         )
+            //     )
+            //   else
+            //     SizedBox.expand(child:
+            //       CameraPreview(controller)
+            //     ),
           Align( // button to switch front and back cameras
             alignment: Alignment.topRight,
             child: Padding(
