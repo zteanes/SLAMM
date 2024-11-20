@@ -134,12 +134,12 @@ void showVideoSaved(text) {
           if(controller.value.isInitialized) 
             Center(
               child: SizedBox(
-                width: 1920,
-                height: 1080,
+                width: controller.value.aspectRatio * 1920 * .3,
+                height: controller.value.aspectRatio * 1080 * 0.4,
                 child: isCameraFront ? 
                       Transform(
                         alignment: Alignment.center,
-                        transform: Matrix4.rotationY(math.pi),
+                        transform: Matrix4.rotationY(0),
                         child: CameraPreview(controller),
                       )
                     : CameraPreview(controller),
