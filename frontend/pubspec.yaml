@@ -41,6 +41,7 @@ dependencies:
   video_player: ^2.2.8
   path_provider: ^2.0.11
   gal: ^2.3.0
+  photo_manager: ^3.6.2
 
 
 dev_dependencies:
