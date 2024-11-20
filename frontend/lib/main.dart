@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/settings.dart';
-import 'constants.dart';
 import 'analytics_screen.dart';
 import 'camera.dart';
 import 'theme.dart';
@@ -9,6 +8,12 @@ import 'package:camera/camera.dart';
 
 // Define a ValueNotifier for theme mode
 final themeNotifier = ValueNotifier(ThemeMode.system);
+
+// final themeNotifier = ValueNotifier<ThemeMode>(
+//   WidgetsBinding.instance.window.platformBrightness == Brightness.dark
+//       ? ThemeMode.dark
+//       : ThemeMode.light,
+// );
 
 List<CameraDescription> cameras = [];
 
