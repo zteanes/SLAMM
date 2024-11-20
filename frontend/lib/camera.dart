@@ -5,13 +5,10 @@ import 'package:frontend/main.dart';
 import 'package:frontend/tabs_bar.dart';
 import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:math' as math;
 
 import 'package:pytorch_mobile/pytorch_mobile.dart';
 import 'package:pytorch_mobile/model.dart';
 
-import 'package:pytorch_mobile/pytorch_mobile.dart';
-import 'package:pytorch_mobile/model.dart';
 
 // cameras used within the app; int representations of the cameras
 int frontCamera = 1;
@@ -35,7 +32,7 @@ Future<String> predict(video) async {
   // 3. return the most common prediction
 
   // make prediction 
-  String prediction = await PyTorchMobile.predict(video);
+  String prediction = await customModel?.predict(video);
 
   return prediction;
 
