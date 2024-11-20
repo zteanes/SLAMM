@@ -125,10 +125,10 @@ packages:
     dependency: transitive
     description:
       name: file_selector_linux
-      sha256: "712ce7fab537ba532c8febdb1a8f167b32441e74acd68c3ccb2e36dcb52c4ab2"
+      sha256: b2b91daf8a68ecfa4a01b778a6f52edef9b14ecd506e771488ea0f2e0784198b
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.3"
+    version: "0.9.3+1"
   file_selector_macos:
     dependency: transitive
     description:
@@ -204,10 +204,10 @@ packages:
     dependency: transitive
     description:
       name: http
-      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
+      sha256: b9c29a161230ee03d3ccf545097fccd9b87a5264228c5d348202e0f0c28f9010
       url: "https://pub.dev"
     source: hosted
-    version: "0.13.6"
+    version: "1.2.2"
   http_parser:
     dependency: transitive
     description:
@@ -354,62 +354,6 @@ packages:
     version: "1.9.0"
   path_provider:
     dependency: "direct main"
-    description:
-      name: path_provider
-      sha256: "50c5dd5b6e1aaf6fb3a78b33f6aa3afca52bf903a8a5298f53101fdaee55bbcd"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.5"
-  path_provider_android:
-    dependency: transitive
-    description:
-      name: path_provider_android
-      sha256: c464428172cb986b758c6d1724c603097febb8fb855aa265aeecc9280c294d4a
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.12"
-  path_provider_foundation:
-    dependency: transitive
-    description:
-      name: path_provider_foundation
-      sha256: f234384a3fdd67f989b4d54a5d73ca2a6c422fa55ae694381ae0f4375cd1ea16
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.0"
-  path_provider_linux:
-    dependency: transitive
-    description:
-      name: path_provider_linux
-      sha256: f7a1fe3a634fe7734c8d3f2766ad746ae2a2884abe22e241a8b301bf5cac3279
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.1"
-  path_provider_platform_interface:
-    dependency: transitive
-    description:
-      name: path_provider_platform_interface
-      sha256: "88f5779f72ba699763fa3a3b06aa4bf6de76c8e5de842cf6f29e2e06476c2334"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.2"
-  path_provider_windows:
-    dependency: transitive
-    description:
-      name: path_provider_windows
-      sha256: bd6f00dbd873bfb70d0761682da2b3a2c2fccc2b9e84c495821639601d81afe7
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.0"
-  platform:
-    dependency: transitive
-    description:
-      name: platform
-      sha256: "5d6b1b0036a5f331ebc77c850ebc8506cbc1e9416c27e59b439f917a902a4984"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.1.6"
-  path_provider:
-    dependency: transitive
     description:
       name: path_provider
       sha256: "50c5dd5b6e1aaf6fb3a78b33f6aa3afca52bf903a8a5298f53101fdaee55bbcd"
