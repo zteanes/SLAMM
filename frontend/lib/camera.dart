@@ -18,7 +18,19 @@ Model? customModel;
 Future<void> loadModel() async {
   Model customModel = await PyTorchMobile.loadModel('assets/models/asl100.pth');
 }
+// function to predict using our model
+Future<String> predict(video) async {
+  // process to get this to work
+  // 1. load the video from the camera roll (either user upload or automatic)
+  // 2. video -> images (frames) -> predict each frame
+  // 3. return the most common prediction
 
+  // make prediction 
+  String prediction = await PyTorchMobile.predict(video);
+
+  return prediction;
+
+}
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
