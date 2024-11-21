@@ -20,7 +20,7 @@ Model? customModel; // variable to hold our model; accessed throughout the app
 
 // function to load our model
 Future<void> loadModel() async {
-  customModel = await PyTorchMobile.loadModel('assets/models/asl100.pt', type = ModelType.torchscript);
+  customModel = await PyTorchMobile.loadModel('assets/models/asl100.pt');
 }
 
 Future<void> processVideo(String videoPath) async {
@@ -86,16 +86,16 @@ Future<Map<String, int>> predictFrames(List<File> frames) async {
   Map<String, int> cnt = {};
 
   for(final frame in frames) {
-    final preFrame = await preprocessFrame(frame);
+    final preFrame = await processFrame(frame);
 
     // get prediction
-    final prediction = await customModel.getImagePrediction(preFrame, 224, 224, "mean,std");
+    final prediction = await customModel?.getImagePrediction(preFrame, 224, 224, "mean,std");
 
     // count prediction
     if(cnt.containsKey(prediction)) {
-      cnt[prediction] = cnt[predict]! + 1;
+      cnt[prediction!] = (cnt[prediction!] ?? 0) + 1;
     } else {
-      cnt[prediction] = 1;
+      cnt[prediction!] = 1;
     }
   }
 

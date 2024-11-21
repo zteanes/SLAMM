@@ -60,7 +60,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                         return Switch(
                           value: currentTheme == ThemeMode.dark, // if the current theme is dark, set the switch to true
                           onChanged: (isDarkMode) {
-                            print(currentTheme);
                             setState(() {
                               // change value of themeNotifier based on the switch
                               themeNotifier.value = isDarkMode ? ThemeMode.dark : ThemeMode.light;
