@@ -112,8 +112,8 @@ Future<String> getBestPrediction(List<File> frames) async {
 }
 
 
+/// --------------- BEGIN CAMERA SCREEN CREATION --------------- ///
 
-/***** BEGIN CAMERA SCREEN CREATION *****/
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
