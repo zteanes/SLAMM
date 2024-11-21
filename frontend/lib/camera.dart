@@ -108,81 +108,88 @@ class CameraScreenState extends State<CameraScreen> {
     }
   }
 
-    // displays a temporary popup message that video was saved to camera roll or errored out
-  Future<void> showVideoSaved(text) async {
-    final recentVideoPath = await getMostRecentVideo();
-    final VideoPlayerController videoController = VideoPlayerController.file(
-      File(recentVideoPath),
-    );
+  //   // displays a temporary popup message that video was saved to camera roll or errored out
+  // Future<void> showVideoSaved(text) async {
+  //   final recentVideoPath = await getMostRecentVideo();
+  //   final VideoPlayerController videoController = VideoPlayerController.file(
+  //     File(recentVideoPath),
+  //   );
 
-    await videoController.initialize();
-    
-    // Show the popup with the video player
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          insetPadding: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AspectRatio(
-                aspectRatio: videoController.value.aspectRatio,
-                child: VideoPlayer(videoController),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      videoController.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                    ),
-                    onPressed: () {
-                      if (videoController.value.isPlaying) {
-                        videoController.pause();
-                      } else {
-                        videoController.play();
-                      }
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      videoController.dispose();
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  // displays a temporary popup message that video was saved to camera roll or errored out
-  // void showVideoSaved(text) {
+  //   await videoController.initialize();
+  //   // Show the popup with the video player
   //   showDialog(
   //     context: context,
   //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text(text),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: const Text('OK'),
-  //           ),
-  //         ],
+  //       return Dialog(
+  //         insetPadding: const EdgeInsets.all(16),
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(12.0),
+  //         ),
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             AspectRatio(
+  //               aspectRatio: videoController.value.aspectRatio,
+  //               child: VideoPlayer(videoController),
+  //             ),
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //               children: [
+  //                 IconButton(
+  //                   icon: Icon(
+  //                     videoController.value.isPlaying ? Icons.pause : Icons.play_arrow,
+  //                   ),
+  //                   onPressed: () {
+  //                     if (videoController.value.isPlaying) {
+  //                       videoController.pause();
+  //                     } else {
+  //                       videoController.play();
+  //                     }
+  //                   },
+  //                 ),
+  //                 IconButton(
+  //                   icon: const Icon(Icons.close),
+  //                   onPressed: () {
+  //                     videoController.dispose();
+  //                     Navigator.of(context).pop();
+  //                   },
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
   //       );
   //     },
   //   );
   // }
+
+  // displays a temporary popup message that video was saved to camera roll or errored out
+  void showVideoSaved(text) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(text),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final recentVideoPath = await getMostRecentVideo();
+                final VideoPlayerController videoController = VideoPlayerController.file(
+                  File(recentVideoPath),
+                );
+                print('---------------------------------$recentVideoPath----------------------');
+              }, child: const Text("Translate"))
+          ],
+        );
+      },
+    );
+  }
 
 
   _recordVideo() async {
@@ -245,19 +252,6 @@ class CameraScreenState extends State<CameraScreen> {
                     : CameraPreview(controller),
               ),
             ),
-            // if(isCameraFront)
-            //     SizedBox.expand(
-            //       child:
-            //         Transform(
-            //           alignment: Alignment.center,
-            //           transform: Matrix4.rotationY(math.pi),
-            //           child: CameraPreview(controller),
-            //         )
-            //     )
-            //   else
-            //     SizedBox.expand(child:
-            //       CameraPreview(controller)
-            //     ),
           Align( // button to switch front and back cameras
             alignment: Alignment.topRight,
             child: Padding(
