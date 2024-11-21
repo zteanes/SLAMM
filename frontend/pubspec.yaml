@@ -44,6 +44,9 @@ dependencies:
 
   pytorch_mobile: ^0.2.2 # used to load models in our application
 
+  ffmpeg_kit_flutter: ^6.0.3 # used to process video files
+  image: ^4.0.15
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -70,7 +73,7 @@ flutter:
   assets:
   - assets/images/
   - assets/models/asl100.pth
-  #   - images/a_dot_ham.jpeg
+  - assets/models/asl100.pt
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -9,34 +9,111 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pytorch_mobile/pytorch_mobile.dart';
 import 'package:pytorch_mobile/model.dart';
 
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:image/image.dart' as img;
 
-// cameras used within the app; int representations of the cameras
-int frontCamera = 1;
-int backCamera = 0;
+int frontCamera = 1; // int representation of front camera
+int backCamera = 0; // int representation of back camera
+var videoPath = ''; // path to the saved video 
+bool _isRecording = false; // boolean used to check when camera is in use
+Model? customModel; // variable to hold our model; accessed throughout the app
 
-// boolean used to check when camera is in use
-bool _isRecording = false;
-
-// variable to hold our model; accessed throughout the app
-Model? customModel;
-
-// load our model 
+// function to load our model
 Future<void> loadModel() async {
-  Model customModel = await PyTorchMobile.loadModel('assets/models/asl100.pth');
+  customModel = await PyTorchMobile.loadModel('assets/models/asl100.pt', type = ModelType.torchscript);
 }
-// function to predict using our model
-Future<String> predict(video) async {
-  // process to get this to work
-  // 1. load the video from the camera roll (either user upload or automatic)
-  // 2. video -> images (frames) -> predict each frame
-  // 3. return the most common prediction
 
-  // make prediction 
-  String prediction = await customModel?.predict(video);
+Future<void> processVideo(String videoPath) async {
+  try {
+    // extract frames
+    final frames = await extractVideoToFrames(videoPath);
 
-  return prediction;
+    // predict most common sign
+    final prediction = await getBestPrediction(frames);
 
+    // show prediction
+    print('Prediction: $prediction');
+  } catch (e) {
+    print('Error processing video: $e');
+  }
 }
+
+// function to process video
+Future<List<File>> extractVideoToFrames(String videoPath) async {
+  // get video from directory 
+  final directory = await getTemporaryDirectory();
+  final outputDirectory = '${directory.path}/frames';
+  final outputDirectoryFile = Directory(outputDirectory);
+
+  // create directory
+  if(!outputDirectoryFile.existsSync()) {
+    outputDirectoryFile.createSync();
+  }
+
+  // used ffmpeg command to extract frames
+  final command = '-i $videoPath $outputDirectory/frame_%04d.png';
+  await FFmpegKit.execute(command);
+
+  // list all files that end with png and put it to a list 
+  final frames = outputDirectoryFile.listSync().where((file) => file.path.endsWith('.png'))
+      .map((file) => File(file.path)).toList();
+
+  return frames;
+}
+
+
+// function to process frames
+Future<File> processFrame(File frame) async {
+  // read image
+  final bytes = await frame.readAsBytes();
+  final image = img.decodeImage(bytes);
+
+  // resize
+  final resized = img.copyResize(image!, width: 224, height: 224);
+
+  // save to a temp file 
+  final directory = await getTemporaryDirectory();
+  final resizedPath = '${directory.path}/${frame.uri.pathSegments.last}';
+  final resizedFile = File(resizedPath);
+  resizedFile.writeAsBytesSync(img.encodePng(resized));
+
+  return resizedFile;
+}
+
+// function to predict! 
+Future<Map<String, int>> predictFrames(List<File> frames) async {
+  // map to save predictions and have an associated count to each
+  Map<String, int> cnt = {};
+
+  for(final frame in frames) {
+    final preFrame = await preprocessFrame(frame);
+
+    // get prediction
+    final prediction = await customModel.getImagePrediction(preFrame, 224, 224, "mean,std");
+
+    // count prediction
+    if(cnt.containsKey(prediction)) {
+      cnt[prediction] = cnt[predict]! + 1;
+    } else {
+      cnt[prediction] = 1;
+    }
+  }
+
+  return cnt;
+}
+
+
+// finds the best prediction
+Future<String> getBestPrediction(List<File> frames) async {
+  final cnt = await predictFrames(frames);
+
+  // get most common prediction
+  return cnt.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+}
+
+
+
+/***** BEGIN CAMERA SCREEN CREATION *****/
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -44,14 +121,6 @@ class CameraScreen extends StatefulWidget {
   @override
   State<CameraScreen> createState() => CameraScreenState();
 }
-
-// // CameraApp is a StatefulWidget because we may need to
-// // change the state later, for example, to switch cameras or take pictures
-// class CameraApp extends StatefulWidget {
-//   const CameraApp({super.key});
-//   @override
-//   CameraScreenState createState() => CameraAppState();
-// }
 
 // CameraAppState is the state of the CameraApp widget
 class CameraScreenState extends State<CameraScreen> {
@@ -129,6 +198,7 @@ void showVideoSaved(text) {
       }
       // Saves the video as a mp4 file with the current timestamp
       final newPath = '${directory?.path ?? ''}/${DateTime.now().millisecondsSinceEpoch}.mp4';
+      videoPath = newPath; // used to load video later
       final newFile = await File(file.path).copy(newPath);
 
       // Use Gal to process the saved video
