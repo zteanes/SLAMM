@@ -66,7 +66,7 @@ class CameraScreenState extends State<CameraScreen> {
     }
   }
 
-  Future<String> getMostRecentVideo() async {
+  Future<File?> getMostRecentVideo() async {
     // Request permissions to access media files
     final PermissionState permission = await PhotoManager.requestPermissionExtend();
 
@@ -90,21 +90,21 @@ class CameraScreenState extends State<CameraScreen> {
           final AssetEntity recentVideo = videos.first;
 
           // Get file for the video
-          final XFile videoFile = (await recentVideo.file) as XFile;
+          final File? videoFile = await recentVideo.file;
 
-          return videoFile.path;
+          return videoFile;
 
         } else {
           print('No videos found in the gallery.');
-          return '';
+          return null;
         }
       } else {
         print('No albums found in the gallery.');
-        return '';
+        return null;
       }
     } else {
       print('Gallery access permission denied.');
-      return '';
+      return null;
     }
   }
 
@@ -179,11 +179,13 @@ class CameraScreenState extends State<CameraScreen> {
             ),
             TextButton(
               onPressed: () async {
-                final recentVideoPath = await getMostRecentVideo();
-                final VideoPlayerController videoController = VideoPlayerController.file(
-                  File(recentVideoPath),
-                );
-                print('---------------------------------$recentVideoPath----------------------');
+                final recentVideo = await getMostRecentVideo();
+                if (recentVideo != null) {
+                  final VideoPlayerController videoController = VideoPlayerController.file(
+                  recentVideo,
+                  );
+                }
+                print('---------------------------------$recentVideo----------------------');
               }, child: const Text("Translate"))
           ],
         );
