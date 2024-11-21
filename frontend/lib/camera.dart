@@ -70,7 +70,7 @@ class CameraScreenState extends State<CameraScreen> {
     // Request permissions to access media files
     final PermissionState permission = await PhotoManager.requestPermissionExtend();
 
-    if (permission.isAuth) {
+    //if (permission.isAuth) {
       // Get all albums (gallery collections)
       final List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(
         type: RequestType.video, // Specify to fetch only videos
@@ -102,10 +102,10 @@ class CameraScreenState extends State<CameraScreen> {
         print('No albums found in the gallery.');
         return null;
       }
-    } else {
-      print('Gallery access permission denied.');
-      return null;
-    }
+    // } else {
+    //   print('Gallery access permission denied.');
+    //   return null;
+    // }
   }
 
   //   // displays a temporary popup message that video was saved to camera roll or errored out
