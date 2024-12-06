@@ -1,3 +1,8 @@
+"""
+This file was provided by WLASL (https://github.com/dxli94/WLASL). It's used to define the
+model used in the TGCN model.
+"""
+
 import torch.nn as nn
 import torch.nn.functional as F
 from pygcn.layers import GraphConvolution

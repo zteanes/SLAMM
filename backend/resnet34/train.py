@@ -1,3 +1,13 @@
+""" 
+This file outlines the process we aimed to use to train our own model. We attempted using
+the LeNet architecture and the ResNet34 architecture, but neither were successful. It's still
+useful to see our attempts in creating our own model, as it shows our thoughts and shows 
+a general idea of what we learned and how we would train a model.
+
+Authors: Zachary Eanes and Alex Charlot
+Date: 12/06/2024
+"""
+
 import matplotlib
 matplotlib.use('Agg') # now figures can be saved in the background 
 
@@ -125,28 +135,19 @@ for epoch in range(0, EPOCHS):
 
     # loop training data
     for (x, y, z) in train_loader:
-        # print(x, '\n', y, '\n', z)
-        # TODO: do we need to implement z? w/o z, it crashes because three 
-        #       values are returned from train_loader
-        print("\n!!!!!!!!!! WE LOADED DATA !!!!!!!!!!!")
         x = x.to(device)
         y = y.to(device)
 
         # forward pass and calculate loss
         x = x.unsqueeze(1).expand(-1, 64, -1, -1)
-        # print("shape of x:", x.shape)
-        prediction = model(x)
-        # print("!!!!!!!!!! WE MADE PREDICTIONS !!!!!!!!!!!")
-        prediction = prediction.squeeze(0)
-        print("\nshape of predictions:", prediction.shape)
-        print("shape of y:", y.shape)
+        prediction = model(x).squeeze(0)
 
         # if we had to change the channels in x, do so for y as well
         if y.shape[0] != prediction.shape[0]:
             # change prediction back to 34 channels 
             conv_reverse = nn.Conv2d(in_channels=100, out_channels=y.shape[0], kernel_size=1)
-            prediction = conv_reverse(prediction.unsqueeze(1).unsqueeze(1)).squeeze(0).squeeze(1).squeeze(1)
-            print("prediction after reshape:", prediction.shape)
+            prediction = 
+                conv_reverse(prediction.unsqueeze(1).unsqueeze(1)).squeeze(0).squeeze(1).squeeze(1)
 
         loss = loss_func(prediction, y)
 
@@ -178,14 +179,11 @@ for epoch in range(0, EPOCHS):
             x = x.unsqueeze(1).expand(-1, 64, -1, -1)
             prediction = model(x)
 
-            print("shape of predictions:", prediction.shape)
-            print("shape of y:", y.shape)
-
             if y.shape[0] != prediction.shape[0]:
                 # reshape predictions to correct match y
                 conv_reverse = nn.Conv2d(in_channels=100, out_channels=y.shape[0], kernel_size=1)
-                prediction = conv_reverse(prediction.unsqueeze(1).unsqueeze(1)).squeeze(0).squeeze(1).squeeze(1)
-                #print("prediction after reshape:", prediction.shape)
+                prediction = 
+                    conv_reverse(prediction.unsqueeze(1).unsqueeze(1)).squeeze(0).squeeze(1).squeeze(1)
 
             total_val_loss += loss_func(prediction, y)
 
@@ -229,12 +227,6 @@ with torch.no_grad():
         x = x.unsqueeze(1).expand(-1, 64, -1, -1)
         prediction = model(x)
         predictions.extend(prediction.argmax(1).cpu().numpy())
-
-# get classification report
-# print(classification_report(test_dataset.label_encoder.classes_, 
-#                             np.array(predictions), 
-#                             target_names = test_dataset.label_encoder.classes_))
-
 
 # Loss plot
 plt.subplot(1, 2, 1)

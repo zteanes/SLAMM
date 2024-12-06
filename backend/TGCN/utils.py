@@ -1,3 +1,8 @@
+"""
+This file was provided by WLASL (https://github.com/dxli94/WLASL) and used as utilities 
+for the entire TGCN model set of files.
+"""
+
 import torch
 import torch.nn as nn
 import numpy as np
@@ -48,10 +53,11 @@ def init_gru(gru):
 def pad_and_pack_sequence(input_sequence):
     # pad sequences to have same length
     input_sequence = nn.utils.rnn.pad_sequence(input_sequence, batch_first=True)
-    # calculate lengths of sequences and **store in a tensor**, otherwise pytorch cannot trace correctly.
+    # calculate lengths of sequences and **store in a tensor**, or pytorch cant trace correctly.
     seq_lengths = torch.LongTensor(list(map(len, input_sequence)))
     # create packed sequence        
-    packed_input_sequence = nn.utils.rnn.pack_padded_sequence(input_sequence, seq_lengths, batch_first=True,
+    packed_input_sequence = nn.utils.rnn.pack_padded_sequence(input_sequence, seq_lengths, 
+                                                              batch_first=True,
                                                               enforce_sorted=False)
 
     return packed_input_sequence
@@ -75,13 +81,15 @@ def batch_select_tail(batch, in_lengths):
     returns tensor([[4, 5, 6, 7],
                     [20, 21, 22, 23]])
     """
-    rv = torch.stack([torch.index_select(batch[i], 0, in_lengths[i] - 1).squeeze(0) for i in range(batch.size(0))])
+    rv = torch.stack([torch.index_select(batch[i], 0, 
+                      in_lengths[i] - 1).squeeze(0) for i in range(batch.size(0))])
 
     return rv
 
 
 def batch_mean_pooling(batch, in_lengths):
-    """ Select tensors from a batch based on the input sequence lengths. And apply mean pooling over it.
+    """ Select tensors from a batch based on the input sequence lengths. 
+    And apply mean pooling over it.
 
     E.g.
     batch = tensor([[[ 0,  1,  2,  3],
@@ -194,15 +202,6 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
              rotation_mode="anchor")
 
-    # Loop over data dimensions and create text annotations.
-    # fmt = '.2f' if normalize else 'd'
-    # thresh = cm.max() / 2.
-    # for i in range(cm.shape[0]):
-    #     for j in range(cm.shape[1]):
-    #         ax.text(j, i, format(cm[i, j], fmt),
-    #                 ha="center", va="center",
-    #                 color="white" if cm[i, j] > thresh else "black",
-    #                 fontdict={'weight': 'bold', 'size': 5})
     fig.tight_layout()
 
     if save_to:
@@ -306,22 +305,3 @@ if __name__ == '__main__':
     gt = torch.index_select(t, dim=0, index=mask_indices)
 
     print(gt)
-
-    # # batch_lengths = torch.ones(size=(4, 20))
-    #
-    # fc2 = nn.Linear(4, 20)
-    # import torch.nn.functional as F
-    # loss = F.cross_entropy(batch_hidden_states[0], torch.LongTensor([[0, 1, 2], [0, 1, 2]]))
-    # print(loss)
-    # print(mean_pooling(batch_hidden_states, batch_lengths))
-    # print(batch_mean_pooling(batch_hidden_states, batch_lengths))
-    # print(fc2(batch_hidden_states).size())
-    #
-    # hidden_x_dirs = int(batch_hidden_states.size(2))
-    #
-    # indices = batch_lengths.unsqueeze(1).unsqueeze(1) - 1
-    # indices = indices.repeat(1, 1, hidden_x_dirs)
-    #
-    # last_hidden_out = torch.gather(batch_hidden_states, 1, indices).squeeze(1)
-    #
-    # print(last_hidden_out)

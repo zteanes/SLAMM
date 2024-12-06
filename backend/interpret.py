@@ -41,10 +41,10 @@ def load_model():
     checkpoint = 'ckpt.pth'
 
     split_file = os.path.join(root, 'data/start_kit/splits/{}.json'.format(trained_on))
-    # test_on_split_file = os.path.join(root, 'data/splits-with-dialect-annotated/{}.json'.format(tested_on))
 
     pose_data_root = os.path.join(root, 'data/start_kit/pose_per_individual_videos')
-    config_file = os.path.join(root, 'backend/TGCN/archived/{}/{}.ini'.format(trained_on, trained_on))
+    config_file = os.path.join(root, 'backend/TGCN/archived/{}/{}.ini'.format(trained_on, 
+                                                                              trained_on))
     configs = Config(config_file)
 
     num_samples = configs.num_samples
@@ -56,7 +56,8 @@ def load_model():
     # load the model
     log(Fore.CYAN + "Loading model...")
     model = GCN_muti_att(input_feature=num_samples * 2, hidden_feature=hidden_size,
-                         num_class=int(trained_on[3:]), p_dropout=drop_p, num_stage=num_stages).cuda()
+                         num_class=int(trained_on[3:]), p_dropout=drop_p, 
+                         num_stage=num_stages).cuda()
     log(Fore.CYAN + "Finish loading model!")
     return model
     
@@ -70,7 +71,7 @@ async def predict(file: UploadFile = File(...), model:model):
         file (UploadFile): The image to predict
         model (model): The model to use for prediction
     """
-    # read the image and make necessary conversions TODO: read test_tgcn.py to see how they convert and test images
+    # read the image and make necessary conversions 
     image = Image.open(io.BytesIO(await file.read()))
     image = image.convert('RGB')
     image = transforms.ToTensor()(image).unsqueeze(0)

@@ -1,3 +1,8 @@
+"""
+This file was provided by WLASL (https://github.com/dxli94/WLASL). It's used to general 
+pose data information used to understand signers in a video.
+"""
+
 import json
 import os
 import time
@@ -39,8 +44,12 @@ def gen(entry_list):
                 ft_path = os.path.join(save_to, frame_id + '_ft.pt')
                 if not os.path.exists(ft_path):
                     try:
-                        pose_content = json.load(open(os.path.join('/home/dxli/workspace/nslt/data/pose/pose_per_individual_videos',
-                                                                   vid, frame_id + '_keypoints.json')))["people"][0]
+                        pose_content = 
+                            json.load(open(
+                                os.path.join(
+                                   '/home/dxli/workspace/nslt/data/pose/pose_per_individual_videos',
+                                   vid, 
+                                   frame_id + '_keypoints.json')))["people"][0]
                     except IndexError:
                         continue
 
@@ -51,9 +60,10 @@ def gen(entry_list):
                     body_pose.extend(left_hand_pose)
                     body_pose.extend(right_hand_pose)
 
-                    x = [v for i, v in enumerate(body_pose) if i % 3 == 0 and i // 3 not in body_pose_exclude]
-                    y = [v for i, v in enumerate(body_pose) if i % 3 == 1 and i // 3 not in body_pose_exclude]
-                    # conf = [v for i, v in enumerate(body_pose) if i % 3 == 2 and i // 3 not in body_pose_exclude]
+                    x = [v for i, v in enumerate(body_pose) 
+                         if i % 3 == 0 and i // 3 not in body_pose_exclude]
+                    y = [v for i, v in enumerate(body_pose) 
+                         if i % 3 == 1 and i // 3 not in body_pose_exclude]
 
                     x = 2 * ((torch.FloatTensor(x) / 256.0) - 0.5)
                     y = 2 * ((torch.FloatTensor(y) / 256.0) - 0.5)

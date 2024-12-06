@@ -1,3 +1,6 @@
+"""
+This file was provided by WLASL (https://github.com/dxli94/WLASL).
+"""
 import configparser
 
 
@@ -27,7 +30,8 @@ class Config:
 
     def __str__(self):
         return 'bs={}_ns={}_drop={}_lr={}_eps={}_wd={}'.format(
-            self.batch_size, self.num_samples, self.drop_p, self.init_lr, self.adam_eps, self.adam_weight_decay
+            self.batch_size, self.num_samples, self.drop_p, 
+            self.init_lr, self.adam_eps, self.adam_weight_decay
         )
 
 

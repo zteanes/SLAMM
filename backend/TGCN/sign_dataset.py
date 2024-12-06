@@ -1,3 +1,11 @@
+""" 
+Dataset for sign language, provided from WLASL. All this file was provided as apart of the 
+WLASL dataset repository (https://github.com/dxli94/WLASL).
+
+Only editing performed by us was the addition of this comment block and some changing 
+of paths to work for this repository.
+"""
+
 import json
 import math
 import os

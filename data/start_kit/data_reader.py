@@ -1,3 +1,8 @@
+"""
+This file reads the data from the WLASL dataset. It was provided by WLASL in their repository
+(https://github.com/dxli94/WLASL).
+"""
+
 import json
 
 file_path = 'WLASL_v0.3.json'
