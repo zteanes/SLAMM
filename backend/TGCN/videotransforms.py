@@ -1,3 +1,8 @@
+""" 
+This file outlines how to transform a video into data that can be used to train a model. This 
+was provided by WLASL in their repository (https://github.com/dxli94/WLASL).
+"""
+
 import numpy as np
 import numbers
 import random

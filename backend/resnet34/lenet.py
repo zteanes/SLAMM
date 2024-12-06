@@ -4,7 +4,7 @@ Neural Network (CNN) architecture that's fairly shallow and simple, but still go
 learning.
 
 File is modeled after the LeNet architecture, outlined in the following article:
-    https://pyimagesearch.com/2021/07/19/pytorch-training-your-first-convolutional-neural-network-cnn/
+https://pyimagesearch.com/2021/07/19/pytorch-training-your-first-convolutional-neural-network-cnn/
 
 Authors: Zachary Eanes and Alex Charlot
 Date: 09/23/2024
@@ -64,7 +64,9 @@ class LeNet(Module):
 
         # softmax classifier
         self.fc2 = Linear(in_features = 500, out_features = classes)
-        self.logSoftmax = LogSoftmax(dim = 1) # used to get predicted probabilities during evaluation
+
+        # used to get predicted probabilities during evaluation
+        self.logSoftmax = LogSoftmax(dim = 1) 
 
     def forward(self, x):
         """
@@ -76,12 +78,8 @@ class LeNet(Module):
             x (tensor): input data/tensor to the model
         """
         # follow the architecture of the model
-        # RuntimeError: Given groups=1, weight of size [20, 64, 5, 5], expected input[1, 34, 55, 50] to have 64 channels, but got 34 channels instead
         # if the input image has wrong number of channels, change it to 64 
-        #print(x.shape)
-        if x.shape[0] != 64:
-            #print("oh yikes we got a bad number of channels...")
-            
+        if x.shape[0] != 64:            
             # interpolate the tensor to the correct size
             temp_tensor = x.unsqueeze(0)  # Add a batch dimension, shape is now (1, _, 55, 50)
 
@@ -89,12 +87,9 @@ class LeNet(Module):
             conv = Conv2d(in_channels=x.shape[0], out_channels=64, kernel_size=1) 
             output = conv(temp_tensor)
 
-
             # Remove the batch dimension if needed
             x = output.squeeze(0)
             
-            #print("alright so we padded it, check it:", x.shape)
-
         x = self.conv1(x)
         x = self.relu1(x)
         x = self.pool1(x)

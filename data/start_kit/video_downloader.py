@@ -1,3 +1,8 @@
+"""
+This file was provided by WLASL (https://github.com/dxli94/WLASL) and downloads the videos 
+needed for the dataset. It's a simple script that downloads the videos from the internet.
+"""
+
 import os
 import json
 import time
@@ -16,7 +21,8 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 youtube_downloader = "yt-dlp"
 
 def request_video(url, referer=''):
-    user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
+    user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; ' +
+                 'en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
 
     headers = {'User-Agent': user_agent,
                }
@@ -125,7 +131,8 @@ def download_yt_videos(indexfile, saveto='raw_videos'):
             if 'youtube' not in video_url and 'youtu.be' not in video_url:
                 continue
 
-            if os.path.exists(os.path.join(saveto, video_url[-11:] + '.mp4')) or os.path.exists(os.path.join(saveto, video_url[-11:] + '.mkv')):
+            if os.path.exists(os.path.join(saveto, video_url[-11:] + '.mp4')) 
+            or os.path.exists(os.path.join(saveto, video_url[-11:] + '.mkv')):
                 logging.info('YouTube videos {} already exists.'.format(video_url))
                 continue
             else:
@@ -137,7 +144,8 @@ def download_yt_videos(indexfile, saveto='raw_videos'):
                 if not rv:
                     logging.info('Finish downloading youtube video url {}'.format(video_url))
                 else:
-                    logging.error('Unsuccessful downloading - youtube video url {}'.format(video_url))
+                    logging.error('Unsuccessful downloading - youtube video url {}'.format(
+                                                                                    video_url))
 
                 # please be nice to the host - take pauses and avoid spamming
                 time.sleep(random.uniform(1.0, 1.5))

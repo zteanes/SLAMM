@@ -1,3 +1,8 @@
+"""
+This script was provided by (https://github.com/dxli94/WLASL). It's a helper class used to 
+train the TGCN model.
+"""
+
 import os
 
 from configs import Config
@@ -40,7 +45,8 @@ def test(model, test_loader):
             all_output = torch.stack(all_output, dim=1)
             output = torch.mean(all_output, dim=1)
 
-            y_pred = output.max(1, keepdim=True)[1]  # (y_pred != output) get the index of the max log-probability
+            y_pred = output.max(1, keepdim=True)[1]  
+            # (y_pred != output) get the index of the max log-probability
 
             # collect all y and y_pred in all batches
             all_y.extend(y)
@@ -72,7 +78,8 @@ def test(model, test_loader):
     print('\nVal. set ({:d} samples): top-1 Accuracy: {:.2f}%\n'.format(len(all_y), 100 * top1acc))
     print('\nVal. set ({:d} samples): top-3 Accuracy: {:.2f}%\n'.format(len(all_y), 100 * top3acc))
     print('\nVal. set ({:d} samples): top-5 Accuracy: {:.2f}%\n'.format(len(all_y), 100 * top5acc))
-    print('\nVal. set ({:d} samples): top-10 Accuracy: {:.2f}%\n'.format(len(all_y), 100 * top10acc))
+    print(
+        '\nVal. set ({:d} samples): top-10 Accuracy: {:.2f}%\n'.format(len(all_y), 100 * top10acc))
 
 
 def compute_top_n_accuracy(truths, preds, n):
@@ -93,7 +100,6 @@ if __name__ == '__main__':
     checkpoint = 'ckpt.pth'
 
     split_file = os.path.join(root, 'data/splits/{}.json'.format(trained_on))
-    # test_on_split_file = os.path.join(root, 'data/splits-with-dialect-annotated/{}.json'.format(tested_on))
 
     pose_data_root = os.path.join(root, 'data/pose_per_individual_videos')
     config_file = os.path.join(root, 'code/TGCN/archive/{}/{}.ini'.format(trained_on, trained_on))
@@ -115,11 +121,13 @@ if __name__ == '__main__':
 
     # setup the model
     model = GCN_muti_att(input_feature=num_samples * 2, hidden_feature=hidden_size,
-                         num_class=int(trained_on[3:]), p_dropout=drop_p, num_stage=num_stages).cuda()
+                         num_class=int(trained_on[3:]), p_dropout=drop_p, 
+                         num_stage=num_stages).cuda()
 
     print('Loading model...')
 
-    checkpoint = torch.load(os.path.join(root, 'code/TGCN/archive/{}/{}'.format(trained_on, checkpoint)))
+    checkpoint = torch.load(os.path.join(root, 
+                            'code/TGCN/archive/{}/{}'.format(trained_on, checkpoint)))
     model.load_state_dict(checkpoint)
     print('Finish loading model!')
 

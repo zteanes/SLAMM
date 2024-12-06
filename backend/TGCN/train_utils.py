@@ -1,3 +1,8 @@
+"""
+This file was provided by WLASL (https://github.com/dxli94/WLASL) which is used as utilities for
+training a model in TGCN.
+"""
+
 import os
 
 import numpy as np
@@ -32,7 +37,8 @@ def train(log_interval, model, train_loader, optimizer, epoch):
         # to compute accuracy
         y_pred = torch.max(out, 1)[1]  # y_pred != output
 
-        step_score = accuracy_score(y.cpu().data.squeeze().numpy(), y_pred.cpu().data.squeeze().numpy())
+        step_score = accuracy_score(y.cpu().data.squeeze().numpy(),
+                                    y_pred.cpu().data.squeeze().numpy())
 
         # collect prediction labels
         train_labels.extend(y.cpu().data.squeeze().tolist())
@@ -56,7 +62,8 @@ def train(log_interval, model, train_loader, optimizer, epoch):
         # show information
         if (batch_idx + 1) % log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}, Accu: {:.6f}%'.format(
-                epoch + 1, N_count, len(train_loader.dataset), 100. * (batch_idx + 1) / len(train_loader), loss.item(),
+                epoch + 1, N_count, len(train_loader.dataset), 
+                100. * (batch_idx + 1) / len(train_loader), loss.item(),
                 100 * step_score))
 
     return losses, scores, train_labels, train_preds
@@ -98,7 +105,8 @@ def validation(model, test_loader, epoch, save_to):
             loss = compute_loss(output, y)
 
             val_loss.append(loss.item())  # sum up batch loss
-            y_pred = output.max(1, keepdim=True)[1]  # (y_pred != output) get the index of the max log-probability
+            y_pred = output.max(1, keepdim=True)[1]  
+            # (y_pred != output) get the index of the max log-probability
 
             # collect all y and y_pred in all batches
             all_y.extend(y)
@@ -130,16 +138,18 @@ def validation(model, test_loader, epoch, save_to):
     top30acc = compute_top_n_accuracy(all_y, all_pool_out, 30)
 
     # show information
-    print('\nVal. set ({:d} samples): Average loss: {:.4f}, Accuracy: {:.2f}%\n'.format(len(all_y), val_loss,
-                                                                                        100 * top1acc))
+    print('\nVal. set ({:d} samples): Average loss: {:.4f}, Accuracy: {:.2f}%\n'.format(
+                                                                            len(all_y), val_loss,
+                                                                            100 * top1acc))
 
     if save_to:
         # save Pytorch models of best record
         torch.save(model.state_dict(),
-                   os.path.join(save_to, 'gcn_epoch{}.pth'.format(epoch + 1)))  # save spatial_encoder
+                   os.path.join(save_to, 'gcn_epoch{}.pth'.format(epoch + 1)))# save spatial_encoder
         print("Epoch {} model saved!".format(epoch + 1))
 
-    return val_loss, [top1acc, top3acc, top5acc, top10acc, top30acc], all_y.tolist(), all_y_pred.tolist(), incorrect_video_ids
+    return val_loss, [top1acc, top3acc, top5acc, top10acc, top30acc], all_y.tolist(),
+            all_y_pred.tolist(), incorrect_video_ids
 
 
 def compute_loss(out, gt):
