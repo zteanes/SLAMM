@@ -1,3 +1,9 @@
+/// This is the main file used to launch our application. 
+///
+/// Authors: Alex Charlot and Zach Eanes
+/// Date: 12/06/2024
+library;
+
 import 'package:flutter/material.dart';
 import 'package:frontend/settings.dart';
 import 'analytics_screen.dart';
@@ -9,21 +15,18 @@ import 'package:camera/camera.dart';
 // Define a ValueNotifier for theme mode
 final themeNotifier = ValueNotifier(ThemeMode.system);
 
-// final themeNotifier = ValueNotifier<ThemeMode>(
-//   WidgetsBinding.instance.window.platformBrightness == Brightness.dark
-//       ? ThemeMode.dark
-//       : ThemeMode.light,
-// );
-
+// list of the cameras available
 List<CameraDescription> cameras = [];
 
 Future<void> main() async {
+  /// This function initializes the cameras available on the device.
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  /// This widget is the root of our application, used to create the application.
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
@@ -36,6 +39,7 @@ class MyApp extends StatelessWidget {
           themeMode: currentTheme,
           home: const WelcomeScreen(),
           routes: {
+            // routes to every screen in the application
             "analytics": (context) => const AnalyticsScreen(),
             "welcome": (context) => const WelcomeScreen(),
             "camera": (context) => const CameraScreen(),

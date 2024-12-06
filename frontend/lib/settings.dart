@@ -1,3 +1,10 @@
+/// This file outlines the settings screen used for our application and the 
+/// necessary logic associated with it.
+/// 
+/// Authors: Zach Eanes and Alex Charlot
+/// Date: 12/06/2024
+library;
+
 import 'package:flutter/material.dart';
 import 'package:frontend/tabs_bar.dart';
 import 'main.dart'; // used for the theme notifier
@@ -58,7 +65,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                       builder: (context, ThemeMode currentTheme, _) {
                         // switch to actually go between light and dark mode
                         return Switch(
-                          value: currentTheme == ThemeMode.dark, // if the current theme is dark, set the switch to true
+                          // if the current theme is dark, set the switch to true
+                          value: currentTheme == ThemeMode.dark, 
                           onChanged: (isDarkMode) {
                             print(currentTheme);
                             setState(() {
@@ -91,7 +99,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: const Text("Go back", style: TextStyle(fontSize: 20, color: Colors.black)), 
+                    child: const Text("Go back", style: TextStyle(fontSize: 20, 
+                                                                  color: Colors.black)), 
                     // go back to the welcome/landing page
                     onPressed: () {
                       Navigator.pushNamed(context, "welcome");

@@ -1,3 +1,11 @@
+/// This file contains all the logic and widgets used to create the Camera screen in our 
+/// application. 
+///
+/// Authors: Alex Charlot and Zach Eanes
+/// Date: 12/06/2024
+library;
+
+
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +15,6 @@ import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
-import 'dart:math' as math;
 
 // cameras used within the app; int representations of the cameras
 int frontCamera = 1;
@@ -22,14 +29,6 @@ class CameraScreen extends StatefulWidget {
   @override
   State<CameraScreen> createState() => CameraScreenState();
 }
-
-// // CameraApp is a StatefulWidget because we may need to
-// // change the state later, for example, to switch cameras or take pictures
-// class CameraApp extends StatefulWidget {
-//   const CameraApp({super.key});
-//   @override
-//   CameraScreenState createState() => CameraAppState();
-// }
 
 // CameraAppState is the state of the CameraApp widget
 class CameraScreenState extends State<CameraScreen> {
@@ -68,7 +67,7 @@ class CameraScreenState extends State<CameraScreen> {
 
   Future<File?> getMostRecentVideo() async {
     // Request permissions to access media files
-    final PermissionState permission = await PhotoManager.requestPermissionExtend();
+    // final PermissionState permission = await PhotoManager.requestPermissionExtend();
 
     //if (permission.isAuth) {
       // Get all albums (gallery collections)
@@ -102,66 +101,7 @@ class CameraScreenState extends State<CameraScreen> {
         print('No albums found in the gallery.');
         return null;
       }
-    // } else {
-    //   print('Gallery access permission denied.');
-    //   return null;
-    // }
   }
-
-  //   // displays a temporary popup message that video was saved to camera roll or errored out
-  // Future<void> showVideoSaved(text) async {
-  //   final recentVideoPath = await getMostRecentVideo();
-  //   final VideoPlayerController videoController = VideoPlayerController.file(
-  //     File(recentVideoPath),
-  //   );
-
-  //   await videoController.initialize();
-  //   // Show the popup with the video player
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return Dialog(
-  //         insetPadding: const EdgeInsets.all(16),
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(12.0),
-  //         ),
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             AspectRatio(
-  //               aspectRatio: videoController.value.aspectRatio,
-  //               child: VideoPlayer(videoController),
-  //             ),
-  //             Row(
-  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //               children: [
-  //                 IconButton(
-  //                   icon: Icon(
-  //                     videoController.value.isPlaying ? Icons.pause : Icons.play_arrow,
-  //                   ),
-  //                   onPressed: () {
-  //                     if (videoController.value.isPlaying) {
-  //                       videoController.pause();
-  //                     } else {
-  //                       videoController.play();
-  //                     }
-  //                   },
-  //                 ),
-  //                 IconButton(
-  //                   icon: const Icon(Icons.close),
-  //                   onPressed: () {
-  //                     videoController.dispose();
-  //                     Navigator.of(context).pop();
-  //                   },
-  //                 ),
-  //               ],
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   // displays a temporary popup message that video was saved to camera roll or errored out
   void showVideoSaved(text) {

@@ -1,3 +1,10 @@
+/// This file contains the AnalyticsScreen widget, which is the screen that displays 
+/// the analytics page.
+/// 
+/// Authors: Zach Eanes and Alex Charlot
+/// Date: 12/06/2024
+library;
+
 import 'package:flutter/material.dart';
 import 'package:frontend/tabs_bar.dart';
 
@@ -41,7 +48,8 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: const Text("Go back", style: TextStyle(fontSize: 20, color: Colors.black)), 
+                    child: const Text("Go back", style: TextStyle(fontSize: 20, 
+                                                                  color: Colors.black)), 
                     // go back to the welcome/landing page
                     onPressed: () {
                       Navigator.pushNamed(context, "welcome");
