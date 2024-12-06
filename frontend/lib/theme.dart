@@ -1,3 +1,9 @@
+/// This file contains the theme data and colorings we use through our application.
+///
+/// Authors: Alex Charlot and Zach Eanes
+/// Date: 12/06/2024
+library;
+
 import 'package:flutter/material.dart';
 
 ThemeData lightmode = ThemeData(

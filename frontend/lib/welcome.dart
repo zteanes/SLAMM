@@ -1,3 +1,10 @@
+/// This file contains all the logic and widgets used to create the Welcome screen in our
+/// application. 
+/// 
+/// Authors: Alex Charlot and Zach Eanes
+/// Date: 12/06/2024
+library;
+
 import 'package:flutter/material.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -34,7 +41,8 @@ class WelcomeScreenState extends State<WelcomeScreen> {
               ),
               Text(
                 'SLAMM', 
-                style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 48, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary, 
+                                 fontSize: 48, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               Padding(
@@ -56,7 +64,8 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: Text("Let's Get Started", style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.secondary)), 
+                  child: Text("Let's Get Started", style: TextStyle(fontSize: 20, 
+                                                color: Theme.of(context).colorScheme.secondary)), 
                   // open our next page, the analytics page
                   onPressed: () {
                     Navigator.of(context).pushNamed("analytics");
@@ -74,7 +83,8 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: Text("Sign In", style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.primary)),
+                  child: Text("Sign In", style: TextStyle(fontSize: 20, 
+                                                color: Theme.of(context).colorScheme.primary)),
                   onPressed: () {},
                 ),
               )

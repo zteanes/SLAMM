@@ -1,3 +1,9 @@
+/// This file outlines the tab bar used through every screen of our application.
+///
+/// Authors: Alex Charlot and Zach Eanes
+/// Date: 12/06/2024
+library;
+
 import 'package:flutter/material.dart';
 
 class BottomTabBar extends StatefulWidget {
