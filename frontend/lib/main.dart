@@ -1,4 +1,4 @@
-/// This is the main file used to launch our application. 
+/// This is the main file used to launch our application.
 ///
 /// Authors: Alex Charlot and Zach Eanes
 /// Date: 12/06/2024
@@ -34,8 +34,10 @@ class MyApp extends StatelessWidget {
       builder: (context, currentTheme, _) {
         return MaterialApp(
           title: 'Welcome Screen',
+          // sets the themed modes for the application
           theme: lightmode,
           darkTheme: darkmode,
+          // sets the mode to the system mode
           themeMode: currentTheme,
           home: const WelcomeScreen(),
           routes: {

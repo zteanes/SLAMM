@@ -7,6 +7,7 @@ library;
 import 'package:flutter/material.dart';
 
 class BottomTabBar extends StatefulWidget {
+  /// This widget is used to create the bottom tab bar for the application.
   const BottomTabBar({super.key});
 
   @override
@@ -14,6 +15,8 @@ class BottomTabBar extends StatefulWidget {
 }
 
 class BottomTabBarState extends State<BottomTabBar> {
+  /// Sets up the bottom tab bar for the application
+  /// Builds the bottom tab bar
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -22,21 +25,21 @@ class BottomTabBarState extends State<BottomTabBar> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+            // sets the button for analytics
             IconButton(
-              color: Theme.of(context).colorScheme.primary,
-              icon: const Icon(Icons.analytics),
-              onPressed: () => Navigator.pushNamed(context, "analytics")
-            ),
-            IconButton( 
-              color: Theme.of(context).colorScheme.primary,
-              icon: const Icon(Icons.camera_alt_outlined),
-              onPressed: () => Navigator.pushNamed(context, "camera")
-            ),
-            IconButton( 
-              color: Theme.of(context).colorScheme.primary,
-              icon: const Icon(Icons.settings),
-              onPressed: () => Navigator.pushNamed(context, "settings")
-            ),
+                color: Theme.of(context).colorScheme.primary,
+                icon: const Icon(Icons.analytics),
+                onPressed: () => Navigator.pushNamed(context, "analytics")),
+            // sets the button for the camera
+            IconButton(
+                color: Theme.of(context).colorScheme.primary,
+                icon: const Icon(Icons.camera_alt_outlined),
+                onPressed: () => Navigator.pushNamed(context, "camera")),
+            // sets the button for the settings
+            IconButton(
+                color: Theme.of(context).colorScheme.primary,
+                icon: const Icon(Icons.settings),
+                onPressed: () => Navigator.pushNamed(context, "settings")),
           ],
         ),
       ),

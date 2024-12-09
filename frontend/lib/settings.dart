@@ -7,8 +7,9 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:frontend/tabs_bar.dart';
+
 /// used for the theme notifier
-import 'main.dart'; 
+import 'main.dart';
 
 class SettingsScreen extends StatefulWidget {
   /// Sets up the settings screen for the application
@@ -47,7 +48,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Text that says "Settings" in the middle of the screen 
+                // Text that says "Settings" in the middle of the screen
                 Text(
                   'Settings',
                   style: TextStyle(
