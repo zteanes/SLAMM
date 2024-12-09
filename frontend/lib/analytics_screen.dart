@@ -1,6 +1,6 @@
-/// This file contains the AnalyticsScreen widget, which is the screen that displays 
+/// This file contains the AnalyticsScreen widget, which is the screen that displays
 /// the analytics page.
-/// 
+///
 /// Authors: Zach Eanes and Alex Charlot
 /// Date: 12/06/2024
 library;
@@ -8,7 +8,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:frontend/tabs_bar.dart';
 
-class AnalyticsScreen extends StatefulWidget{
+class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
 
   @override
@@ -24,7 +24,8 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
           Positioned.fill(
             child: Opacity(
               opacity: 0.6,
-              child: Image.asset('assets/images/temp-splash.jpg', fit: BoxFit.cover),
+              child: Image.asset('assets/images/temp-splash.jpg',
+                  fit: BoxFit.cover),
             ),
           ),
           Align(
@@ -34,7 +35,9 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
               children: [
                 Text(
                   'Analytics',
-                  style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 36),
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 36),
                 ),
                 const SizedBox(height: 200),
                 const SizedBox(height: 20),
@@ -43,13 +46,14 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.surface,
-                      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 20),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 60, vertical: 20),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: const Text("Go back", style: TextStyle(fontSize: 20, 
-                                                                  color: Colors.black)), 
+                    child: const Text("Go back",
+                        style: TextStyle(fontSize: 20, color: Colors.black)),
                     // go back to the welcome/landing page
                     onPressed: () {
                       Navigator.pushNamed(context, "welcome");
