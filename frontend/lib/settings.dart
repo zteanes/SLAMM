@@ -55,7 +55,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                       color: Theme.of(context).colorScheme.primary,
                       fontSize: 36),
                 ),
-                const SizedBox(height: 20),
+                // spacing box to separate elements
+                const SizedBox(height: 20), 
                 // Text that says "Toggle between Light and Dark mode"
                 Text(
                   'Toggle between Light and Dark mode',
@@ -103,8 +104,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     const Icon(Icons.dark_mode),
                   ],
                 ),
-                const SizedBox(height: 200),
-                const SizedBox(height: 20),
+                const SizedBox(height: 220), // temporary height spacing for skeleton screen
                 // makes the button to go back to the welcome page
                 SizedBox(
                   width: 300,

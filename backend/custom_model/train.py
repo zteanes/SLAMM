@@ -44,10 +44,13 @@ INIT_LR = 1e-3 # initial learning rate
 BATCH_SIZE = 64 # batch size for training 
 # NOTE: epochs can be increased for higher accuracy, but must avoid overfitting
 EPOCHS = 10 # number of epochs to train
+IN_CHANNELS = 64 # number of input channels for our model
 
 # define the train and val splits
 TRAIN_SPLIT = 0.75
 VAL_SPLIT = 1 - TRAIN_SPLIT
+
+
 
 # use either a GPU or CPU for training model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -104,7 +107,7 @@ print("Creating the model...")
 # 3 channels for RGB images, classes is the num of classes in data
 num_classes = len(dataset.label_encoder.classes_) # get number of classes in dataset
 print("NUMBER OF CLASSES", num_classes) 
-model = ResNet34(in_channels = 64, num_classes = num_classes).to(device) 
+model = ResNet34(in_channels = IN_CHANNELS, num_classes = num_classes).to(device) 
 
 # make optimizer and loss functions 
 optimizer = Adam(model.parameters(), lr=INIT_LR)
@@ -116,8 +119,6 @@ History = { "train_loss" : [],
             "train_acc" : [],
             "val_acc" : [] 
           }
-
-
 
 # time the training for fun
 print("Training the model...")

@@ -20,6 +20,13 @@ import 'package:video_player/video_player.dart';
 int FRONT_CAMERA = 1;
 int BACK_CAMERA = 0;
 
+// integer representation of the first album in the gallery
+int FIRST_ALBUM = 0;
+
+// ratios for the camera preview
+int WIDTH_RATIO = 1920;
+int HEIGHT_RATIO = 1080;
+
 /// boolean used to check when camera is in use
 bool _isRecording = false;
 
@@ -93,7 +100,7 @@ class CameraScreenState extends State<CameraScreen> {
     if (albums.isNotEmpty) {
       // Fetch videos from the first album
       final List<AssetEntity> videos =
-          await albums[0].getAssetListPaged(page: 0, size: 1);
+          await albums[FIRST_ALBUM].getAssetListPaged(page: 0, size: 1);
 
       if (videos.isNotEmpty) {
         // Most recent video
@@ -131,6 +138,7 @@ class CameraScreenState extends State<CameraScreen> {
             TextButton(
                 onPressed: () async {
                   final recentVideo = await getMostRecentVideo();
+
                   //! start of a video replay, not yet implemented
                   if (recentVideo != null) {
                     final VideoPlayerController videoController =
@@ -156,15 +164,17 @@ class CameraScreenState extends State<CameraScreen> {
 
         /// Directory where the video will be saved
         Directory? directory;
+
         // Check platform to determine where to save the video
         if (Platform.isAndroid) {
+
           // Save to Movies directory on Android
           directory = await getExternalStorageDirectory();
           directory = Directory('${directory!.path}/Movies');
           if (!directory.existsSync()) {
             directory.createSync(recursive: true);
           }
-          // Saving is slightly different on iOS
+        // Saving is slightly different on iOS
         } else if (Platform.isIOS) {
           // Use Documents directory for iOS
           directory = await getApplicationDocumentsDirectory();
@@ -204,13 +214,15 @@ class CameraScreenState extends State<CameraScreen> {
             Center(
               // box to hold the camera preview
               child: SizedBox(
-                width: controller.value.aspectRatio * 1920 * .3,
-                height: controller.value.aspectRatio * 1080 * 0.4,
-                //? if the camera is front, flip the camera preview so that it is mirrored (0?)
+                // .3 and .4 are ratios used to fit the camera to the screen without stretching.
+                // they were found by guessing and checking
+                width: controller.value.aspectRatio * WIDTH_RATIO * .3, 
+                height: controller.value.aspectRatio * HEIGHT_RATIO * .4,
+                // if the camera is front, flip the camera preview so that it is mirrored
                 child: isCameraFront
                     ? Transform(
                         alignment: Alignment.center,
-                        transform: Matrix4.rotationY(0),
+                        transform: Matrix4.rotationY(0), // necessary rotation even if not used
                         child: CameraPreview(controller),
                       )
                     : CameraPreview(controller),
@@ -220,6 +232,7 @@ class CameraScreenState extends State<CameraScreen> {
             // button to switch front and back cameras
             alignment: Alignment.topRight,
             child: Padding(
+              // padding to make sure button is correctly placed
               padding: const EdgeInsets.only(right: 20, top: 50),
               child: ElevatedButton(
                 onPressed: () {
@@ -237,6 +250,7 @@ class CameraScreenState extends State<CameraScreen> {
             // sets up the button to record/stop recording a video
             alignment: Alignment.bottomCenter,
             child: Padding(
+              // padding to make sure button is correctly placed
               padding: const EdgeInsets.all(20),
               child: ElevatedButton(
                 onPressed: () {

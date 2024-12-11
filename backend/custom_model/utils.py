@@ -1,6 +1,9 @@
 """ 
 This file outlines utils needed by the sign dataset, which is also provided by WLASL through 
 their repository (https://github.com/dxli94/WLASL).
+
+Authors: Zachary Eanes and Alex Charlot
+Date: 12/06/2024
 """
 
 import torch

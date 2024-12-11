@@ -1,5 +1,6 @@
 """
-This file was provided by WLASL (https://github.com/dxli94/WLASL).
+This file was provided by WLASL (https://github.com/dxli94/WLASL). It's used to define the
+configurations used in the TGCN model.
 """
 import configparser
 

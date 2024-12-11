@@ -23,7 +23,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
         children: [
           Positioned.fill(
             child: Opacity(
-              opacity: 0.6,
+              opacity: 0.6, // set the opacity of the background image
               child: Image.asset('assets/images/temp-splash.jpg',
                   fit: BoxFit.cover),
             ),
@@ -39,8 +39,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
                       color: Theme.of(context).colorScheme.primary,
                       fontSize: 36),
                 ),
-                const SizedBox(height: 200),
-                const SizedBox(height: 20),
+                const SizedBox(height: 220), // temporary height spacing for skeleton screen
                 SizedBox(
                   width: 300,
                   child: ElevatedButton(
