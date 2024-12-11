@@ -2,6 +2,9 @@
 This file outlines the necessary parts of the ResNet34 model used for image 
 classification in PyTorch.
 
+The following architecture was followed from an online github repo outlining a lot of the steps:
+https://github.com/rasbt/deeplearning-models/blob/master/pytorch_ipynb/cnn/cnn-resnet34-mnist.ipynb
+
 Authors: Zachary Eanes and Alex Charlot
 Date: 12/06/2024
 """

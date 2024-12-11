@@ -1,6 +1,9 @@
 """ 
 This file outlines how to transform a video into data that can be used to train a model. This 
 was provided by WLASL in their repository (https://github.com/dxli94/WLASL).
+
+Authors: Zachary Eanes and Alex Charlot
+Date: 12/06/2024
 """
 
 import numpy as np
