@@ -32,6 +32,28 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                   fit: BoxFit.cover),
             ),
           ),
+          // button to explain what application is
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 50, right: 25),
+              child: ElevatedButton(
+                // when pressed navigate to explanation screen
+                onPressed: () {
+                  Navigator.of(context).pushNamed("explanation");
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  shape: CircleBorder(
+                    side: BorderSide(color: Theme.of(context).colorScheme.primary,
+                    width: 2
+                    ),
+                  ), 
+                ),
+                child: const Icon(Icons.question_mark_rounded, size: 20),
+              ),
+            ),
+          ),
           Align(
             alignment: Alignment.center,
             // Title welcome text
@@ -53,18 +75,19 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                       fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.only(left: 45, right: 45),
-                  // Subtitle welcome text
-                  child: Text(
-                    'Sign Language Analytics and Mobile Machine Learning',
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 24),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 20),
+                // TODO: remove? not really necessary 
+                // Padding(
+                //   padding: const EdgeInsets.only(left: 45, right: 45),
+                //   // Subtitle welcome text
+                //   child: Text(
+                //     'Sign Language Analytics and Mobile Machine Learning',
+                //     style: TextStyle(
+                //         color: Theme.of(context).colorScheme.secondary,
+                //         fontSize: 24),
+                //     textAlign: TextAlign.center,
+                //   ),
+                // ),
+                // const SizedBox(height: 20),
                 SizedBox(
                   width: 300,
                   // button and text to start the application
@@ -79,7 +102,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                     child: Text("Let's Get Started",
                         style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 17,
                             color: Theme.of(context).colorScheme.secondary)),
                     // open our next page, the analytics page
                     onPressed: () {
@@ -102,7 +125,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                     child: Text("Sign In",
                         style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 17,
                             color: Theme.of(context).colorScheme.primary)),
                     onPressed: () {},
                   ),

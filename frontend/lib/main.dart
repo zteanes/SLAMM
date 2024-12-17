@@ -10,6 +10,7 @@ import 'analytics_screen.dart';
 import 'camera.dart';
 import 'theme.dart';
 import 'welcome.dart';
+import 'explanation.dart';
 import 'package:camera/camera.dart';
 
 // Define a ValueNotifier for theme mode
@@ -46,6 +47,7 @@ class MyApp extends StatelessWidget {
             "welcome": (context) => const WelcomeScreen(),
             "camera": (context) => const CameraScreen(),
             "settings": (context) => const SettingsScreen(),
+            "explanation": (context) => const ExplanationScreen(),
           },
         );
       },
