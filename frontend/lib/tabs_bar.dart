@@ -5,6 +5,9 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:frontend/analytics_screen.dart';
+import 'package:frontend/camera.dart';
+import 'package:frontend/settings.dart';
 
 class BottomTabBar extends StatefulWidget {
   /// This widget is used to create the bottom tab bar for the application.
@@ -32,17 +35,78 @@ class BottomTabBarState extends State<BottomTabBar> {
                 // navigate to screen unless we're only on that screen
                 onPressed: () {
                   if (ModalRoute.of(context)?.settings.name != "analytics") {
-                    Navigator.pushNamed(context, "analytics");
+                    Navigator.of(context).push(PageRouteBuilder(
+                      settings: const RouteSettings(name: "analytics"),
+                      transitionDuration: const Duration(milliseconds: 200),
+                      pageBuilder: (context, animation, 
+                                    secondaryAnimation) => const AnalyticsScreen(), 
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(-0.8, 0.0); // Left-to-right transition
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+
+                        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                        var offsetAnimation = animation.drive(tween);
+
+                        return SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        );
+                      },
+                    ));
                   }
-                }
+                },
             ),
+
+
             // sets the button for the camera
             IconButton(
                 color: Theme.of(context).colorScheme.primary,
                 icon: const Icon(Icons.camera_alt_outlined),
                 onPressed: () {
                   if (ModalRoute.of(context)?.settings.name != "camera") {
-                    Navigator.pushNamed(context, "camera");
+                    if (ModalRoute.of(context)?.settings.name == "analytics") {
+                      Navigator.of(context).push(PageRouteBuilder(
+                        settings: const RouteSettings(name: "camera"),
+                        transitionDuration: const Duration(milliseconds: 200),
+                        pageBuilder: (context, animation, 
+                                      secondaryAnimation) => const CameraScreen(), 
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(0.8, 0.0); // Right-to-left transition
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+
+                          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ));
+                    } 
+                    else {
+                      Navigator.of(context).push(PageRouteBuilder(
+                        settings: const RouteSettings(name: "camera"),
+                        transitionDuration: const Duration(milliseconds: 200),
+                        pageBuilder: (context, animation, 
+                                      secondaryAnimation) => const CameraScreen(), 
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          const begin = Offset(-0.8, 0.0); // Right-to-left transition
+                          const end = Offset.zero;
+                          const curve = Curves.easeInOut;
+
+                          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                          var offsetAnimation = animation.drive(tween);
+
+                          return SlideTransition(
+                            position: offsetAnimation,
+                            child: child,
+                          );
+                        },
+                      ));
+                    }
                   }
                 },
             ),
@@ -52,7 +116,25 @@ class BottomTabBarState extends State<BottomTabBar> {
                 icon: const Icon(Icons.settings),
                 onPressed: () {
                   if (ModalRoute.of(context)?.settings.name != "settings") {
-                    Navigator.pushNamed(context, "settings");
+                    Navigator.of(context).push(PageRouteBuilder(
+                      settings: const RouteSettings(name: "settings"),
+                      transitionDuration: const Duration(milliseconds: 200),
+                      pageBuilder: (context, animation, 
+                                    secondaryAnimation) => const SettingsScreen(), 
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(0.8, 0.0); // Right-to-left transition
+                        const end = Offset.zero;
+                        const curve = Curves.easeInOut;
+
+                        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                        var offsetAnimation = animation.drive(tween);
+
+                        return SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        );
+                      },
+                    ));
                   }
                 }
             ),
