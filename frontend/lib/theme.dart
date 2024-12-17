@@ -16,6 +16,7 @@ ThemeData lightmode = ThemeData(
     secondary: Colors.white,
     surface: Color.fromARGB(255, 220, 214, 209),
   ),
+  fontFamily: 'MonoLisa',
 );
 
 ThemeData darkmode = ThemeData(
@@ -28,4 +29,5 @@ ThemeData darkmode = ThemeData(
     secondary: Color.fromARGB(199, 255, 255, 255),
     surface: Color.fromARGB(212, 255, 255, 255),
   ),
+  fontFamily: 'MonoLisa',
 );
