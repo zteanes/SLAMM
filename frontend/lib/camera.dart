@@ -5,10 +5,8 @@ import 'package:frontend/main.dart';
 import 'package:frontend/tabs_bar.dart';
 import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'package:pytorch_mobile/pytorch_mobile.dart';
 import 'package:pytorch_mobile/model.dart';
-
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:image/image.dart' as img;
 
@@ -18,12 +16,20 @@ var videoPath = ''; // path to the saved video
 bool _isRecording = false; // boolean used to check when camera is in use
 Model? customModel; // variable to hold our model; accessed throughout the app
 
+
+// ------------------ MODEL PREDICTION FUNCTIONALITY ------------------ //
+
 // function to load our model
 Future<void> loadModel() async {
+  /// This function loads the model from the assets folder and stores it in 
+  /// the customModel variable
   customModel = await PyTorchMobile.loadModel('assets/models/asl100.pt');
 }
 
 Future<void> processVideo(String videoPath) async {
+  /// This function processes a video by extracting frames, predicting the sign in each frame,
+  /// and returning the most common sign. It accomplishes this by calling many helper 
+  /// functions that are defined below.
   try {
     // extract frames
     final frames = await extractVideoToFrames(videoPath);
@@ -40,6 +46,8 @@ Future<void> processVideo(String videoPath) async {
 
 // function to process video
 Future<List<File>> extractVideoToFrames(String videoPath) async {
+  /// This function extracts frames from a video and returns a list of files
+
   // get video from directory 
   final directory = await getTemporaryDirectory();
   final outputDirectory = '${directory.path}/frames';
@@ -61,9 +69,10 @@ Future<List<File>> extractVideoToFrames(String videoPath) async {
   return frames;
 }
 
-
-// function to process frames
 Future<File> processFrame(File frame) async {
+  /// This function processes a frame by resizing it to 224x224 and saving it to a temp file
+  /// which can then be used to predict the sign
+
   // read image
   final bytes = await frame.readAsBytes();
   final image = img.decodeImage(bytes);
@@ -80,8 +89,10 @@ Future<File> processFrame(File frame) async {
   return resizedFile;
 }
 
-// function to predict! 
 Future<Map<String, int>> predictFrames(List<File> frames) async {
+  /// This function predicts the sign in each frame and returns a map with the predictions 
+  /// and their counts
+
   // map to save predictions and have an associated count to each
   Map<String, int> cnt = {};
 
@@ -98,13 +109,11 @@ Future<Map<String, int>> predictFrames(List<File> frames) async {
       cnt[prediction!] = 1;
     }
   }
-
   return cnt;
 }
 
-
-// finds the best prediction
 Future<String> getBestPrediction(List<File> frames) async {
+  /// This function gets the prediction of each frame and returns the most common prediction
   final cnt = await predictFrames(frames);
 
   // get most common prediction
@@ -112,6 +121,7 @@ Future<String> getBestPrediction(List<File> frames) async {
 }
 
 
+/// ------------ END MODEL PREDICTION FUNCTIONALITY ------------ ///
 /// --------------- BEGIN CAMERA SCREEN CREATION --------------- ///
 
 
@@ -239,19 +249,6 @@ void showVideoSaved(text) {
                     : CameraPreview(controller),
               ),
             ),
-            // if(isCameraFront)
-            //     SizedBox.expand(
-            //       child:
-            //         Transform(
-            //           alignment: Alignment.center,
-            //           transform: Matrix4.rotationY(math.pi),
-            //           child: CameraPreview(controller),
-            //         )
-            //     )
-            //   else
-            //     SizedBox.expand(child:
-            //       CameraPreview(controller)
-            //     ),
           Align( // button to switch front and back cameras
             alignment: Alignment.topRight,
             child: Padding(
