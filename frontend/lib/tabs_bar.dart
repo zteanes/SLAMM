@@ -19,7 +19,7 @@ class BottomTabBarState extends State<BottomTabBar> {
   /// Builds the bottom tab bar
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 80,
       child: BottomAppBar(
         child: Row(
@@ -29,17 +29,33 @@ class BottomTabBarState extends State<BottomTabBar> {
             IconButton(
                 color: Theme.of(context).colorScheme.primary,
                 icon: const Icon(Icons.analytics),
-                onPressed: () => Navigator.pushNamed(context, "analytics")),
+                // navigate to screen unless we're only on that screen
+                onPressed: () {
+                  if (ModalRoute.of(context)?.settings.name != "analytics") {
+                    Navigator.pushNamed(context, "analytics");
+                  }
+                }
+            ),
             // sets the button for the camera
             IconButton(
                 color: Theme.of(context).colorScheme.primary,
                 icon: const Icon(Icons.camera_alt_outlined),
-                onPressed: () => Navigator.pushNamed(context, "camera")),
+                onPressed: () {
+                  if (ModalRoute.of(context)?.settings.name != "camera") {
+                    Navigator.pushNamed(context, "camera");
+                  }
+                },
+            ),
             // sets the button for the settings
             IconButton(
                 color: Theme.of(context).colorScheme.primary,
                 icon: const Icon(Icons.settings),
-                onPressed: () => Navigator.pushNamed(context, "settings")),
+                onPressed: () {
+                  if (ModalRoute.of(context)?.settings.name != "settings") {
+                    Navigator.pushNamed(context, "settings");
+                  }
+                }
+            ),
           ],
         ),
       ),
