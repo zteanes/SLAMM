@@ -52,7 +52,8 @@ def load_model():
     # load the model
     log(Fore.CYAN + "Loading model...")
     model = GCN_muti_att(input_feature=num_samples * 2, hidden_feature=hidden_size,
-                         num_class=int(trained_on[3:]), p_dropout=drop_p, num_stage=num_stages).cuda()
+                         num_class=int(trained_on[3:]), p_dropout=drop_p, 
+                         num_stage=num_stages).cuda()
     log(Fore.CYAN + "Finish loading model!")
 
     # return the loaded model
@@ -68,7 +69,7 @@ async def predict(model, file: UploadFile = File(...)):
         model: torch.nn.Module - the model to be used for prediction
         file: UploadFile - the image to be predicted
     """
-    # load the image
+    # read the image and make necessary conversions 
     image = Image.open(io.BytesIO(await file.read()))
     image = image.convert('RGB')
     

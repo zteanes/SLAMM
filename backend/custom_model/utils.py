@@ -1,3 +1,11 @@
+""" 
+This file outlines utils needed by the sign dataset, which is also provided by WLASL through 
+their repository (https://github.com/dxli94/WLASL).
+
+Authors: Zachary Eanes and Alex Charlot
+Date: 12/06/2024
+"""
+
 import torch
 import torch.nn as nn
 import numpy as np
@@ -51,7 +59,9 @@ def pad_and_pack_sequence(input_sequence):
     # calculate lengths of sequences and **store in a tensor**, otherwise pytorch cannot trace correctly.
     seq_lengths = torch.LongTensor(list(map(len, input_sequence)))
     # create packed sequence        
-    packed_input_sequence = nn.utils.rnn.pack_padded_sequence(input_sequence, seq_lengths, batch_first=True,
+    packed_input_sequence = nn.utils.rnn.pack_padded_sequence(input_sequence, 
+                                                              seq_lengths, 
+                                                              batch_first=True,
                                                               enforce_sorted=False)
 
     return packed_input_sequence
@@ -75,13 +85,16 @@ def batch_select_tail(batch, in_lengths):
     returns tensor([[4, 5, 6, 7],
                     [20, 21, 22, 23]])
     """
-    rv = torch.stack([torch.index_select(batch[i], 0, in_lengths[i] - 1).squeeze(0) for i in range(batch.size(0))])
+    rv = torch.stack([torch.index_select(
+                        batch[i], 0, in_lengths[i] - 1
+                      ).squeeze(0) for i in range(batch.size(0))])
 
     return rv
 
 
 def batch_mean_pooling(batch, in_lengths):
-    """ Select tensors from a batch based on the input sequence lengths. And apply mean pooling over it.
+    """ 
+    Select tensors from a batch based on the input sequence lengths. And apply mean pooling over it.
 
     E.g.
     batch = tensor([[[ 0,  1,  2,  3],

@@ -1,3 +1,8 @@
+"""
+This file was provided by WLASL (https://github.com/dxli94/WLASL) and finds missing 
+videos in the json. Since it's a giant compilation of videos, many videos are removed 
+or not available and this script identifies them and removes them from the json.
+"""
 import os
 import json
 

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -92,7 +90,8 @@ class GC_Block(nn.Module):
 
 
 class GCN_muti_att(nn.Module):
-    def __init__(self, input_feature, hidden_feature, num_class, p_dropout, num_stage=1, is_resi=True):
+    def __init__(self, input_feature, hidden_feature, num_class, 
+                 p_dropout, num_stage=1, is_resi=True):
         super(GCN_muti_att, self).__init__()
         self.num_stage = num_stage
 
