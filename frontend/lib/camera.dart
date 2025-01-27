@@ -22,28 +22,24 @@ import 'package:video_player/video_player.dart';
 
 /// cameras used within the app; int representations of the cameras
 /// This is general default values for all phons as far as we know, needs confirmation
-int FRONT_CAMERA = 1;
-int BACK_CAMERA = 0;
+const FRONT_CAMERA = 1;
+const BACK_CAMERA = 0;
 
 // integer representation of the first album in the gallery
-int FIRST_ALBUM = 0;
+const FIRST_ALBUM = 0;
 
 // ratios for the camera preview
-int WIDTH_RATIO = 1920;
-int HEIGHT_RATIO = 1080;
+const WIDTH_RATIO = 1920;
+const HEIGHT_RATIO = 1080;
 
 /// boolean used to check when camera is in use
 bool _isRecording = false;
-import 'package:pytorch_mobile/pytorch_mobile.dart';
-import 'package:pytorch_mobile/model.dart';
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-import 'package:image/image.dart' as img;
 
-int frontCamera = 1; // int representation of front camera
-int backCamera = 0; // int representation of back camera
-var videoPath = ''; // path to the saved video 
-bool _isRecording = false; // boolean used to check when camera is in use
-Model? customModel; // variable to hold our model; accessed throughout the app
+// path to the saved video 
+var videoPath = ''; 
+
+// variable to hold our model; accessed throughout the app
+Model? customModel; 
 
 
 // ------------------ MODEL PREDICTION FUNCTIONALITY ------------------ //
