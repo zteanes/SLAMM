@@ -51,7 +51,7 @@ Future<void> loadModel() async {
   customModel = await PyTorchMobile.loadModel('assets/models/asl100.pt');
 }
 
-Future<void> processVideo(String videoPath) async {
+Future<String> processVideo(String videoPath) async {
   /// This function processes a video by extracting frames, predicting the sign in each frame,
   /// and returning the most common sign. It accomplishes this by calling many helper 
   /// functions that are defined below.
@@ -64,8 +64,15 @@ Future<void> processVideo(String videoPath) async {
 
     // show prediction
     print('Prediction: $prediction');
+
+    // return prediction to be used in the app
+    return prediction;
   } catch (e) {
+    // print out the error for debugging
     print('Error processing video: $e');
+
+    // return that an error occurred
+    return 'Error processing the video, please try again.';
   }
 }
 
@@ -250,13 +257,14 @@ class CameraScreenState extends State<CameraScreen> {
           title: Text(text),
           actions: <Widget>[
             TextButton(
-              // when ok button is pressed, the popup is closed
+              // ok button to clear the popup
               onPressed: () {
                 Navigator.of(context).pop();
               },
               child: const Text('OK'),
             ),
             TextButton(
+              // translate button to get prediction for video recorded
                 onPressed: () async {
                   final recentVideo = await getMostRecentVideo();
 
@@ -267,6 +275,30 @@ class CameraScreenState extends State<CameraScreen> {
                       recentVideo,
                     );
                   }
+
+                  // process the video
+                  String prediction = processVideo(recentVideo!.path) as String;
+
+                  // show the prediction
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Prediction: $prediction'),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
+                  // clear the popup
+                  Navigator.of(context).pop();
                 },
                 // button to translate the video
                 child: const Text("Translate"))
@@ -337,8 +369,8 @@ class CameraScreenState extends State<CameraScreen> {
               child: SizedBox(
                 // .3 and .4 are ratios used to fit the camera to the screen without stretching.
                 // they were found by guessing and checking
-                width: controller.value.aspectRatio * WIDTH_RATIO * .3, 
-                height: controller.value.aspectRatio * HEIGHT_RATIO * .4,
+                width: controller.value.aspectRatio * WIDTH_RATIO * .5, 
+                height: controller.value.aspectRatio * HEIGHT_RATIO * .45,
                 // if the camera is front, flip the camera preview so that it is mirrored
                 child: isCameraFront
                     ? Transform(

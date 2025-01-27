@@ -23,7 +23,7 @@ class BottomTabBarState extends State<BottomTabBar> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 80,
+      height: 85,
       child: BottomAppBar(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
