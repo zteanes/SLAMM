@@ -1,3 +1,11 @@
+""" 
+Dataset for sign language, provided from WLASL. All this file was provided as apart of the 
+WLASL dataset repository (https://github.com/dxli94/WLASL).
+
+Only editing performed by us was the addition of this comment block and some changing 
+of paths to work for this repository.
+"""
+
 import json
 import math
 import os
@@ -48,8 +56,6 @@ def read_pose_file(filepath):
         ft = torch.load(os.path.join(save_to, frame_id + '_ft.pt'))
 
         xy = ft[:, :2]
-        # angles = torch.atan(ft[:, 110:]) / 90
-        # ft = torch.cat([xy, angles], dim=1)
         return xy
 
     except FileNotFoundError:
@@ -63,11 +69,9 @@ def read_pose_file(filepath):
 
         x = [v for i, v in enumerate(body_pose) if i % 3 == 0 and i // 3 not in body_pose_exclude]
         y = [v for i, v in enumerate(body_pose) if i % 3 == 1 and i // 3 not in body_pose_exclude]
-        # conf = [v for i, v in enumerate(body_pose) if i % 3 == 2 and i // 3 not in body_pose_exclude]
 
         x = 2 * ((torch.FloatTensor(x) / 256.0) - 0.5)
         y = 2 * ((torch.FloatTensor(y) / 256.0) - 0.5)
-        # conf = torch.FloatTensor(conf)
 
         x_diff = torch.FloatTensor(compute_difference(x)) / 2
         y_diff = torch.FloatTensor(compute_difference(y)) / 2
@@ -93,16 +97,15 @@ def read_pose_file(filepath):
         torch.save(ft, os.path.join(save_to, frame_id + '_ft.pt'))
 
         xy = ft[:, :2]
-        # angles = torch.atan(ft[:, 110:]) / 90
-        # ft = torch.cat([xy, angles], dim=1)
-        #
+
         return xy
 
     # return ft
 
 
 class Sign_Dataset(Dataset):
-    def __init__(self, index_file_path, split, pose_root, sample_strategy='rnd_start', num_samples=25, num_copies=4,
+    def __init__(self, index_file_path, split, pose_root, sample_strategy='rnd_start', 
+                 num_samples=25, num_copies=4,
                  img_transforms=None, video_transforms=None, test_index_file=None):
         assert os.path.exists(index_file_path), "Non-existent indexing file path: {}.".format(index_file_path)
         assert os.path.exists(pose_root), "Path to poses does not exist: {}.".format(pose_root)
@@ -133,7 +136,8 @@ class Sign_Dataset(Dataset):
     def __getitem__(self, index):
         video_id, gloss_cat, frame_start, frame_end = self.data[index]
         # frames of dimensions (T, H, W, C)
-        x = self._load_poses(video_id, frame_start, frame_end, self.sample_strategy, self.num_samples)
+        x = self._load_poses(video_id, frame_start, frame_end, 
+                             self.sample_strategy, self.num_samples)
 
         if self.video_transforms:
             x = self.video_transforms(x)
@@ -150,7 +154,8 @@ class Sign_Dataset(Dataset):
         glosses = sorted([gloss_entry['gloss'] for gloss_entry in content])
 
         self.label_encoder.fit(glosses)
-        self.onehot_encoder.fit(self.label_encoder.transform(self.label_encoder.classes_).reshape(-1, 1))
+        self.onehot_encoder.fit(
+                self.label_encoder.transform(self.label_encoder.classes_).reshape(-1, 1))
 
         if self.test_index_file is not None:
             print('Trained on {}, tested on {}'.format(index_file_path, self.test_index_file))
@@ -174,8 +179,10 @@ class Sign_Dataset(Dataset):
                 self.data.append(instance_entry)
 
     def _load_poses(self, video_id, frame_start, frame_end, sample_strategy, num_samples):
-        """ Load frames of a video. Start and end indices are provided just to avoid listing and sorting the directory unnecessarily.
-         """
+        """ 
+        Load frames of a video. Start and end indices are provided just to avoid listing and 
+        sorting the directory unnecessarily.
+        """
         poses = []
 
         if sample_strategy == 'rnd_start':
@@ -183,14 +190,15 @@ class Sign_Dataset(Dataset):
         elif sample_strategy == 'seq':
             frames_to_sample = sequential_sampling(frame_start, frame_end, num_samples)
         elif sample_strategy == 'k_copies':
-            frames_to_sample = k_copies_fixed_length_sequential_sampling(frame_start, frame_end, num_samples,
+            frames_to_sample = k_copies_fixed_length_sequential_sampling(frame_start, 
+                                                                         frame_end, num_samples,
                                                                          self.num_copies)
         else:
             raise NotImplementedError('Unimplemented sample strategy found: {}.'.format(sample_strategy))
 
         for i in frames_to_sample:
-            pose_path = os.path.join(self.pose_root, video_id, self.framename.format(str(i).zfill(5)))
-            # pose = cv2.imread(frame_path, cv2.COLOR_BGR2RGB)
+            pose_path = os.path.join(self.pose_root, video_id, 
+                                     self.framename.format(str(i).zfill(5)))
             pose = read_pose_file(pose_path)
 
             if pose is not None:
@@ -220,7 +228,9 @@ class Sign_Dataset(Dataset):
 
 
 def rand_start_sampling(frame_start, frame_end, num_samples):
-    """Randomly select a starting point and return the continuous ${num_samples} frames."""
+    """
+    Randomly select a starting point and return the continuous ${num_samples} frames.
+    """
     num_frames = frame_end - frame_start + 1
 
     if num_frames > num_samples:
@@ -234,7 +244,10 @@ def rand_start_sampling(frame_start, frame_end, num_samples):
 
 
 def sequential_sampling(frame_start, frame_end, num_samples):
-    """Keep sequentially ${num_samples} frames from the whole video sequence by uniformly skipping frames."""
+    """
+    Keep sequentially ${num_samples} frames from the whole video sequence by 
+    uniformly skipping frames.
+    """
     num_frames = frame_end - frame_start + 1
 
     frames_to_sample = []
@@ -290,25 +303,4 @@ def k_copies_fixed_length_sequential_sampling(frame_start, frame_end, num_sample
 
 
 if __name__ == '__main__':
-    # root = '/home/dxli/workspace/nslt'
-    #
-    # split_file = os.path.join(root, 'data/splits-with-dialect-annotated/asl100.json')
-    # pose_data_root = os.path.join(root, 'data/pose/pose_per_individual_videos')
-    #
-    # num_samples = 64
-    #
-    # train_dataset = Sign_Dataset(index_file_path=split_file, split=['train', 'val'], pose_root=pose_data_root,
-    #                              img_transforms=None, video_transforms=None,
-    #                              num_samples=num_samples)
-    #
-    # train_data_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=64, shuffle=True, num_workers=4)
-    #
-    # cnt = 0
-    # for batch_idx, data in enumerate(train_data_loader):
-    #     print(batch_idx)
-    #     x = data[0]
-    #     y = data[1]
-    #     print(x.size())
-    #     print(y.size())
-
     print(k_copies_fixed_length_sequential_sampling(0, 2, 20, num_copies=3))

@@ -41,6 +41,7 @@ dependencies:
   video_player: ^2.2.8
   path_provider: ^2.0.11
   gal: ^2.3.0
+  photo_manager: ^3.6.2
 
   pytorch_mobile: ^0.2.2 # used to load models in our application
 
@@ -63,6 +64,12 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+
+  # Fonts used in the application
+  fonts:
+    - family: MonoLisa
+      fonts:
+        - asset: assets/fonts/MonoLisa-Regular.ttf
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

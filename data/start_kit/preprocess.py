@@ -1,3 +1,8 @@
+"""
+This file was provided by WLASL (https://github.com/dxli94/WLASL) and is used to preprocess the
+WLASL dataset. It converts files to mp4 and extracts frames to create video instances.
+"""
+
 # preprocessing script for WLASL dataset
 # 1. Convert .swf, .mkv file to mp4.
 # 2. Extract YouTube frames and create video instances.

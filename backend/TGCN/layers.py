@@ -1,3 +1,8 @@
+"""
+This file was provided by WLASL (https://github.com/dxli94/WLASL). It's used to define the
+layers used in the TGCN model.
+"""
+
 import math
 
 import torch

@@ -1,3 +1,8 @@
+"""
+This file was provided by WLASL (https://github.com/dxli94/WLASL) and it used to train the 
+TGCN model.
+"""
+
 import logging
 import os
 
@@ -24,30 +29,37 @@ def run(split_file, pose_data_root, configs, save_model_to=None):
     num_stages = configs.num_stages
 
     # setup dataset
-    train_dataset = Sign_Dataset(index_file_path=split_file, split=['train', 'val'], pose_root=pose_data_root,
-                                 img_transforms=None, video_transforms=None, num_samples=num_samples)
+    train_dataset = Sign_Dataset(index_file_path=split_file, split=['train', 'val'], 
+                                 pose_root=pose_data_root,
+                                 img_transforms=None, 
+                                 video_transforms=None, 
+                                 num_samples=num_samples)
 
-    train_data_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=configs.batch_size,
+    train_data_loader = torch.utils.data.DataLoader(dataset=train_dataset, 
+                                                    batch_size=configs.batch_size,
                                                     shuffle=True)
 
     val_dataset = Sign_Dataset(index_file_path=split_file, split='test', pose_root=pose_data_root,
                                img_transforms=None, video_transforms=None,
                                num_samples=num_samples,
                                sample_strategy='k_copies')
-    val_data_loader = torch.utils.data.DataLoader(dataset=val_dataset, batch_size=configs.batch_size,
+    val_data_loader = torch.utils.data.DataLoader(dataset=val_dataset, 
+                                                  batch_size=configs.batch_size,
                                                   shuffle=True)
 
     logging.info('\n'.join(['Class labels are: '] + [(str(i) + ' - ' + label) for i, label in
-                                                     enumerate(train_dataset.label_encoder.classes_)]))
+                                                enumerate(train_dataset.label_encoder.classes_)]))
 
     # setup the model
     model = GCN_muti_att(input_feature=num_samples*2, hidden_feature=num_samples*2,
-                         num_class=len(train_dataset.label_encoder.classes_), p_dropout=drop_p, num_stage=num_stages).cuda()
+                         num_class=len(train_dataset.label_encoder.classes_), 
+                         p_dropout=drop_p, num_stage=num_stages).cuda()
 
     # setup training parameters, learning rate, optimizer, scheduler
     lr = configs.init_lr
     # optimizer = optim.SGD(vgg_gru.parameters(), lr=lr, momentum=0.00001)
-    optimizer = optim.Adam(model.parameters(), lr=lr, eps=configs.adam_eps, weight_decay=configs.adam_weight_decay)
+    optimizer = optim.Adam(model.parameters(), lr=lr, eps=configs.adam_eps, 
+                           weight_decay=configs.adam_weight_decay)
 
     # record training process
     epoch_train_losses = []
@@ -62,17 +74,16 @@ def run(split_file, pose_data_root, configs, save_model_to=None):
 
         print('start training.')
         train_losses, train_scores, train_gts, train_preds = train(log_interval, model,
-                                                                   train_data_loader, optimizer, epoch)
+                                                                   train_data_loader, optimizer, 
+                                                                   epoch)
         print('start testing.')
         val_loss, val_score, val_gts, val_preds, incorrect_samples = validation(model,
-                                                                                val_data_loader, epoch,
-                                                                                save_to=save_model_to)
-        # print('start testing.')
-        # val_loss, val_score, val_gts, val_preds, incorrect_samples = validation(model,
-        #                                                                         val_data_loader, epoch,
-        #                                                                         save_to=save_model_to)
+                                                                            val_data_loader, 
+                                                                            epoch,
+                                                                            save_to=save_model_to)
 
-        logging.info('========================\nEpoch: {} Average loss: {:.4f}'.format(epoch, val_loss))
+        logging.info('========================\nEpoch: {} Average loss: {:.4f}'.format(
+                                                                            epoch, val_loss))
         logging.info('Top-1 acc: {:.4f}'.format(100 * val_score[0]))
         logging.info('Top-3 acc: {:.4f}'.format(100 * val_score[1]))
         logging.info('Top-5 acc: {:.4f}'.format(100 * val_score[2]))
@@ -96,15 +107,17 @@ def run(split_file, pose_data_root, configs, save_model_to=None):
             best_test_acc = val_score[0]
             best_epoch_num = epoch
 
-            torch.save(model.state_dict(), os.path.join('checkpoints', subset, 'gcn_epoch={}_val_acc={}.pth'.format(
-                best_epoch_num, best_test_acc)))
+            torch.save(model.state_dict(), os.path.join('checkpoints', subset, 
+                                                        'gcn_epoch={}_val_acc={}.pth'.format(
+                                                        best_epoch_num, best_test_acc)))
 
     utils.plot_curves()
 
     class_names = train_dataset.label_encoder.classes_
     utils.plot_confusion_matrix(train_gts, train_preds, classes=class_names, normalize=False,
                                 save_to='output/train-conf-mat')
-    utils.plot_confusion_matrix(val_gts, val_preds, classes=class_names, normalize=False, save_to='output/val-conf-mat')
+    utils.plot_confusion_matrix(val_gts, val_preds, classes=class_names, normalize=False, 
+                                save_to='output/val-conf-mat')
 
 
 if __name__ == "__main__":
@@ -117,7 +130,8 @@ if __name__ == "__main__":
     config_file = os.path.join(root, 'code/TGCN/configs/{}.ini'.format(subset))
     configs = Config(config_file)
 
-    logging.basicConfig(filename='output/{}.log'.format(os.path.basename(config_file)[:-4]), level=logging.DEBUG, filemode='w+')
+    logging.basicConfig(filename='output/{}.log'.format(os.path.basename(config_file)[:-4]), 
+                        level=logging.DEBUG, filemode='w+')
 
     logging.info('Calling main.run()')
     run(split_file=split_file, configs=configs, pose_data_root=pose_data_root)
