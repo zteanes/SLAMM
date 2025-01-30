@@ -27,6 +27,8 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   /// This widget is the root of our application, used to create the application.
   @override
   Widget build(BuildContext context) {

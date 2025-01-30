@@ -12,8 +12,6 @@ import 'package:frontend/main.dart';
 import 'package:frontend/tabs_bar.dart';
 import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:photo_manager/photo_manager.dart';
-import 'package:video_player/video_player.dart';
 
 /// cameras used within the app; int representations of the cameras
 /// This is general default values for all phons as far as we know, needs confirmation
@@ -26,6 +24,13 @@ int FIRST_ALBUM = 0;
 // ratios for the camera preview
 int WIDTH_RATIO = 1920;
 int HEIGHT_RATIO = 1080;
+
+/// 
+String tempDirectoryPath = "";
+
+///
+String videoPath = "";
+
 
 /// boolean used to check when camera is in use
 bool _isRecording = false;
@@ -81,46 +86,46 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   /// Gets the most recent video from the gallery
-  Future<File?> getMostRecentVideo() async {
-    //! currently not working, gives access to the gallery no matter what the user selects
-    // final PermissionState permission = await PhotoManager.requestPermissionExtend();
+  // Future<File?> getMostRecentVideo() async {
+  //   //! currently not working, gives access to the gallery no matter what the user selects
+  //   // final PermissionState permission = await PhotoManager.requestPermissionExtend();
 
-    //if (permission.isAuth) {
-    // Get all albums (gallery collections)
-    final List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(
-      type: RequestType.video, // Specify to fetch only videos
-      filterOption: FilterOptionGroup(
-        orders: [
-          // Sort by creation date descending
-          const OrderOption(type: OrderOptionType.createDate, asc: false),
-        ],
-      ),
-    );
+  //   //if (permission.isAuth) {
+  //   // Get all albums (gallery collections)
+  //   final List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(
+  //     type: RequestType.video, // Specify to fetch only videos
+  //     filterOption: FilterOptionGroup(
+  //       orders: [
+  //         // Sort by creation date descending
+  //         const OrderOption(type: OrderOptionType.createDate, asc: false),
+  //       ],
+  //     ),
+  //   );
 
-    if (albums.isNotEmpty) {
-      // Fetch videos from the first album
-      final List<AssetEntity> videos =
-          await albums[FIRST_ALBUM].getAssetListPaged(page: 0, size: 1);
+  //   if (albums.isNotEmpty) {
+  //     // Fetch videos from the first album
+  //     final List<AssetEntity> videos =
+  //         await albums[FIRST_ALBUM].getAssetListPaged(page: 0, size: 1);
 
-      if (videos.isNotEmpty) {
-        // Most recent video
-        final AssetEntity recentVideo = videos.first;
+  //     if (videos.isNotEmpty) {
+  //       // Most recent video
+  //       final AssetEntity recentVideo = videos.first;
 
-        // Get file for the video
-        final File? videoFile = await recentVideo.file;
-        // Return the video file
-        return videoFile;
-      } else {
-        print('No videos found in the gallery.');
-        return null;
-      }
-    } else {
-      print('No albums found in the gallery.');
-      return null;
-    }
-  }
+  //       // Get file for the video
+  //       final File? videoFile = await recentVideo.file;
+  //       // Return the video file
+  //       return videoFile;
+  //     } else {
+  //       print('No videos found in the gallery.');
+  //       return null;
+  //     }
+  //   } else {
+  //     print('No albums found in the gallery.');
+  //     return null;
+  //   }
+  // }
 
-  /// Displays a temporary popup message that video was saved to camera roll or errored out
+  /// Displays a temporary popup message that video was saved to the phone
   void showVideoSaved(text) {
     showDialog(
       context: context,
@@ -137,15 +142,7 @@ class CameraScreenState extends State<CameraScreen> {
             ),
             TextButton(
                 onPressed: () async {
-                  final recentVideo = await getMostRecentVideo();
-
-                  //! start of a video replay, not yet implemented
-                  if (recentVideo != null) {
-                    final VideoPlayerController videoController =
-                        VideoPlayerController.file(
-                      recentVideo,
-                    );
-                  }
+                  Navigator.of(context).pop();
                 },
                 // button to translate the video
                 child: const Text("Translate"))
@@ -155,6 +152,19 @@ class CameraScreenState extends State<CameraScreen> {
     );
   }
 
+  Future<String> _tempDirPath() async {
+    final Directory tempDir = await getTemporaryDirectory();
+    return tempDir.path;
+  }
+
+  void _deleteTempDir() async {
+    final Directory tempDir = Directory(tempDirectoryPath);
+    if (tempDir.existsSync()) {
+      tempDir.deleteSync(recursive: true);
+    }
+  }
+
+
   /// Records the video and saves it to the camera roll
   void _recordVideo() async {
     if (_isRecording) {
@@ -163,29 +173,37 @@ class CameraScreenState extends State<CameraScreen> {
         final file = await controller.stopVideoRecording();
 
         /// Directory where the video will be saved
-        Directory? directory;
+        // Directory? directory;
 
-        // Check platform to determine where to save the video
-        if (Platform.isAndroid) {
+        // // Check platform to determine where to save the video
+        // if (Platform.isAndroid) {
 
-          // Save to Movies directory on Android
-          directory = await getExternalStorageDirectory();
-          directory = Directory('${directory!.path}/Movies');
-          if (!directory.existsSync()) {
-            directory.createSync(recursive: true);
-          }
-        // Saving is slightly different on iOS
-        } else if (Platform.isIOS) {
-          // Use Documents directory for iOS
-          directory = await getApplicationDocumentsDirectory();
-        }
-        // Saves the video as a mp4 file with the current timestamp
-        final newPath =
-            '${directory?.path ?? ''}/${DateTime.now().millisecondsSinceEpoch}.mp4';
+        //   // Save to Movies directory on Android
+        //   directory = await getExternalStorageDirectory();
+        //   directory = Directory('${directory!.path}/Movies');
+        //   if (!directory.existsSync()) {
+        //     directory.createSync(recursive: true);
+        //   }
+        // // Saving is slightly different on iOS
+        // } else if (Platform.isIOS) {
+        //   // Use Documents directory for iOS
+        //   directory = await getApplicationDocumentsDirectory();
+        // }
+        // // Saves the video as a mp4 file with the current timestamp
+        // final newPath =
+        //     '${directory?.path ?? ''}/${DateTime.now().millisecondsSinceEpoch}.mp4';
+        // final newFile = await File(file.path).copy(newPath);
+
+        String timeStamp = DateTime.now().millisecondsSinceEpoch.toString();
+        tempDirectoryPath = await _tempDirPath();
+
+        final newPath = '$tempDirectoryPath/$timeStamp.mp4';
         final newFile = await File(file.path).copy(newPath);
+        // get the path of the saved video
+        videoPath = newFile.path;
 
         // Use Gal to process the saved video
-        await Gal.putVideo(newFile.path);
+        await Gal.putVideo(videoPath);
 
         setState(() => _isRecording = false);
       } catch (e) {
@@ -199,6 +217,7 @@ class CameraScreenState extends State<CameraScreen> {
     } else {
       await controller.prepareForVideoRecording();
       await controller.startVideoRecording();
+      _deleteTempDir();
       setState(() => _isRecording = true);
     }
   }
@@ -257,7 +276,7 @@ class CameraScreenState extends State<CameraScreen> {
                   _recordVideo();
                   if (_isRecording) {
                     // show popup that video was recorded
-                    showVideoSaved("Video saved to camera roll!");
+                    showVideoSaved("Video recorded successfully.");
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -273,7 +292,7 @@ class CameraScreenState extends State<CameraScreen> {
         ],
       ),
       // bottom navigation bar to navigate between screens
-      bottomNavigationBar: BottomTabBar(),
+      bottomNavigationBar: const BottomTabBar(),
     );
   }
 }
