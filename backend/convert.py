@@ -1,10 +1,14 @@
 """ 
-File converts the PyTorch model to TorchScript model
+this script converts the PyTorch model to an Executorch model for mobile.
 """
 import torch
 import os
+import executorch
+import executorch.tools.convert as convert
 from TGCN.tgcn_model import GCN_muti_att
 from TGCN.configs import Config
+from torch.export import export
+
 
 def load_model():
     """
@@ -33,10 +37,41 @@ def load_model():
     # return the loaded model
     return model
 
-
-# load our model, set to eval, then save to new file
+# load our model, set to eval
 path = os.path.join(os.getcwd(), 'backend/TGCN/saved_models/asl100.pth')
-model = torch.load(path) 
-model.eval()  
-scripted_model = torch.jit.script(model)  
-scripted_model.save(os.getcwd() + "backend/TGCN/saved_models/asl100.pt")
+model = load_model()
+model.load_state_dict(torch.load(path))
+model.eval()
+
+# export with torch.export 
+dummy_input = torch.randn(1, 55, model.gc1.in_features).cuda()
+export_model = export(model, dummy_input)
+
+# convert to executorch
+executorch_model = convert.to_executorch(export_model)
+
+# save to a .pte file 
+executorch_path = os.path.join(os.getcwd(), "backend/TGCN/saved_models/asl100.pte")
+with open(executorch_path, "wb") as f:
+    f.write(executorch_program.buffer)
+print(f"Executorch model saved to {executorch_path}")
+
+
+
+######## old framework ########
+
+# # load our model, set to eval
+# path = os.path.join(os.getcwd(), 'backend/TGCN/saved_models/asl100.pth')
+# model = torch.load(path) 
+# # model = load_model()
+# model.eval()  
+# dummy_input = torch.randn(1, 55, model.gc1.in_features).cuda()
+# export_model = export(model, torch.randn(1, 100, 42).cuda(), verbose=False)
+
+# # convert to TorchScript
+# scripted_model = torch.jit.script(model, dummy_input)  
+# scripted_model.save(os.getcwd() + "backend/TGCN/saved_models/asl100.pt")
+
+# # convert to executorch
+# executorch_model = compile_tools.to_executorch(scripted_model)
+# torch.jit.save(executorch_model, os.getcwd() + "backend/TGCN/saved_models/asl100.pte")
