@@ -48,7 +48,9 @@ Model? customModel;
 Future<void> loadModel() async {
   /// This function loads the model from the assets folder and stores it in 
   /// the customModel variable
+  print('Loading model...');
   customModel = await PyTorchMobile.loadModel('assets/models/asl100.pt');
+  print('Model loaded!'); 
 }
 
 Future<String> processVideo(String videoPath) async {
@@ -56,6 +58,11 @@ Future<String> processVideo(String videoPath) async {
   /// and returning the most common sign. It accomplishes this by calling many helper 
   /// functions that are defined below.
   try {
+    // check to see if the model is loaded. if not, load it 
+    if(customModel == null) {
+      await loadModel();
+    }
+
     // extract frames
     final frames = await extractVideoToFrames(videoPath);
 
@@ -184,6 +191,7 @@ class CameraScreenState extends State<CameraScreen> {
 
   /// Initializes the camera controller
   void _initializeCamera(int cameraPos) {
+    try{
     controller = CameraController(
       cameras[cameraPos],
       ResolutionPreset.high,
@@ -195,15 +203,21 @@ class CameraScreenState extends State<CameraScreen> {
       }
       setState(() {});
     });
+    } catch (e) {
+      print('Error initializing camera: $e');
+    }
   }
 
   /// Switches the camera from front to back and vice versa
-  void switchCamera() {
+  void switchCamera() async {
+    // dispose of the current controller
+    await controller.dispose();
+      
+    // flip the camera
     setState(() {
       isCameraFront = !isCameraFront;
     });
-    // dispose of the current controller
-    controller.dispose();
+    
     // initialize a new controller
     _initializeCamera(isCameraFront ? FRONT_CAMERA : BACK_CAMERA);
   }
@@ -236,6 +250,8 @@ class CameraScreenState extends State<CameraScreen> {
 
         // Get file for the video
         final File? videoFile = await recentVideo.file;
+
+        print('got video file: $videoFile');
         // Return the video file
         return videoFile;
       } else {
@@ -266,7 +282,9 @@ class CameraScreenState extends State<CameraScreen> {
             TextButton(
               // translate button to get prediction for video recorded
                 onPressed: () async {
+                  print('Translating video...');
                   final recentVideo = await getMostRecentVideo();
+                  print('got video');
 
                   //! start of a video replay, not yet implemented
                   if (recentVideo != null) {
@@ -277,7 +295,7 @@ class CameraScreenState extends State<CameraScreen> {
                   }
 
                   // process the video
-                  String prediction = processVideo(recentVideo!.path) as String;
+                  String prediction = await processVideo(recentVideo!.path);
 
                   // show the prediction
                   showDialog(
