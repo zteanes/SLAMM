@@ -2,18 +2,23 @@
 this script converts the PyTorch model to an Executorch model for mobile.
 """
 import torch
+from torch.export import export, export_for_training, ExportedProgram
 import os
 import executorch
-import executorch.tools.convert as convert
+from executorch.exir import ExecutorchBackendConfig, EdgeProgramManager, ExecutorchProgramManager, to_edge
 from TGCN.tgcn_model import GCN_muti_att
 from TGCN.configs import Config
-from torch.export import export
 
+# use it later when we already have the model
+num_samples = 0
 
 def load_model():
     """
     Load the model for communication with frontend.
     """
+    # global variables we need to use
+    global num_samples
+
     # change root and subset accordingly.
     root = os.getcwd();
     trained_on = 'asl100'
@@ -30,31 +35,57 @@ def load_model():
 
     # load the model
     print("Loading model...")
-    model = GCN_muti_att(input_feature=num_samples * 2, hidden_feature=hidden_size,
-                         num_class=int(trained_on[3:]), p_dropout=drop_p, num_stage=num_stages).cuda()
+    model = GCN_muti_att(input_feature=num_samples * 2, 
+                         hidden_feature=hidden_size,
+                         num_class=int(trained_on[3:]), 
+                         p_dropout=drop_p, 
+                         num_stage=num_stages).cuda()
     print("Finish loading model!")
 
     # return the loaded model
     return model
 
-# load our model, set to eval
-path = os.path.join(os.getcwd(), 'backend/TGCN/saved_models/asl100.pth')
+# load model and set to eval
 model = load_model()
-model.load_state_dict(torch.load(path))
 model.eval()
 
-# export with torch.export 
-dummy_input = torch.randn(1, 55, model.gc1.in_features).cuda()
-export_model = export(model, dummy_input)
+# example input 
+dummy_input = torch.randn(1, 55, 100).cuda()
 
-# convert to executorch
-executorch_model = convert.to_executorch(export_model)
+# convert to cpu
+model = model.cpu()
+dummy_input = dummy_input.cpu()
 
-# save to a .pte file 
-executorch_path = os.path.join(os.getcwd(), "backend/TGCN/saved_models/asl100.pte")
-with open(executorch_path, "wb") as f:
-    f.write(executorch_program.buffer)
-print(f"Executorch model saved to {executorch_path}")
+# trace the model 
+traced_model = torch.jit.trace(model, dummy_input)
+
+# save as TorchScript
+traced_model.save(os.path.join(os.getcwd(), 'backend/TGCN/saved_models/asl100.pt'))
+
+# convert to Executorch
+pre_autograd_aten_dialect = export_for_training(model, (dummy_input,)).module()
+print("pre_autograd_aten_dialect made")
+aten_dialect: ExportedProgram = export(pre_autograd_aten_dialect, (dummy_input,))
+print("aten_dialect made")
+edge_program: EdgeProgramManager = to_edge(aten_dialect)
+print("edge_program made")
+
+executorch_program: ExecutorchProgramManager = edge_program.to_executorch(
+    ExecutorchBackendConfig(
+        passes=[]  # User-defined passes, you can leave it empty if not needed
+    )
+)
+print("executorch_program made")
+
+# save to .pte file
+save_path = os.path.join(os.getcwd(), 'backend/TGCN/saved_models/asl100_executorch.pte')
+with open(save_path, "wb") as file:
+    file.write(executorch_program.buffer)
+
+print(f"Model exported and saved to {save_path}")
+print("Model converted to Executorch!")
+
+
 
 
 
