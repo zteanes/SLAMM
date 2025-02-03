@@ -194,9 +194,11 @@ class CameraScreenState extends State<CameraScreen> {
         //     '${directory?.path ?? ''}/${DateTime.now().millisecondsSinceEpoch}.mp4';
         // final newFile = await File(file.path).copy(newPath);
 
+        //creates a unique name for each video file
         String timeStamp = DateTime.now().millisecondsSinceEpoch.toString();
+        //creates a new temp dir to store the videos
         tempDirectoryPath = await _tempDirPath();
-
+        //saves the newest video to the directory
         final newPath = '$tempDirectoryPath/$timeStamp.mp4';
         final newFile = await File(file.path).copy(newPath);
         // get the path of the saved video
@@ -217,6 +219,7 @@ class CameraScreenState extends State<CameraScreen> {
     } else {
       await controller.prepareForVideoRecording();
       await controller.startVideoRecording();
+      //delete the temp directory
       _deleteTempDir();
       setState(() => _isRecording = true);
     }
@@ -276,7 +279,7 @@ class CameraScreenState extends State<CameraScreen> {
                   _recordVideo();
                   if (_isRecording) {
                     // show popup that video was recorded
-                    showVideoSaved("Video recorded successfully.");
+                    showVideoSaved("Video Saved Successfully!");
                   }
                 },
                 style: ElevatedButton.styleFrom(
