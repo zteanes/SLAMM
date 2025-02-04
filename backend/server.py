@@ -22,8 +22,9 @@ from TGCN.tgcn_model import GCN_muti_att
 from TGCN.configs import Config
 import cv2
 
+
 # initialize the FastAPI
-app = FastAPI()
+app = FastAPI(redirect_slashes=False)
 
 ########### Methods for debugging and loading model ###########
 
@@ -84,7 +85,7 @@ async def root():
     return {"message": "This is the working backend for SLAMM."}
     
 
-@app.post("/predict_video/")
+@app.post("/predict_video")
 async def predict_video(file: UploadFile = File(...)):
     """ 
     Receives a video from the frontend and TODO: predicts the sign language video.
@@ -121,6 +122,7 @@ async def predict_video(file: UploadFile = File(...)):
     os.remove(path)
 
     return {"message": "Video received and played successfully!"}
+
 
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
