@@ -95,7 +95,7 @@ async def predict_video(file: UploadFile = File(...)):
     Args:
         file: UploadFile - the video received and to be predicted
     """
-    log(Fore.CYAN + "Received video from frontend!!!!!")
+
     # load the video into memory
     video_bytes = await file.read()
     path = f"temp_{file.filename}"
@@ -103,23 +103,51 @@ async def predict_video(file: UploadFile = File(...)):
     # write the video to a temporary file
     with open(path, "wb") as f:
         f.write(video_bytes)
-    
-    # open and play video w/ OpenCV
-    cap = cv2.VideoCapture(path)
 
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-        cv2.imshow('Received video', frame)
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            break
+    # make a temp directory to store the frames
+    os.makedirs("frames", exist_ok=True)
+
+    # break the video up into frames and save images to directory
+    cap = cv2.VideoCapture(path) # open the video
+    # read the first frame. success is false if we can't read the frame, image is the image itself
+    success, image = cap.read() 
+    count = 0 # count to save frames
+    while success: # loop through the video until we run out of frames
+        cv2.imwrite(f"frames/frame_{count}.jpg", image) # save the frame to a directory
+        success, image = cap.read() # read the next frame
+        # print(f"Frame {count} read successfully!")
+        count += 1
     
+    # close the video and destroy the window
     cap.release()
     cv2.destroyAllWindows()
 
+
+
+
+
+    
+    # # open and play video w/ OpenCV
+    # cap = cv2.VideoCapture(path)
+
+    # while cap.isOpened():
+    #     ret, frame = cap.read()
+    #     if not ret:
+    #         break
+    #     cv2.imshow('Received video', frame)
+    #     if cv2.waitKey(25) & 0xFF == ord('q'):
+    #         break
+    
+    # cap.release()
+    # cv2.destroyAllWindows()
+
     # remove the temporary file
     os.remove(path)
+
+    # remove the directory and frames
+    for file in os.listdir("frames"):
+        os.remove(f"frames/{file}")
+    os.rmdir("frames")
 
     return {"message": "Video received and played successfully!"}
 
