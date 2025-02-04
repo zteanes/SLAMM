@@ -20,6 +20,8 @@ import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:image/image.dart' as img;
 import 'package:video_player/video_player.dart';
 
+import 'package:http/http.dart' as http;
+
 /// cameras used within the app; int representations of the cameras
 /// This is general default values for all phons as far as we know, needs confirmation
 const FRONT_CAMERA = 1;
@@ -44,13 +46,51 @@ Model? customModel;
 
 // ------------------ MODEL PREDICTION FUNCTIONALITY ------------------ //
 
+Future<String> uploadVideo(File videoFile) async {
+  /// This function uploads a video to the server, and returns the prediction 
+  /// that is received.
+
+  // create the request
+  // NOTE: HAVE TO CHANGE THE IP ADDRESS TO WHATEVER THE SERVER IP ADDRESS IS
+  //    run : ifconfig getifaddr en0 for Mac
+  //    run : ipconfig for Windows
+  var request = http.MultipartRequest('POST', Uri.parse('http://152.30.103.173:8000/predict_video'));
+
+  // add the video to the request
+  request.files.add(await http.MultipartFile.fromPath('video', videoFile.path));
+
+  // send the request
+  print('about to send video');
+  var response = await request.send();
+  print('sent video');
+
+  // check if the video was uploaded successfully
+  if (response.statusCode == 200) {
+    print('Uploaded video successfully');
+  } else {
+    print('Failed to upload video');
+  }
+  // return the response from the server  
+  var responseText = await response.stream.bytesToString();
+  print("Response: ${responseText}");
+  return responseText;
+}
+
+/*
 // function to load our model
 Future<void> loadModel() async {
   /// This function loads the model from the assets folder and stores it in 
   /// the customModel variable
-  print('Loading model...');
-  customModel = await PyTorchMobile.loadModel('assets/models/asl100.pt');
-  print('Model loaded!'); 
+  try {
+    print('Loading model...');
+    customModel = await PyTorchMobile.loadModel('assets/models/asl100.pt');
+    if (customModel == null) {
+      throw Exception("Failed to load model.");
+    }
+    print('Model loaded successfully!');
+  } catch (e) {
+    print('Error loading model: $e');
+  }
 }
 
 Future<String> processVideo(String videoPath) async {
@@ -108,7 +148,7 @@ Future<List<File>> extractVideoToFrames(String videoPath) async {
   return frames;
 }
 
-Future<File> processFrame(File frame) async {
+Future<File> processFrame(File frame) async {~
   /// This function processes a frame by resizing it to 224x224 and saving it to a temp file
   /// which can then be used to predict the sign
 
@@ -159,7 +199,7 @@ Future<String> getBestPrediction(List<File> frames) async {
   return cnt.entries.reduce((a, b) => a.value > b.value ? a : b).key;
 }
 
-
+*/
 /// ------------ END MODEL PREDICTION FUNCTIONALITY ------------ ///
 /// --------------- BEGIN CAMERA SCREEN CREATION --------------- ///
 
@@ -294,8 +334,9 @@ class CameraScreenState extends State<CameraScreen> {
                     );
                   }
 
-                  // process the video
-                  String prediction = await processVideo(recentVideo!.path);
+                  // upload the video
+                  print("SENDING VIDEO TO SERVER");
+                  var prediction = await uploadVideo(recentVideo!);
 
                   // show the prediction
                   showDialog(

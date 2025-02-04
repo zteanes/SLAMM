@@ -18,11 +18,14 @@ from PIL import Image
 import io
 import os
 from colorama import Fore
-
 from TGCN.tgcn_model import GCN_muti_att
 from TGCN.configs import Config
+import cv2
 
+# initialize the FastAPI
 app = FastAPI()
+
+########### Methods for debugging and loading model ###########
 
 def log(message):
     """
@@ -68,6 +71,10 @@ if torch.cuda.is_available():
 else:
     log(Fore.RED + "CUDA is not available. Please ensure cuda is available before running the server.")
 
+########### end methods for debugging and loading model ###########
+
+
+########### Below are the valid routes through the FastAPI ###########
 
 @app.get("/")
 async def root():
@@ -77,12 +84,49 @@ async def root():
     return {"message": "This is the working backend for SLAMM."}
     
 
+@app.post("/predict_video/")
+async def predict_video(file: UploadFile = File(...)):
+    """ 
+    Receives a video from the frontend and TODO: predicts the sign language video.
+
+    For now, just receives the video and plays it to ensure proper communication.
+
+    Args:
+        file: UploadFile - the video received and to be predicted
+    """
+    log(Fore.CYAN + "Received video from frontend!!!!!")
+    # load the video into memory
+    video_bytes = await file.read()
+    path = f"temp_{file.filename}"
+
+    # write the video to a temporary file
+    with open(path, "wb") as f:
+        f.write(video_bytes)
+    
+    # open and play video w/ OpenCV
+    cap = cv2.VideoCapture(path)
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+        cv2.imshow('Received video', frame)
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
+    
+    cap.release()
+    cv2.destroyAllWindows()
+
+    # remove the temporary file
+    os.remove(path)
+
+    return {"message": "Video received and played successfully!"}
 
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
     global model
     """
-    Predict the image from the frontend, using a model passed in.
+    Predict the video from the frontend, using a model passed in.
     
     Args:
         model: torch.nn.Module - the model to be used for prediction
