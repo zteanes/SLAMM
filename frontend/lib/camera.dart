@@ -57,7 +57,7 @@ Future<String> uploadVideo(File videoFile) async {
   var request = http.MultipartRequest('POST', Uri.parse('http://152.30.103.173:8000/predict_video'));
 
   // add the video to the request
-  request.files.add(await http.MultipartFile.fromPath('video', videoFile.path));
+  request.files.add(await http.MultipartFile.fromPath('file', videoFile.path));
 
   // send the request
   print('about to send video');
@@ -72,6 +72,8 @@ Future<String> uploadVideo(File videoFile) async {
   }
   // return the response from the server  
   var responseText = await response.stream.bytesToString();
+  print("Response: ${response.statusCode}");
+  print("Resposne: ${response.reasonPhrase}");
   print("Response: ${responseText}");
   return responseText;
 }
