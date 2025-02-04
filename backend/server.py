@@ -59,9 +59,28 @@ def load_model():
     # return the loaded model
     return model
     
+# load model and set to eval; ensure cuda is available
+if torch.cuda.is_available():
+    log(Fore.GREEN + "CUDA is available!")
+    model = load_model()
+    model.eval()
+    log(Fore.GREEN + "Model loaded successfully!")
+else:
+    log(Fore.RED + "CUDA is not available. Please ensure cuda is available before running the server.")
+
+
+@app.get("/")
+async def root():
+    """
+    Basic landing screen for the FastAPI backend of SLAMM.
+    """
+    return {"message": "This is the working backend for SLAMM."}
     
+
+
 @app.post("/predict/")
-async def predict(model, file: UploadFile = File(...)):
+async def predict(file: UploadFile = File(...)):
+    global model
     """
     Predict the image from the frontend, using a model passed in.
     
@@ -91,10 +110,10 @@ async def predict(model, file: UploadFile = File(...)):
         
     return prediction
 
-if __name__ == '__main__':
-    # load our model to be used for prediction
-    model = load_model()
+# if __name__ == '__main__':
+#     # load our model to be used for prediction
+#     model = load_model()
 
-    # save model to file
-    torch.save(model, "model.pth")
-    print("Model loaded successfully!")
+#     # save model to file
+#     torch.save(model, "model.pth")
+#     print("Model loaded successfully!")
