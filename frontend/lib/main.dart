@@ -18,11 +18,18 @@ final themeNotifier = ValueNotifier(ThemeMode.system);
 
 // list of the cameras available
 List<CameraDescription> cameras = [];
+String tempDirectoryPath = "";
 
 Future<void> main() async {
   /// This function initializes the cameras available on the device.
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
+  // gets the path and creates the temp directory
+  tempDirectoryPath = await CameraScreenState().tempDirPath();
+  // delete anything left over from a previous run
+  CameraScreenState().deleteTempDir();
+  // remake it for this run
+  tempDirectoryPath = await CameraScreenState().tempDirPath();
   runApp(MyApp());
 }
 
