@@ -1,5 +1,8 @@
 """ 
-this script converts the PyTorch model to an Executorch model for mobile.
+This script converts the PyTorch model to either a TorchScript or Executorch model.
+
+Author: Zach Eanes
+Date: 02/04/2025
 """
 import torch
 from torch.export import export, export_for_training, ExportedProgram
