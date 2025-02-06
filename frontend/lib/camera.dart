@@ -51,10 +51,8 @@ Future<String> uploadVideo(File videoFile) async {
   /// that is received.
 
   // create the request
-  // NOTE: HAVE TO CHANGE THE IP ADDRESS TO WHATEVER THE SERVER IP ADDRESS IS
-  //    run : ifconfig getifaddr en0 for Mac
-  //    run : ipconfig for Windows
-  var request = http.MultipartRequest('POST', Uri.parse('http://152.30.103.173:8000/predict_video'));
+  // NOTE: HAVE TO CHANGE THE IP ADDRESS TO WHATEVER NGROK IS USING TO HOST
+  var request = http.MultipartRequest('POST', Uri.parse('https://2bac-152-30-110-47.ngrok-free.app/predict_video'));
 
   // add the video to the request
   request.files.add(await http.MultipartFile.fromPath('file', videoFile.path));
@@ -72,8 +70,7 @@ Future<String> uploadVideo(File videoFile) async {
   }
   // return the response from the server  
   var responseText = await response.stream.bytesToString();
-  print("Response: ${response.statusCode}");
-  print("Resposne: ${response.reasonPhrase}");
+
   print("Response: ${responseText}");
   return responseText;
 }
