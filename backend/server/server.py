@@ -18,11 +18,10 @@ from PIL import Image
 import io
 import os
 from colorama import Fore
-from TGCN.tgcn_model import GCN_muti_att
-from TGCN.configs import Config
+# from TGCN.tgcn_model import GCN_muti_att
+# from TGCN.configs import Config
 import cv2
-import torch.nn.function as F
-from pytorch_i3d import InceptionI3d
+from I3D.pytorch_i3d import InceptionI3d
 import math
 import os
 import argparse
@@ -30,10 +29,10 @@ import matplotlib.pyplot as plt
 import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
-from pytorch_i3d import InceptionI3d
+from I3D.pytorch_i3d import InceptionI3d
 from keytotext import pipeline
-import language
-from dotenv import load_dotenv
+# import language
+# from dotenv import load_dotenv
 from itertools import chain
 import pickle
 
@@ -55,57 +54,8 @@ root = os.getcwd() + '/data/WLASL100' # root directory for the model info
 train_split = 'preprocess/nslt_100.json' # training split for the model
 # weights for the model
 weights = (os.getcwd() + 
-    'backend/I3D/archived/asl100/FINAL_nslt_100_iters=896_top1=65.89_top5=84.11_top10=89.92.pt')
+    '/I3D/archived/asl100/FINAL_nslt_100_iters=896_top1=65.89_top5=84.11_top10=89.92.pt')
 i3d = None # model itself
-
-# initialize the FastAPI
-app = FastAPI(redirect_slashes=False)
-
-# initialize and load the model if available
-if torch.cuda.is_available():
-    load_I3D_model()
-    log(Fore.GREEN + "-"*20 + "Model loaded successfully!" + "-"*20)
-else:
-    log(Fore.RED + "-"*20 
-        + "CUDA is not available. Please ensure cuda is available before running the server." 
-        + "-"*20)
-
-
-########### Below are the valid routes through the FastAPI ###########
-
-@app.get("/")
-async def root():
-    """
-    Basic landing screen for the FastAPI backend of SLAMM.
-    """
-    return {"message": "This is the working backend for SLAMM."}
-    
-
-@app.post("/predict_video")
-async def predict_video(file: UploadFile = File(...)):
-    """ 
-    Receives a video from the frontend and TODO: predicts the sign language video.
-
-    Args:
-        file: UploadFile - the video received and to be predicted
-    """
-
-    # read the video in from uploaded 
-    video_bytes = await file.read()
-
-    # write video to temp file
-    path = f"temp_{file.filename}"
-
-    with open(path, "wb") as f:
-        f.write(video_bytes)
-    
-    # pass to function to process and predict
-    predicted_text = load_rgb_frames_from_video(path)
-
-    # return the predicted text
-    return {"message": predicted_text}
-
-
 
 ########### Methods for debugging and loading model ###########
 
@@ -130,14 +80,17 @@ def load_I3D_model():
     i3d = nn.DataParallel(i3d)
     i3d.eval()
     
-    #Loading the KeytoText model
+    # NOTE: the following allows you to create a model which takes words and tries to make a sentence; not needed for 
+    #       the scope of our project
+    """
+    # loading the KeytoText model
     
     global nlp
     nlp = pipeline("k2t-new") # The pre-trained models available are 'k2t', 'k2t-base', 'mrm8488/t5-base-finetuned-common_gen', 'k2t-new'
     global params
     params = {"do_sample":True, "num_beams": 5, "no_repeat_ngram_size":2, "early_stopping":True}
     
-    #Loading the NGram model
+    # loading the NGram model
     
     with open("NLP/nlp_data_processed", "rb") as fp:   # Unpickling
            train_data_processed = pickle.load(fp)
@@ -148,34 +101,40 @@ def load_I3D_model():
         
     global vocabulary
     vocabulary = list(set(chain.from_iterable(train_data_processed)))
-
-def load_TGCN_model():
     """
-    Load the TGCN model from WLASL for communication with frontend.
+    
+def run_on_tensor(ip_tensor):
     """
-    # change root and subset accordingly.
-    root = os.getcwd();
-    trained_on = 'asl100'
+    This function was adapted from: 
+        https://github.com/alanjeremiah/WLASL-Recognition-and-Translation/blob/main/WLASL/I3D/run.py
+    
+    Run the model on the input tensor.
+    """
 
-    # config file for all information used to load model
-    config_file = os.path.join(root, 'backend/TGCN/configs/{}.ini'.format(trained_on, trained_on))
-    configs = Config(config_file)
+    ip_tensor = ip_tensor[None, :]
+    
+    t = ip_tensor.shape[2] 
+    ip_tensor.cuda()
+    per_frame_logits = i3d(ip_tensor)
 
-    # necessary variables we get from the config
-    num_samples = configs.num_samples
-    hidden_size = configs.hidden_size
-    drop_p = configs.drop_p
-    num_stages = configs.num_stages
+    predictions = F.upsample(per_frame_logits, t, mode='linear')
 
-    # load the model
-    log(Fore.CYAN + "Loading model...")
-    model = GCN_muti_att(input_feature=num_samples * 2, hidden_feature=hidden_size,
-                         num_class=int(trained_on[3:]), p_dropout=drop_p, 
-                         num_stage=num_stages).cuda()
-    log(Fore.CYAN + "Finish loading model!")
+    predictions = predictions.transpose(2, 1)
+    out_labels = np.argsort(predictions.cpu().detach().numpy()[0])
+    arr = predictions.cpu().detach().numpy()[0] 
 
-    # return the loaded model
-    return model
+    print(float(max(F.softmax(torch.from_numpy(arr[0]), dim=0))))
+    print(wlasl_dict[out_labels[0][-1]])
+    
+    """
+    
+    The 0.5 is threshold value, it varies if the batch sizes are reduced.
+    
+    """
+    if max(F.softmax(torch.from_numpy(arr[0]), dim=0)) > 0.5:
+        return wlasl_dict[out_labels[0][-1]]
+    else:
+        return " " 
 
 def load_rgb_frames_from_video(video_path):
     """ 
@@ -243,7 +202,7 @@ def create_WLASL_dictionary():
     global wlasl_dict 
     wlasl_dict = {}
     
-    with open('preprocess/wlasl_class_list.txt') as file:
+    with open('I3D/preprocess/wlasl_class_list.txt') as file:
         for line in file:
             split_list = line.split()
             if len(split_list) != 2:
@@ -254,4 +213,81 @@ def create_WLASL_dictionary():
                 value = split_list[1]
             wlasl_dict[key] = value
 
+# def load_TGCN_model():
+#     """
+#     Load the TGCN model from WLASL for communication with frontend.
+#     """
+#     # change root and subset accordingly.
+#     root = os.getcwd();
+#     trained_on = 'asl100'
+
+#     # config file for all information used to load model
+#     config_file = os.path.join(root, 'backend/TGCN/configs/{}.ini'.format(trained_on, trained_on))
+#     configs = Config(config_file)
+
+#     # necessary variables we get from the config
+#     num_samples = configs.num_samples
+#     hidden_size = configs.hidden_size
+#     drop_p = configs.drop_p
+#     num_stages = configs.num_stages
+
+#     # load the model
+#     log(Fore.CYAN + "Loading model...")
+#     model = GCN_muti_att(input_feature=num_samples * 2, hidden_feature=hidden_size,
+#                          num_class=int(trained_on[3:]), p_dropout=drop_p, 
+#                          num_stage=num_stages).cuda()
+#     log(Fore.CYAN + "Finish loading model!")
+
+#     # return the loaded model
+#     return model
+
+
 ########### end methods for debugging and loading model ###########
+
+# initialize the FastAPI
+app = FastAPI(redirect_slashes=False)
+
+# initialize and load the model if available
+if torch.cuda.is_available():
+    load_I3D_model()
+    create_WLASL_dictionary()
+    log(Fore.GREEN + "-"*20 + "Model loaded successfully!" + "-"*20)
+else:
+    log(Fore.RED + "-"*20 
+        + "CUDA is not available. Please ensure cuda is available before running the server." 
+        + "-"*20)
+
+
+########### Below are the valid routes through the FastAPI ###########
+
+@app.get("/")
+async def root():
+    """
+    Basic landing screen for the FastAPI backend of SLAMM.
+    """
+    return {"message": "This is the working backend for SLAMM."}
+    
+
+@app.post("/predict_video")
+async def predict_video(file: UploadFile = File(...)):
+    """ 
+    Receives a video from the frontend and TODO: predicts the sign language video.
+
+    Args:
+        file: UploadFile - the video received and to be predicted
+    """
+
+    # read the video in from uploaded 
+    video_bytes = await file.read()
+
+    # write video to temp file
+    path = f"temp_{file.filename}"
+
+    with open(path, "wb") as f:
+        f.write(video_bytes)
+    
+    # pass to function to process and predict
+    predicted_text = load_rgb_frames_from_video(path)
+
+    # return the predicted text
+    return {"message": predicted_text}
