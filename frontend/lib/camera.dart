@@ -14,13 +14,10 @@ import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_manager/photo_manager.dart';
 
-import 'package:pytorch_mobile/pytorch_mobile.dart';
-import 'package:pytorch_mobile/model.dart';
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-import 'package:image/image.dart' as img;
 import 'package:video_player/video_player.dart';
 
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 /// cameras used within the app; int representations of the cameras
 /// This is general default values for all phons as far as we know, needs confirmation
@@ -37,172 +34,42 @@ const HEIGHT_RATIO = 1080;
 /// boolean used to check when camera is in use
 bool _isRecording = false;
 
-// path to the saved video 
-var videoPath = ''; 
-
-// variable to hold our model; accessed throughout the app
-Model? customModel; 
-
-
-// ------------------ MODEL PREDICTION FUNCTIONALITY ------------------ //
 
 Future<String> uploadVideo(File videoFile) async {
   /// This function uploads a video to the server, and returns the prediction 
   /// that is received.
 
   // create the request
-  // NOTE: HAVE TO CHANGE THE IP ADDRESS TO WHATEVER THE SERVER IP ADDRESS IS
-  //    run : ifconfig getifaddr en0 for Mac
-  //    run : ipconfig for Windows
-  var request = http.MultipartRequest('POST', Uri.parse('http://152.30.103.173:8000/predict_video'));
+  // NOTE: HAVE TO CHANGE THE IP ADDRESS TO WHATEVER NGROK IS USING TO HOST
+  var request = http.MultipartRequest('POST', Uri.parse('https://9230-152-30-110-47.ngrok-free.app/predict_video'));
 
   // add the video to the request
   request.files.add(await http.MultipartFile.fromPath('file', videoFile.path));
 
   // send the request
-  print('about to send video');
   var response = await request.send();
-  print('sent video');
 
-  // check if the video was uploaded successfully
-  if (response.statusCode == 200) {
-    print('Uploaded video successfully');
-  } else {
-    print('Failed to upload video');
-  }
   // return the response from the server  
-  var responseText = await response.stream.bytesToString();
-  print("Response: ${response.statusCode}");
-  print("Resposne: ${response.reasonPhrase}");
-  print("Response: ${responseText}");
+  var responseString = await response.stream.bytesToString();
+
+  // decode the response as a json object
+  var jsonResponse = json.decode(responseString);
+
+  // return object to be displayed
+  var responseText = "";
+
+  // if the prediction was empty, return an error message
+  if (jsonResponse['message'] == "") {
+    responseText = "Error processing the video, please re-record and try again.";
+  }
+  else { // otherwise get the prediction/message
+    responseText = jsonResponse['message'];
+  }
+  
+  // return the prediction
   return responseText;
 }
 
-/*
-// function to load our model
-Future<void> loadModel() async {
-  /// This function loads the model from the assets folder and stores it in 
-  /// the customModel variable
-  try {
-    print('Loading model...');
-    customModel = await PyTorchMobile.loadModel('assets/models/asl100.pt');
-    if (customModel == null) {
-      throw Exception("Failed to load model.");
-    }
-    print('Model loaded successfully!');
-  } catch (e) {
-    print('Error loading model: $e');
-  }
-}
-
-Future<String> processVideo(String videoPath) async {
-  /// This function processes a video by extracting frames, predicting the sign in each frame,
-  /// and returning the most common sign. It accomplishes this by calling many helper 
-  /// functions that are defined below.
-  try {
-    // check to see if the model is loaded. if not, load it 
-    if(customModel == null) {
-      await loadModel();
-    }
-
-    // extract frames
-    final frames = await extractVideoToFrames(videoPath);
-
-    // predict most common sign
-    final prediction = await getBestPrediction(frames);
-
-    // show prediction
-    print('Prediction: $prediction');
-
-    // return prediction to be used in the app
-    return prediction;
-  } catch (e) {
-    // print out the error for debugging
-    print('Error processing video: $e');
-
-    // return that an error occurred
-    return 'Error processing the video, please try again.';
-  }
-}
-
-// function to process video
-Future<List<File>> extractVideoToFrames(String videoPath) async {
-  /// This function extracts frames from a video and returns a list of files
-
-  // get video from directory 
-  final directory = await getTemporaryDirectory();
-  final outputDirectory = '${directory.path}/frames';
-  final outputDirectoryFile = Directory(outputDirectory);
-
-  // create directory
-  if(!outputDirectoryFile.existsSync()) {
-    outputDirectoryFile.createSync();
-  }
-
-  // used ffmpeg command to extract frames
-  final command = '-i $videoPath $outputDirectory/frame_%04d.png';
-  await FFmpegKit.execute(command);
-
-  // list all files that end with png and put it to a list 
-  final frames = outputDirectoryFile.listSync().where((file) => file.path.endsWith('.png'))
-      .map((file) => File(file.path)).toList();
-
-  return frames;
-}
-
-Future<File> processFrame(File frame) async {~
-  /// This function processes a frame by resizing it to 224x224 and saving it to a temp file
-  /// which can then be used to predict the sign
-
-  // read image
-  final bytes = await frame.readAsBytes();
-  final image = img.decodeImage(bytes);
-
-  // resize
-  final resized = img.copyResize(image!, width: 224, height: 224);
-
-  // save to a temp file 
-  final directory = await getTemporaryDirectory();
-  final resizedPath = '${directory.path}/${frame.uri.pathSegments.last}';
-  final resizedFile = File(resizedPath);
-  resizedFile.writeAsBytesSync(img.encodePng(resized));
-
-  return resizedFile;
-}
-
-Future<Map<String, int>> predictFrames(List<File> frames) async {
-  /// This function predicts the sign in each frame and returns a map with the predictions 
-  /// and their counts
-
-  // map to save predictions and have an associated count to each
-  Map<String, int> cnt = {};
-
-  for(final frame in frames) {
-    final preFrame = await processFrame(frame);
-
-    // get prediction
-    final prediction = await customModel?.getImagePrediction(preFrame, 224, 224, "mean,std");
-
-    // count prediction
-    if(cnt.containsKey(prediction)) {
-      cnt[prediction!] = (cnt[prediction!] ?? 0) + 1;
-    } else {
-      cnt[prediction!] = 1;
-    }
-  }
-  return cnt;
-}
-
-Future<String> getBestPrediction(List<File> frames) async {
-  /// This function gets the prediction of each frame and returns the most common prediction
-  final cnt = await predictFrames(frames);
-
-  // get most common prediction
-  return cnt.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-}
-
-*/
-/// ------------ END MODEL PREDICTION FUNCTIONALITY ------------ ///
 /// --------------- BEGIN CAMERA SCREEN CREATION --------------- ///
 
 
@@ -293,7 +160,6 @@ class CameraScreenState extends State<CameraScreen> {
         // Get file for the video
         final File? videoFile = await recentVideo.file;
 
-        print('got video file: $videoFile');
         // Return the video file
         return videoFile;
       } else {
@@ -324,9 +190,7 @@ class CameraScreenState extends State<CameraScreen> {
             TextButton(
               // translate button to get prediction for video recorded
                 onPressed: () async {
-                  print('Translating video...');
                   final recentVideo = await getMostRecentVideo();
-                  print('got video');
 
                   //! start of a video replay, not yet implemented
                   if (recentVideo != null) {
@@ -337,29 +201,32 @@ class CameraScreenState extends State<CameraScreen> {
                   }
 
                   // upload the video
-                  print("SENDING VIDEO TO SERVER");
                   var prediction = await uploadVideo(recentVideo!);
 
-                  // show the prediction
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text('Prediction: $prediction'),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
+                  // remove dialog of video saved
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
 
-                  // clear the popup
-                  Navigator.of(context).pop();
+                  // show the prediction
+                  if (context.mounted) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Prediction: ${prediction}'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 },
                 // button to translate the video
                 child: const Text("Translate"))
