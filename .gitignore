@@ -1,5 +1,6 @@
 .vscode/
 .venv/
+output.txt
 data/start_kit/raw_videos*/
 data/start_kit/videos/
 data/start_kit/.DS_Store
