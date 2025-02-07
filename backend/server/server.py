@@ -12,7 +12,7 @@ Version: 0.1
 import torch
 from torchvision import models
 from torchvision import transforms
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, Form, UploadFile
 from typing import List
 from PIL import Image
 import io
@@ -131,7 +131,7 @@ def run_on_tensor(ip_tensor):
     The 0.5 is threshold value, it varies if the batch sizes are reduced.
     
     """
-    if max(F.softmax(torch.from_numpy(arr[0]), dim=0)) > 0.25: # if it's 25% confident return it
+    if max(F.softmax(torch.from_numpy(arr[0]), dim=0)) > 0.0: # if it's 25% confident return it
         return wlasl_dict[out_labels[0][-1]]
     else:
         return " " 
@@ -254,28 +254,42 @@ async def root():
     return {"message": "This is the working backend for SLAMM."}
     
 
+words = []
 @app.post("/predict_video")
-async def predict_video(file: UploadFile = File(...)):
+async def predict_video(file: UploadFile = File(...), buffer: int = Form(...)):
     """ 
     Receives a video from the frontend and predicts the sign language video.
 
     Args:
         file: UploadFile - the video received and to be predicted
     """
+    global words
 
     # read the video in from uploaded 
     video_bytes = await file.read()
 
     # write video to temp file
     path = f"temp_{file.filename}"
+    print(path)
     with open(path, "wb") as f:
         f.write(video_bytes)
     
+    # print the int 
+    print(buffer)
+
     # pass to function to process and predict
     predicted_text = load_rgb_frames_from_video(path)
+
+    words.append(predicted_text)
 
     # delete the video
     os.remove(path)
 
     # return the predicted text
-    return {"message": predicted_text}
+    if buffer == 1: # if it's one, we're storing words for the time being, so just return current one
+        return {"message": predicted_text}
+    else: # if it's zero, we're done storing words and return all of them 
+        toReturn = " ".join(words)
+        words = []
+        return {"message": toReturn}
+        
