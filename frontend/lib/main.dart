@@ -18,6 +18,8 @@ final themeNotifier = ValueNotifier(ThemeMode.system);
 
 // list of the cameras available
 List<CameraDescription> cameras = [];
+
+// path to the temp directory to store all files
 String tempDirectoryPath = "";
 
 Future<void> main() async {

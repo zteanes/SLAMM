@@ -2,7 +2,7 @@
 /// application.
 ///
 /// Authors: Alex Charlot and Zach Eanes
-/// Date: 12/06/2024
+/// Date: 02/07/2025
 library;
 
 import 'dart:io';
@@ -12,12 +12,11 @@ import 'package:frontend/main.dart';
 import 'package:frontend/tabs_bar.dart';
 import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 /// cameras used within the app; int representations of the cameras
-/// This is general default values for all phons as far as we know, needs confirmation
+/// This is general default values for all phones as far as we know, needs confirmation
 const FRONT_CAMERA = 1;
 const BACK_CAMERA = 0;
 
@@ -28,15 +27,11 @@ const FIRST_ALBUM = 0;
 const WIDTH_RATIO = 1920;
 const HEIGHT_RATIO = 1080;
 
-/// 
-
-///
+/// video path for the most recent video recorded
 String videoPath = "";
-
 
 /// boolean used to check when camera is in use
 bool _isRecording = false;
-
 
 Future<String> uploadVideo(File videoFile) async {
   /// This function uploads a video to the server, and returns the prediction 
@@ -135,7 +130,7 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   /// Displays a temporary popup message that video was saved to the phone
-  void showVideoSaved(text) {
+  void showVideoSaved(text, path) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -153,18 +148,14 @@ class CameraScreenState extends State<CameraScreen> {
               // translate button to get prediction for video recorded
                 onPressed: () async {
                   Navigator.of(context).pop();
-                  final recentVideo = await getMostRecentVideo();
-
-                  //! start of a video replay, not yet implemented
-                  if (recentVideo != null) {
-                    final VideoPlayerController videoController =
-                        VideoPlayerController.file(
-                      recentVideo,
-                    );
+                  // make a file of the video from the path
+                  if (path == "") {
+                    return;
                   }
+                  final recentVideo = File(path);
 
                   // upload the video
-                  var prediction = await uploadVideo(recentVideo!);
+                  var prediction = await uploadVideo(recentVideo);
 
                   // remove dialog of video saved
                   if (context.mounted) {
@@ -216,15 +207,18 @@ class CameraScreenState extends State<CameraScreen> {
   /// Records the video and saves it to the camera roll
   Future<String> _recordVideo(bool newWord) async {
     if (_isRecording) {
+      var newPath = "";
       try {
         // waits for the video to stop recording
         final file = await controller.stopVideoRecording();
 
-        //creates a unique name for each video file
+        // creates a unique name for each video file
         String timeStamp = DateTime.now().millisecondsSinceEpoch.toString();
-        //saves the newest video to the directory
-        final newPath = '$tempDirectoryPath/$timeStamp.mp4';
+
+        // saves the newest video to the directory
+        newPath = '$tempDirectoryPath/$timeStamp.mp4';
         final newFile = await File(file.path).copy(newPath);
+
         // get the path of the saved video
         videoPath = newFile.path;
 
@@ -233,18 +227,20 @@ class CameraScreenState extends State<CameraScreen> {
 
         setState(() => _isRecording = false);
       } catch (e) {
-        // show popup that video was not saved
-        showVideoSaved("Error recording/saving video, please try again.");
+        // show popup that video was not saved, pass "" as path to close it 
+        showVideoSaved("Error recording/saving video, please try again.", "");
         setState(() {
           _isRecording = false;
         });
       }
-      return "Stopped";
+      return newPath;
+
       // if not recording, start recording
     } else {
       await controller.prepareForVideoRecording();
       await controller.startVideoRecording();
-      //delete the temp directory
+
+      // delete the temp directory
       if (!newWord){
         deleteTempDir();
         tempDirectoryPath = await tempDirPath();
@@ -305,10 +301,10 @@ class CameraScreenState extends State<CameraScreen> {
               padding: const EdgeInsets.all(20),
               child: ElevatedButton(
                 onPressed: () {
-                  _recordVideo(false);
+                  var path = _recordVideo(false);
                   if (_isRecording) {
                     // show popup that video was recorded
-                    showVideoSaved("Video Saved Successfully!");
+                    showVideoSaved("Video recorded!", path);
                   }
                 },
                 style: ElevatedButton.styleFrom(
