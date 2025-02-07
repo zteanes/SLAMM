@@ -119,8 +119,11 @@ class GCN_muti_att(nn.Module):
         y = self.act_f(y)
         y = self.do(y)
 
-        for i in range(self.num_stage):
-            y = self.gcbs[i](y)
+        # for i in range(self.num_stage):
+        #     y = self.gcbs[i](y)
+
+        for _, gc_block in enumerate(self.gcbs):
+            y = gc_block(y)
 
         # y = self.gc7(y)
         out = torch.mean(y, dim=1)

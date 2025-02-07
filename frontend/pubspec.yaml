@@ -43,6 +43,10 @@ dependencies:
   gal: ^2.3.0
   photo_manager: ^3.6.2
 
+  pytorch_mobile: ^0.2.2 # used to load models in our application
+
+  ffmpeg_kit_flutter: ^6.0.3 # used to process video files
+  image: ^4.0.15
 
 dev_dependencies:
   flutter_test:
@@ -61,6 +65,12 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
 
+  # Fonts used in the application
+  fonts:
+    - family: MonoLisa
+      fonts:
+        - asset: assets/fonts/MonoLisa-Regular.ttf
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -69,7 +79,8 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
   - assets/images/
-  #   - images/a_dot_ham.jpeg
+  - assets/models/asl100.pth
+  - assets/models/asl100.pt
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

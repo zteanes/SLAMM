@@ -43,6 +43,28 @@ class SettingsScreenState extends State<SettingsScreen> {
                   fit: BoxFit.cover),
             ),
           ),
+          // button to explain what application is
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 50, right: 25),
+              child: ElevatedButton(
+                // when pressed navigate to explanation screen
+                onPressed: () {
+                  Navigator.of(context).pushNamed("explanation");
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  shape: CircleBorder(
+                    side: BorderSide(color: Theme.of(context).colorScheme.primary,
+                    width: 2
+                    ),
+                  ), 
+                ),
+                child: const Icon(Icons.question_mark_rounded, size: 20),
+              ),
+            ),
+          ),
           Align(
             alignment: Alignment.center,
             child: Column(
@@ -83,7 +105,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                           // if the current theme is dark, set the switch to true
                           value: currentTheme == ThemeMode.dark,
                           onChanged: (isDarkMode) {
-                            print(currentTheme);
                             setState(() {
                               // change value of themeNotifier based on the switch
                               themeNotifier.value =
