@@ -152,7 +152,7 @@ class SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
       // add the bottom navigation bar to the bottom of the screen
-      bottomNavigationBar: BottomTabBar(),
+      bottomNavigationBar: const BottomTabBar(),
     );
   }
 }
