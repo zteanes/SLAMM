@@ -54,6 +54,7 @@ class BottomTabBarState extends State<BottomTabBar> {
                         );
                       },
                     ));
+                    CameraScreenState().deleteTempDir();
                   }
                 },
             ),
@@ -107,6 +108,7 @@ class BottomTabBarState extends State<BottomTabBar> {
                         },
                       ));
                     }
+                    CameraScreenState().deleteTempDir();
                   }
                 },
             ),
@@ -135,6 +137,7 @@ class BottomTabBarState extends State<BottomTabBar> {
                         );
                       },
                     ));
+                    CameraScreenState().deleteTempDir();
                   }
                 }
             ),
