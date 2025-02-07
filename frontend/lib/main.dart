@@ -27,11 +27,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
   // gets the path and creates the temp directory
-  tempDirectoryPath = await CameraScreenState().tempDirPath();
+  //tempDirectoryPath = await CameraScreenState().tempDirPath();
   // delete anything left over from a previous run
-  CameraScreenState().deleteTempDir();
+  //CameraScreenState().deleteTempDir();
   // remake it for this run
-  tempDirectoryPath = await CameraScreenState().tempDirPath();
+  //tempDirectoryPath = await CameraScreenState().tempDirPath();
+  print("about to run the app");
   runApp(MyApp());
 }
 
