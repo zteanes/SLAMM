@@ -10,7 +10,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/tabs_bar.dart';
-import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -33,16 +32,23 @@ String videoPath = "";
 /// boolean used to check when camera is in use
 bool _isRecording = false;
 
-Future<String> uploadVideo(File videoFile) async {
+Future<String> uploadVideo(File videoFile, int bufferVal) async {
   /// This function uploads a video to the server, and returns the prediction 
   /// that is received.
+  /// 
+  /// Parameters:
+  ///  videoFile: the video file to be uploaded
+  ///  buffer: 0 if nothing else needs to be buffered, 1 if the prediction should be buffered
 
   // create the request
   // NOTE: HAVE TO CHANGE THE IP ADDRESS TO WHATEVER NGROK IS USING TO HOST
-  var request = http.MultipartRequest('POST', Uri.parse('https://9230-152-30-110-47.ngrok-free.app/predict_video'));
+  var request = http.MultipartRequest('POST', Uri.parse('https://3826-152-30-110-47.ngrok-free.app/predict_video'));
 
   // add the video to the request
   request.files.add(await http.MultipartFile.fromPath('file', videoFile.path));
+
+  // add the buffer flag to the request
+  request.fields['buffer'] = bufferVal.toString();
 
   // send the request
   var response = await request.send();
@@ -130,7 +136,7 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   /// Displays a temporary popup message that video was saved to the phone
-  void showVideoSaved(text, path) {
+  void showVideoSaved(String text, String path) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -152,10 +158,8 @@ class CameraScreenState extends State<CameraScreen> {
                   if (path == "") {
                     return;
                   }
-                  final recentVideo = File(path);
-
                   // upload the video
-                  var prediction = await uploadVideo(recentVideo);
+                  var prediction = await uploadVideo(File(path), 0);
 
                   // remove dialog of video saved
                   if (context.mounted) {
@@ -163,28 +167,29 @@ class CameraScreenState extends State<CameraScreen> {
                   }
 
                   // show the prediction
-                  if (context.mounted) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('Prediction: ${prediction}'),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('OK'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  }
-
+                  showPrediction(prediction);
                 },
-                // button to translate the video
-                child: const Text("Translate"))
+              // button to translate the video
+              child: const Text("Translate"))
+          ],
+        );
+      },
+    );
+  }
+
+  void showPrediction(String prediction) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Prediction: ${prediction}'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
           ],
         );
       },
@@ -207,7 +212,6 @@ class CameraScreenState extends State<CameraScreen> {
   /// Records the video and saves it to the camera roll
   Future<String> _recordVideo(bool newWord) async {
     if (_isRecording) {
-      var newPath = "";
       try {
         // waits for the video to stop recording
         final file = await controller.stopVideoRecording();
@@ -216,14 +220,8 @@ class CameraScreenState extends State<CameraScreen> {
         String timeStamp = DateTime.now().millisecondsSinceEpoch.toString();
 
         // saves the newest video to the directory
-        newPath = '$tempDirectoryPath/$timeStamp.mp4';
-        final newFile = await File(file.path).copy(newPath);
-
-        // get the path of the saved video
-        videoPath = newFile.path;
-
-        // Use Gal to process the saved video
-        await Gal.putVideo(videoPath);
+        videoPath = '$tempDirectoryPath/$timeStamp.mp4';
+        await File(file.path).copy(videoPath);
 
         setState(() => _isRecording = false);
       } catch (e) {
@@ -233,16 +231,16 @@ class CameraScreenState extends State<CameraScreen> {
           _isRecording = false;
         });
       }
-      return newPath;
+      return "Stopped";
 
-      // if not recording, start recording
+    // if not recording, start recording
     } else {
       await controller.prepareForVideoRecording();
       await controller.startVideoRecording();
 
       // delete the temp directory
       if (!newWord){
-        deleteTempDir();
+        //deleteTempDir();
         tempDirectoryPath = await tempDirPath();
       }
       setState(() => _isRecording = true);
@@ -301,10 +299,14 @@ class CameraScreenState extends State<CameraScreen> {
               padding: const EdgeInsets.all(20),
               child: ElevatedButton(
                 onPressed: () {
-                  var path = _recordVideo(false);
+                  _recordVideo(false);
+
                   if (_isRecording) {
                     // show popup that video was recorded
-                    showVideoSaved("Video recorded!", path);
+                    // wait like 200 milliseconds
+                    Future.delayed(const Duration(milliseconds: 200), () {
+                      showVideoSaved("Video recorded!", videoPath);
+                    });
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -326,6 +328,7 @@ class CameraScreenState extends State<CameraScreen> {
               child: ElevatedButton(
                 onPressed: () async {
                   await _recordVideo(true);
+                  uploadVideo(File(videoPath), 1); // don't need return value to continue recording
                   await _recordVideo(true);
                 },
                 style: ElevatedButton.styleFrom(
