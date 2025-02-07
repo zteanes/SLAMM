@@ -13,17 +13,20 @@ import 'package:frontend/tabs_bar.dart';
 import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 /// cameras used within the app; int representations of the cameras
 /// This is general default values for all phons as far as we know, needs confirmation
-int FRONT_CAMERA = 1;
-int BACK_CAMERA = 0;
+const FRONT_CAMERA = 1;
+const BACK_CAMERA = 0;
 
 // integer representation of the first album in the gallery
-int FIRST_ALBUM = 0;
+const FIRST_ALBUM = 0;
 
 // ratios for the camera preview
-int WIDTH_RATIO = 1920;
-int HEIGHT_RATIO = 1080;
+const WIDTH_RATIO = 1920;
+const HEIGHT_RATIO = 1080;
 
 /// 
 
@@ -34,6 +37,45 @@ String videoPath = "";
 /// boolean used to check when camera is in use
 bool _isRecording = false;
 
+
+Future<String> uploadVideo(File videoFile) async {
+  /// This function uploads a video to the server, and returns the prediction 
+  /// that is received.
+
+  // create the request
+  // NOTE: HAVE TO CHANGE THE IP ADDRESS TO WHATEVER NGROK IS USING TO HOST
+  var request = http.MultipartRequest('POST', Uri.parse('https://9230-152-30-110-47.ngrok-free.app/predict_video'));
+
+  // add the video to the request
+  request.files.add(await http.MultipartFile.fromPath('file', videoFile.path));
+
+  // send the request
+  var response = await request.send();
+
+  // return the response from the server  
+  var responseString = await response.stream.bytesToString();
+
+  // decode the response as a json object
+  var jsonResponse = json.decode(responseString);
+
+  // return object to be displayed
+  var responseText = "";
+
+  // if the prediction was empty, return an error message
+  if (jsonResponse['message'] == "") {
+    responseText = "Error processing the video, please re-record and try again.";
+  }
+  else { // otherwise get the prediction/message
+    responseText = jsonResponse['message'];
+  }
+  
+  // return the prediction
+  return responseText;
+}
+
+/// --------------- BEGIN CAMERA SCREEN CREATION --------------- ///
+
+
 class CameraScreen extends StatefulWidget {
   /// Sets up the camera screen for the application
   const CameraScreen({super.key});
@@ -42,6 +84,7 @@ class CameraScreen extends StatefulWidget {
   State<CameraScreen> createState() => CameraScreenState();
 }
 
+// CameraAppState is the state of the CameraApp widget
 class CameraScreenState extends State<CameraScreen> {
   /// CameraAppState is the state of the CameraApp widget
   /// controller used to control the camera
@@ -60,6 +103,7 @@ class CameraScreenState extends State<CameraScreen> {
 
   /// Initializes the camera controller
   void _initializeCamera(int cameraPos) {
+    try{
     controller = CameraController(
       cameras[cameraPos],
       ResolutionPreset.high,
@@ -71,15 +115,21 @@ class CameraScreenState extends State<CameraScreen> {
       }
       setState(() {});
     });
+    } catch (e) {
+      print('Error initializing camera: $e');
+    }
   }
 
   /// Switches the camera from front to back and vice versa
-  void switchCamera() {
+  void switchCamera() async {
+    // dispose of the current controller
+    await controller.dispose();
+      
+    // flip the camera
     setState(() {
       isCameraFront = !isCameraFront;
     });
-    // dispose of the current controller
-    controller.dispose();
+    
     // initialize a new controller
     _initializeCamera(isCameraFront ? FRONT_CAMERA : BACK_CAMERA);
   }
@@ -93,15 +143,54 @@ class CameraScreenState extends State<CameraScreen> {
           title: Text(text),
           actions: <Widget>[
             TextButton(
-              // when ok button is pressed, the popup is closed
+              // ok button to clear the popup
               onPressed: () {
                 Navigator.of(context).pop();
               },
               child: const Text('OK'),
             ),
             TextButton(
+              // translate button to get prediction for video recorded
                 onPressed: () async {
                   Navigator.of(context).pop();
+                  final recentVideo = await getMostRecentVideo();
+
+                  //! start of a video replay, not yet implemented
+                  if (recentVideo != null) {
+                    final VideoPlayerController videoController =
+                        VideoPlayerController.file(
+                      recentVideo,
+                    );
+                  }
+
+                  // upload the video
+                  var prediction = await uploadVideo(recentVideo!);
+
+                  // remove dialog of video saved
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
+
+                  // show the prediction
+                  if (context.mounted) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Prediction: ${prediction}'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+
                 },
                 // button to translate the video
                 child: const Text("Translate"))
@@ -178,8 +267,8 @@ class CameraScreenState extends State<CameraScreen> {
               child: SizedBox(
                 // .3 and .4 are ratios used to fit the camera to the screen without stretching.
                 // they were found by guessing and checking
-                width: controller.value.aspectRatio * WIDTH_RATIO * .3, 
-                height: controller.value.aspectRatio * HEIGHT_RATIO * .4,
+                width: controller.value.aspectRatio * WIDTH_RATIO * .5, 
+                height: controller.value.aspectRatio * HEIGHT_RATIO * .45,
                 // if the camera is front, flip the camera preview so that it is mirrored
                 child: isCameraFront
                     ? Transform(

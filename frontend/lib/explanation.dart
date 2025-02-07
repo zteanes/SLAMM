@@ -36,7 +36,7 @@ const HOW_TO_USE =
     "recognition. \n\n"
 
     "Otherwise, simply navigate to the camera screen, use the camera switch button in the upper-right "
-    "to select the camera you wish to then. Then, click the button in the bottom-middle of the screen "
+    "to select the camera you wish to use. Then, click the button in the bottom-middle of the screen "
     "to begin recording, and click it again when you want to end the recording. From there, hit the "
     "translate option to see what the model predicts! \n";
 
@@ -72,14 +72,21 @@ class ExplanationScreenState extends State<ExplanationScreen> {
                   fontWeight: FontWeight.bold
                 )
               ),
-              const SizedBox(height: 15), // box just to separate some elements of the column
-              Text( 
-                WHAT_IS_SLAMM,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontSize: 18
-                )
-              ),
+                const SizedBox(height: 15), // box just to separate some elements of the column
+                SizedBox(
+                  width: 325,
+                  child: 
+                    Center(
+                      child: Text( 
+                        WHAT_IS_SLAMM,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                ),
               const SizedBox(height: 30),
               Text(
                 "That sounds awesome! But how do I use it?",
@@ -91,13 +98,20 @@ class ExplanationScreenState extends State<ExplanationScreen> {
                 )
               ),
               const SizedBox(height: 15), // separation box again 
-              Text(
-                HOW_TO_USE,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontSize: 18
-                )
-              ),
+              SizedBox(
+                  width: 325,
+                  child: 
+                    Center(
+                      child: Text( 
+                        HOW_TO_USE,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                ),
               SizedBox(
                   width: 300,
                   child: ElevatedButton(
@@ -116,6 +130,7 @@ class ExplanationScreenState extends State<ExplanationScreen> {
                     onPressed: () => Navigator.pop(context) 
                   ),
                 ),
+              const SizedBox(height: 200) // box to separate the bottom of the screen
             ],
           ),
         ),
