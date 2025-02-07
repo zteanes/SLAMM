@@ -30,11 +30,11 @@ import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
 from I3D.pytorch_i3d import InceptionI3d
-from keytotext import pipeline
+# from keytotext import pipeline
 # import language
 # from dotenv import load_dotenv
-from itertools import chain
-import pickle
+# from itertools import chain
+# import pickle
 
 # load the environment variables for CUDA device necessary
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -123,15 +123,15 @@ def run_on_tensor(ip_tensor):
     out_labels = np.argsort(predictions.cpu().detach().numpy()[0])
     arr = predictions.cpu().detach().numpy()[0] 
 
-    print(float(max(F.softmax(torch.from_numpy(arr[0]), dim=0))))
-    print(wlasl_dict[out_labels[0][-1]])
+    log(float(max(F.softmax(torch.from_numpy(arr[0]), dim=0))))
+    log(wlasl_dict[out_labels[0][-1]])
     
     """
     
     The 0.5 is threshold value, it varies if the batch sizes are reduced.
     
     """
-    if max(F.softmax(torch.from_numpy(arr[0]), dim=0)) > 0.5:
+    if max(F.softmax(torch.from_numpy(arr[0]), dim=0)) > 0.25: # if it's 25% confident return it
         return wlasl_dict[out_labels[0][-1]]
     else:
         return " " 
@@ -176,20 +176,6 @@ def load_rgb_frames_from_video(video_path):
     # return the predicted term
     return predicted_text.strip() 
 
-
-def setup(file_bytes):
-    """ 
-    This file does all the necessary setup for the server to properly make a prediction.
-    """
-    # make temp folder for videos (needed for processing via WLASL)
-    os.makedirs("raw_videos", exist_ok=True)
-
-    path = f"raw_videos/temp_{file.filename}"
-
-    # write the video to a temporary file
-    with open(path, "wb") as f:
-        f.write(video_bytes)
-    
 
 def create_WLASL_dictionary():
     """ 
@@ -271,7 +257,7 @@ async def root():
 @app.post("/predict_video")
 async def predict_video(file: UploadFile = File(...)):
     """ 
-    Receives a video from the frontend and TODO: predicts the sign language video.
+    Receives a video from the frontend and predicts the sign language video.
 
     Args:
         file: UploadFile - the video received and to be predicted
@@ -282,12 +268,14 @@ async def predict_video(file: UploadFile = File(...)):
 
     # write video to temp file
     path = f"temp_{file.filename}"
-
     with open(path, "wb") as f:
         f.write(video_bytes)
     
     # pass to function to process and predict
     predicted_text = load_rgb_frames_from_video(path)
+
+    # delete the video
+    os.remove(path)
 
     # return the predicted text
     return {"message": predicted_text}
