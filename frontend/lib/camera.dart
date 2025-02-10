@@ -330,6 +330,9 @@ class CameraScreenState extends State<CameraScreen> {
                   await _recordVideo(true);
                   uploadVideo(File(videoPath), 1); // don't need return value to continue recording
                   await _recordVideo(true);
+                  // flashes camera to indicate that another word should be presented
+                  await controller.setFlashMode(FlashMode.torch);
+                  await controller.setFlashMode(FlashMode.off);
                 },
                 style: ElevatedButton.styleFrom(
                   shape: const CircleBorder(),
