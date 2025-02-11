@@ -75,19 +75,6 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                       fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
-                // TODO: remove? not really necessary 
-                // Padding(
-                //   padding: const EdgeInsets.only(left: 45, right: 45),
-                //   // Subtitle welcome text
-                //   child: Text(
-                //     'Sign Language Analytics and Mobile Machine Learning',
-                //     style: TextStyle(
-                //         color: Theme.of(context).colorScheme.secondary,
-                //         fontSize: 24),
-                //     textAlign: TextAlign.center,
-                //   ),
-                // ),
-                // const SizedBox(height: 20),
                 SizedBox(
                   width: 300,
                   // button and text to start the application
@@ -103,7 +90,9 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                     child: Text("Let's Get Started",
                         style: TextStyle(
                             fontSize: 17,
-                            color: Theme.of(context).colorScheme.secondary)),
+                            color: Theme.of(context).colorScheme.secondary,
+                        )
+                    ),
                     // open our next page, the analytics page
                     onPressed: () {
                       Navigator.of(context).pushNamed("analytics");
@@ -116,7 +105,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                   // button and text to sign in
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 80, vertical: 20),
                       shape: RoundedRectangleBorder(
@@ -124,9 +113,11 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                     ),
                     child: Text("Sign In",
-                        style: TextStyle(
-                            fontSize: 17,
-                            color: Theme.of(context).colorScheme.primary)),
+                      style: TextStyle(
+                          fontSize: 17,
+                          color: Theme.of(context).colorScheme.primary,
+                        )
+                    ),
                     onPressed: () {},
                   ),
                 )
