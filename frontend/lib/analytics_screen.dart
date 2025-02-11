@@ -25,7 +25,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
             child: Opacity(
               opacity: 0.6, // set the opacity of the background image
               child: Image.asset('assets/images/temp-splash.jpg',
-                  fit: BoxFit.cover),
+              fit: BoxFit.cover),
             ),
           ),
           Align(

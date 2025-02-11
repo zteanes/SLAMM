@@ -25,12 +25,13 @@ class BottomTabBarState extends State<BottomTabBar> {
     return SizedBox(
       height: 85,
       child: BottomAppBar(
+        color: Theme.of(context).colorScheme.primary,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             // sets the button for analytics
             IconButton(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.secondary,
                 icon: const Icon(Icons.analytics),
                 // navigate to screen unless we're only on that screen
                 onPressed: () {
@@ -61,7 +62,7 @@ class BottomTabBarState extends State<BottomTabBar> {
 
             // sets the button for the camera
             IconButton(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.secondary,
                 icon: const Icon(Icons.camera_alt_outlined),
                 onPressed: () {
                   if (ModalRoute.of(context)?.settings.name != "camera") {
@@ -112,7 +113,7 @@ class BottomTabBarState extends State<BottomTabBar> {
             ),
             // sets the button for the settings
             IconButton(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.secondary,
                 icon: const Icon(Icons.settings),
                 onPressed: () {
                   if (ModalRoute.of(context)?.settings.name != "settings") {
