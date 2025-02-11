@@ -12,3 +12,6 @@ backend/TGCN/archived/asl*/._*
 ._data
 *.DS_Store
 *.pyc
+frontend/ios/* 
+frontend/pubspec.lock
+frontend/windows/*
