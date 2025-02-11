@@ -13,6 +13,7 @@ import 'package:frontend/tabs_bar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:torch_light/torch_light.dart';
 
 /// cameras used within the app; int representations of the cameras
 /// This is general default values for all phones as far as we know, needs confirmation
@@ -42,7 +43,7 @@ Future<String> uploadVideo(File videoFile, int bufferVal) async {
 
   // create the request
   // NOTE: HAVE TO CHANGE THE IP ADDRESS TO WHATEVER NGROK IS USING TO HOST
-  var request = http.MultipartRequest('POST', Uri.parse('https://3826-152-30-110-47.ngrok-free.app/predict_video'));
+  var request = http.MultipartRequest('POST', Uri.parse('https://97bc-152-30-216-229.ngrok-free.app/predict_video'));
 
   // add the video to the request
   request.files.add(await http.MultipartFile.fromPath('file', videoFile.path));
@@ -327,12 +328,15 @@ class CameraScreenState extends State<CameraScreen> {
               padding: const EdgeInsets.all(20),
               child: ElevatedButton(
                 onPressed: () async {
+                  // begin the recording precess
                   await _recordVideo(true);
                   uploadVideo(File(videoPath), 1); // don't need return value to continue recording
                   await _recordVideo(true);
+
                   // flashes camera to indicate that another word should be presented
-                  await controller.setFlashMode(FlashMode.torch);
-                  await controller.setFlashMode(FlashMode.off);
+                  await TorchLight.enableTorch();
+                  await Future.delayed(const Duration(milliseconds: 300));
+                  await TorchLight.disableTorch();
                 },
                 style: ElevatedButton.styleFrom(
                   shape: const CircleBorder(),
