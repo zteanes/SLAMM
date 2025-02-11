@@ -23,6 +23,9 @@ const BACK_CAMERA = 0;
 // integer representation of the first album in the gallery
 const FIRST_ALBUM = 0;
 
+const int BUFFER = 1;
+const int NO_BUFFER = 0;
+
 // ratios for the camera preview
 const WIDTH_RATIO = 1920;
 const HEIGHT_RATIO = 1080;
@@ -95,6 +98,8 @@ class CameraScreenState extends State<CameraScreen> {
   /// Used for flipping the camera properly
   bool isCameraFront = false;
 
+  late NavigatorState _navigator;
+
   /// Initializes the camera controller
   @override
   void initState() {
@@ -136,54 +141,104 @@ class CameraScreenState extends State<CameraScreen> {
     _initializeCamera(isCameraFront ? FRONT_CAMERA : BACK_CAMERA);
   }
 
+  void didChangeDependencies() {
+    // safely dispose our controller
+    super.didChangeDependencies();
+    _navigator = Navigator.of(context);
+  }
+
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   /// Displays a temporary popup message that video was saved to the phone
   void showVideoSaved(String text, String path) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
           title: Text(text),
           actions: <Widget>[
             TextButton(
               // ok button to clear the popup
               onPressed: () {
-                Navigator.of(context).pop();
+                _navigator.pop();
               },
-              child: const Text('OK'),
+              child: Text(
+                'OK',
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                ),
             ),
             TextButton(
               // translate button to get prediction for video recorded
                 onPressed: () async {
-                  Navigator.of(context).pop();
-                  // make a file of the video from the path
-                  if (path == "") {
-                    return;
-                  }
-                  // upload the video
-                  var prediction = await uploadVideo(File(path), 0);
+                  // close the popup
+                  _navigator.pop();
 
-                  // remove dialog of video saved
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
+                  // if the path is empty, return
+                  if (path.isEmpty) { return; }
+
+                  // show loading dialog
+                  showLoadingDialog();
+                  
+                  // upload the video
+                  var prediction = await uploadVideo(File(path), NO_BUFFER);
+
+                  // remove the loading dialog
+                  if (mounted) {
+                    _navigator.pop();
                   }
 
                   // show the prediction
-                  showPrediction(prediction);
+                  if (mounted) {
+                    showPrediction(prediction);
+                  }
                 },
               // button to translate the video
-              child: const Text("Translate"))
+              child: Text(
+                "Translate",
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                ))
           ],
         );
       },
     );
   }
 
+  /// displays a loading dialog box while the video is being processed
+  void showLoadingDialog() {
+    // only show the dialog if the screen is mounted
+    if (!mounted) { return; }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return  AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
+          title: Text(
+            "Getting the translation...",
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            ),
+          content: const LinearProgressIndicator(),
+        );
+      },
+    );
+  }
+
+  /// Displays a dialog box of the prediction the model received
   void showPrediction(String prediction) {
+    if (!mounted) { return; }
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Prediction: ${prediction}'),
+          backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
+          title: Text(
+            "Prediction: ${prediction}",
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -287,8 +342,13 @@ class CameraScreenState extends State<CameraScreen> {
                 style: ElevatedButton.styleFrom(
                   shape: const CircleBorder(),
                   padding: const EdgeInsets.all(20),
+                  backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
+                  side: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 1.5)
                 ),
-                child: const Icon(Icons.flip_camera_ios, size: 20),
+                child: Icon(
+                  Icons.flip_camera_ios, size: 20,
+                  color: Theme.of(context).colorScheme.secondary,
+                  ),
               ),
             ),
           ),
@@ -313,10 +373,19 @@ class CameraScreenState extends State<CameraScreen> {
                 style: ElevatedButton.styleFrom(
                   shape: const CircleBorder(),
                   padding: const EdgeInsets.all(20),
+                  backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
+                  side: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 1.5)
+
                 ),
                 child: _isRecording
-                    ? const Icon(Icons.stop_circle_outlined, size: 20)
-                    : const Icon(Icons.fiber_manual_record, size: 20),
+                    ? Icon(
+                        Icons.stop_circle_outlined, size: 20,
+                        color: Theme.of(context).colorScheme.secondary,
+                      )
+                    : Icon(
+                        Icons.fiber_manual_record, size: 20,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
               ),
             ),
           ),
@@ -330,7 +399,7 @@ class CameraScreenState extends State<CameraScreen> {
                 onPressed: () async {
                   // begin the recording precess
                   await _recordVideo(true);
-                  uploadVideo(File(videoPath), 1); // don't need return value to continue recording
+                  uploadVideo(File(videoPath), BUFFER); // don't need return value to continue recording
                   await _recordVideo(true);
 
                   // flashes camera to indicate that another word should be presented
@@ -341,8 +410,13 @@ class CameraScreenState extends State<CameraScreen> {
                 style: ElevatedButton.styleFrom(
                   shape: const CircleBorder(),
                   padding: const EdgeInsets.all(20),
+                  backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
+                  side: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 1.5)
                 ),
-                child: const Icon(Icons.arrow_forward_ios, size: 20),
+                child: Icon(
+                        Icons.arrow_forward_ios, size: 20,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
               ),
             ),
           )
