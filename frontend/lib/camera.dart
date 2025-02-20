@@ -36,7 +36,7 @@ String videoPath = "";
 /// boolean used to check when camera is in use
 bool _isRecording = false;
 
-Future<String> uploadVideo(File videoFile, int bufferVal) async {
+Future<Set<String>> uploadVideo(File videoFile, int bufferVal) async {
   /// This function uploads a video to the server, and returns the prediction 
   /// that is received.
   /// 
@@ -46,7 +46,7 @@ Future<String> uploadVideo(File videoFile, int bufferVal) async {
 
   // create the request
   // NOTE: HAVE TO CHANGE THE IP ADDRESS TO WHATEVER NGROK IS USING TO HOST
-  var request = http.MultipartRequest('POST', Uri.parse('https://97bc-152-30-216-229.ngrok-free.app/predict_video'));
+  var request = http.MultipartRequest('POST', Uri.parse('https://choice-tops-kite.ngrok-free.app/predict_video'));
 
   // add the video to the request
   request.files.add(await http.MultipartFile.fromPath('file', videoFile.path));
@@ -64,16 +64,21 @@ Future<String> uploadVideo(File videoFile, int bufferVal) async {
   var jsonResponse = json.decode(responseString);
 
   // return object to be displayed
-  var responseText = "";
+  var responseText = <String>{};
 
   // if the prediction was empty, return an error message
   if (jsonResponse['message'] == "") {
-    responseText = "Error processing the video, please re-record and try again.";
+    responseText.add("Error processing the video, please re-record and try again.");
   }
+
   else { // otherwise get the prediction/message
-    responseText = jsonResponse['message'];
+    responseText.add(jsonResponse['message']);
+    responseText.add(jsonResponse['llm_message']);
   }
-  
+
+  // display the prediction
+  print(responseText.join("\t"));
+
   // return the prediction
   return responseText;
 }
@@ -228,7 +233,7 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   /// Displays a dialog box of the prediction the model received
-  void showPrediction(String prediction) {
+  void showPrediction(Set<String> prediction) {
     if (!mounted) { return; }
     showDialog(
       context: context,
@@ -236,15 +241,20 @@ class CameraScreenState extends State<CameraScreen> {
         return AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
           title: Text(
-            "Prediction: ${prediction}",
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            "True Prediction: ${prediction.elementAt(0)}\n\n" 
+            "LLM Prediction: ${prediction.elementAt(1)}",
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary,
+                             fontSize: 18),
             ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('OK'),
+              child: Text(
+                'OK',
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary)
+              ),
             ),
           ],
         );
