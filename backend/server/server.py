@@ -35,6 +35,7 @@ from I3D.pytorch_i3d import InceptionI3d
 # from dotenv import load_dotenv
 # from itertools import chain
 # import pickle
+from gpt4all import GPT4All
 
 # load the environment variables for CUDA device necessary
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -207,9 +208,17 @@ app = FastAPI(redirect_slashes=False)
 
 # initialize and load the model if available
 if torch.cuda.is_available():
+    # load the machine learning model first, as well as dictionary 
     load_I3D_model()
     create_WLASL_dictionary()
     log(Fore.GREEN + "-"*20 + "Model loaded successfully!" + "-"*20)
+
+    # load the LLM model 
+    model = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf") # downloads / loads a 4.66GB LLM
+    with model.chat_session():
+        msg = "say a sweet message about how you've been properly loaded on a server."
+        log(Fore.GREEN + model.generate(msg, max_tokens=1024))
+
 else:
     log(Fore.RED + "-"*20 
         + "CUDA is not available. Please ensure cuda is available before running the server." 
@@ -261,7 +270,23 @@ async def predict_video(file: UploadFile = File(...), buffer: int = Form(...)):
     if buffer == 1: # if it's one, we're storing words for the time being, so just return current one
         return {"message": predicted_text}
     else: # if it's zero, we're done storing words and return all of them 
-        toReturn = " ".join(words)
+        # create a string of all the words, clear the list
+        translations = " ".join(words)
         words = []
-        return {"message": toReturn}
+
+        # ask llm to reinterpret the words into a more coherent sentence
+        to_ask = ("You're assisting me in translating sign language, specifically ASL. Using a "
+                 + "machine learning model to predict signs, the following words have been " 
+                 + "translated: " + translations + "\n\nPlease provide a SINGLE, COHERENT sentence"
+                 + "that summarizes the message being conveyed. Keep it simple and understandable "
+                 + "language, as well as concise. Do not include any other words or phrases other"
+                 + "than the translated sentence. I only want the sentence that summarizes the "
+                 + "translated terms.")
+
+        # ask the llm to generate a response
+        with model.chat_session():
+            llm_message = model.generate(to_ask, max_tokens=1024)
+        log(Fore.GREEN + llm_message)
+
+        return {"message": translations, "llm_message" : llm_message}
         
