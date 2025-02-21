@@ -12,6 +12,9 @@ import 'theme.dart';
 import 'welcome.dart';
 import 'explanation.dart';
 import 'package:camera/camera.dart';
+import 'signup.dart';
+import 'login.dart';
+
 
 // Define a ValueNotifier for theme mode
 final themeNotifier = ValueNotifier(ThemeMode.system);
@@ -26,13 +29,6 @@ Future<void> main() async {
   /// This function initializes the cameras available on the device.
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
-  // gets the path and creates the temp directory
-  //tempDirectoryPath = await CameraScreenState().tempDirPath();
-  // delete anything left over from a previous run
-  //CameraScreenState().deleteTempDir();
-  // remake it for this run
-  //tempDirectoryPath = await CameraScreenState().tempDirPath();
-  print("about to run the app");
   runApp(MyApp());
 }
 
@@ -60,6 +56,8 @@ class MyApp extends StatelessWidget {
             "camera": (context) => const CameraScreen(),
             "settings": (context) => const SettingsScreen(),
             "explanation": (context) => const ExplanationScreen(),
+            "signup" : (context) => Signup(),
+            "login" : (context) => Login(),
           },
         );
       },
