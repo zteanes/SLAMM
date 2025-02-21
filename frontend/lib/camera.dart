@@ -36,7 +36,7 @@ String videoPath = "";
 /// boolean used to check when camera is in use
 bool _isRecording = false;
 
-Future<String> uploadVideo(File videoFile, int bufferVal) async {
+Future<Set<String>> uploadVideo(File videoFile, int bufferVal) async {
   /// This function uploads a video to the server, and returns the prediction 
   /// that is received.
   /// 
@@ -46,7 +46,7 @@ Future<String> uploadVideo(File videoFile, int bufferVal) async {
 
   // create the request
   // NOTE: HAVE TO CHANGE THE IP ADDRESS TO WHATEVER NGROK IS USING TO HOST
-  var request = http.MultipartRequest('POST', Uri.parse('https://97bc-152-30-216-229.ngrok-free.app/predict_video'));
+  var request = http.MultipartRequest('POST', Uri.parse('https://choice-tops-kite.ngrok-free.app/predict_video'));
 
   // add the video to the request
   request.files.add(await http.MultipartFile.fromPath('file', videoFile.path));
@@ -62,18 +62,25 @@ Future<String> uploadVideo(File videoFile, int bufferVal) async {
 
   // decode the response as a json object
   var jsonResponse = json.decode(responseString);
+  print(jsonResponse);
 
   // return object to be displayed
-  var responseText = "";
+  var responseText = <String>{};
 
   // if the prediction was empty, return an error message
   if (jsonResponse['message'] == "") {
-    responseText = "Error processing the video, please re-record and try again.";
+    responseText.add("Error processing the video, please re-record and try again.");
   }
+
   else { // otherwise get the prediction/message
-    responseText = jsonResponse['message'];
+    responseText.add(jsonResponse['message']);
+    responseText.add(jsonResponse['llm_message']);
+    responseText.add(jsonResponse['confidence']);
   }
-  
+
+  // display the prediction
+  print(responseText.join("\t"));
+
   // return the prediction
   return responseText;
 }
@@ -228,23 +235,60 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   /// Displays a dialog box of the prediction the model received
-  void showPrediction(String prediction) {
+  void showPrediction(Set<String> prediction_set) {
+
+    Color getColor(double confidence) {
+      if (confidence > 0.8) {
+        return Colors.green;
+      } else if (confidence > 0.6) {
+        return Colors.yellow;
+      } else {
+        return Colors.red;
+      }
+    }
+
     if (!mounted) { return; }
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
-          title: Text(
-            "Prediction: ${prediction}",
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            ),
+          content: Column(
+            children: [
+              Text(
+                "True Prediction:",
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary,
+                                 fontSize: 22),
+                ),
+
+              Text( 
+                prediction_set.elementAt(0),
+                style: TextStyle(color: getColor(double.parse(prediction_set.elementAt(2))),
+                                 fontSize: 18),
+                ),
+
+              Text(
+                "LLM Reinterpretation:",
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary,
+                                 fontSize: 22),
+                ),
+
+              Text(
+                prediction_set.elementAt(1),
+                style: TextStyle(color: getColor(double.parse(prediction_set.elementAt(2))),
+                                 fontSize: 18),
+                ),
+            ],
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('OK'),
+              child: Text(
+                'OK',
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary)
+              ),
             ),
           ],
         );
