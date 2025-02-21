@@ -7,6 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:frontend/tabs_bar.dart';
+//import 'package:azure_cosmosdb/azure_cosmosdb_debug.dart'; // Not sure why this is not working
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -14,6 +15,17 @@ class AnalyticsScreen extends StatefulWidget {
   @override
   State<AnalyticsScreen> createState() => AnalyticsScreenState();
 }
+
+// This is the function that will be used to get the data from the database
+// Future<String> getDBInfo() async {
+//   // get the data from the database
+//   final cosmosDB = CosmosDbServer(
+//     'https://slamm-db.documents.azure.com:443/', 
+//     masterKey: 'g8fIw65q7HkzLwxPzJcv01uFKEDCRjAVdrwCpYkuW6qr55MsAWa3uF3LV8xCOr3WbJdtGpiewrsiACDbaK3pBQ==');
+//     // get all documents from a collection
+//     final documents = cosmosDB.documents.list('SampleDB', 'myContainer');
+//     return documents;
+// }
 
 class AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
