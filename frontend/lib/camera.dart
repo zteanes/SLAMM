@@ -36,7 +36,7 @@ String videoPath = "";
 /// boolean used to check when camera is in use
 bool _isRecording = false;
 
-Future<Set<String>> uploadVideo(File videoFile, int bufferVal) async {
+Future<Map<String, String>> uploadVideo(File videoFile, int bufferVal) async {
   /// This function uploads a video to the server, and returns the prediction 
   /// that is received.
   /// 
@@ -62,24 +62,28 @@ Future<Set<String>> uploadVideo(File videoFile, int bufferVal) async {
 
   // decode the response as a json object
   var jsonResponse = json.decode(responseString);
-  print(jsonResponse);
+  print("Response we got from the server is: $jsonResponse");
 
   // return object to be displayed
-  var responseText = <String>{};
+  var responseText = Map<String, String>();
 
   // if the prediction was empty, return an error message
   if (jsonResponse['message'] == "") {
-    responseText.add("Error processing the video, please re-record and try again.");
+    responseText.addEntries({
+      const MapEntry('message', "Error processing the video, please re-record and try again."),
+      const MapEntry('llm_message', ""),
+      const MapEntry('confidence', "0.0")
+    });
   }
 
+  
   else { // otherwise get the prediction/message
-    responseText.add(jsonResponse['message']);
-    responseText.add(jsonResponse['llm_message']);
-    responseText.add(jsonResponse['confidence']);
+    responseText.addEntries({
+      MapEntry('message', jsonResponse['message']),
+      MapEntry('llm_message', jsonResponse['llm_message']),
+      MapEntry('confidence', jsonResponse['confidence'])
+    });
   }
-
-  // display the prediction
-  print(responseText.join("\t"));
 
   // return the prediction
   return responseText;
@@ -166,7 +170,10 @@ class CameraScreenState extends State<CameraScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
-          title: Text(text),
+          title: Text(
+                    textAlign: TextAlign.center, 
+                    text
+                ),
           actions: <Widget>[
             TextButton(
               // ok button to clear the popup
@@ -225,6 +232,7 @@ class CameraScreenState extends State<CameraScreen> {
         return  AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
           title: Text(
+            textAlign: TextAlign.center,
             "Getting the translation...",
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
@@ -235,12 +243,12 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   /// Displays a dialog box of the prediction the model received
-  void showPrediction(Set<String> prediction_set) {
+  void showPrediction(Map<String, String> predictionSet) {
 
     Color getColor(double confidence) {
-      if (confidence > 0.8) {
+       if (confidence > 0.7) {
         return Colors.green;
-      } else if (confidence > 0.6) {
+      } else if (confidence > 0.35) {
         return Colors.yellow;
       } else {
         return Colors.red;
@@ -254,28 +262,36 @@ class CameraScreenState extends State<CameraScreen> {
         return AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
           content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
+                textAlign: TextAlign.center,
                 "True Prediction:",
                 style: TextStyle(color: Theme.of(context).colorScheme.secondary,
                                  fontSize: 22),
                 ),
 
               Text( 
-                prediction_set.elementAt(0),
-                style: TextStyle(color: getColor(double.parse(prediction_set.elementAt(2))),
+                textAlign: TextAlign.center,
+                predictionSet['message']!,
+                style: TextStyle(color: getColor(double.parse(predictionSet['confidence']!)),
                                  fontSize: 18),
                 ),
 
+              // some space between the two predictions
+              const SizedBox(height: 20),
+
               Text(
+                textAlign: TextAlign.center,
                 "LLM Reinterpretation:",
                 style: TextStyle(color: Theme.of(context).colorScheme.secondary,
                                  fontSize: 22),
                 ),
 
               Text(
-                prediction_set.elementAt(1),
-                style: TextStyle(color: getColor(double.parse(prediction_set.elementAt(2))),
+                textAlign: TextAlign.center,
+                predictionSet['llm_message']!,
+                style: TextStyle(color: getColor(double.parse(predictionSet['confidence']!)),
                                  fontSize: 18),
                 ),
             ],
