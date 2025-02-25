@@ -124,8 +124,8 @@ def run_on_tensor(ip_tensor):
     out_labels = np.argsort(predictions.cpu().detach().numpy()[0])
     arr = predictions.cpu().detach().numpy()[0] 
 
-    log(float(max(F.softmax(torch.from_numpy(arr[0]), dim=0))))
-    log(wlasl_dict[out_labels[0][-1]])
+    log(f"Confidence in prediction: {float(max(F.softmax(torch.from_numpy(arr[0]), dim=0)))}")
+    log(f"Prediction: {wlasl_dict[out_labels[0][-1]]}")
     
     """
     
@@ -133,7 +133,7 @@ def run_on_tensor(ip_tensor):
     
     """
     if max(F.softmax(torch.from_numpy(arr[0]), dim=0)) > 0.0: # if it's 25% confident return it
-        return wlasl_dict[out_labels[0][-1]]
+        return (wlasl_dict[out_labels[0][-1]], float(max(F.softmax(torch.from_numpy(arr[0]), dim=0))))
     else:
         return " " 
 
@@ -172,10 +172,14 @@ def load_rgb_frames_from_video(video_path):
 
     # convert to tensor and pass through model
     frames_tensor = torch.from_numpy(np.asarray(frames, dtype=np.float32).transpose([3, 0, 1, 2]))
-    predicted_text = run_on_tensor(frames_tensor)
+    text_and_confidence = run_on_tensor(frames_tensor)
+
+    # get the predicted text
+    predicted_text = text_and_confidence[0].strip()
+    conf = text_and_confidence[1]
 
     # return the predicted term
-    return predicted_text.strip() 
+    return (predicted_text, conf) 
 
 
 def create_WLASL_dictionary():
@@ -236,6 +240,7 @@ async def root():
     
 
 words = []
+confidences = []
 @app.post("/predict_video")
 async def predict_video(file: UploadFile = File(...), buffer: int = Form(...)):
     """ 
@@ -244,7 +249,7 @@ async def predict_video(file: UploadFile = File(...), buffer: int = Form(...)):
     Args:
         file: UploadFile - the video received and to be predicted
     """
-    global words
+    global words, confidences
 
     # read the video in from uploaded 
     video_bytes = await file.read()
@@ -254,25 +259,30 @@ async def predict_video(file: UploadFile = File(...), buffer: int = Form(...)):
     print(path)
     with open(path, "wb") as f:
         f.write(video_bytes)
-    
-    # print the int 
-    print(buffer)
 
     # pass to function to process and predict
-    predicted_text = load_rgb_frames_from_video(path)
+    text_and_conf = load_rgb_frames_from_video(path)
+    predicted_text = text_and_conf[0]
+    conf = text_and_conf[1]
 
+    # store the words and confidences
     words.append(predicted_text)
+    confidences.append(conf)
 
     # delete the video
     os.remove(path)
 
     # return the predicted text
     if buffer == 1: # if it's one, we're storing words for the time being, so just return current one
-        return {"message": predicted_text}
+        return {"message": predicted_text, "confidence" : conf}
     else: # if it's zero, we're done storing words and return all of them 
         # create a string of all the words, clear the list
         translations = " ".join(words)
         words = []
+
+        avg_conf = str(sum(confidences) / len(confidences))
+        log(f"Average value of our confidences: {avg_conf}")
+        confidences = []
 
         # ask llm to reinterpret the words into a more coherent sentence
         to_ask = ("You're assisting me in translating sign language, specifically ASL. Using a "
@@ -286,7 +296,7 @@ async def predict_video(file: UploadFile = File(...), buffer: int = Form(...)):
         # ask the llm to generate a response
         with model.chat_session():
             llm_message = model.generate(to_ask, max_tokens=1024)
-        log(Fore.GREEN + llm_message)
+        log(llm_message)
 
-        return {"message": translations, "llm_message" : llm_message}
+        return {"message": translations, "llm_message" : llm_message, "confidence" : avg_conf}
         
