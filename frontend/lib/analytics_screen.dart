@@ -7,7 +7,8 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:frontend/tabs_bar.dart';
-//import 'package:azure_cosmosdb/azure_cosmosdb_debug.dart'; // Not sure why this is not working
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -16,18 +17,26 @@ class AnalyticsScreen extends StatefulWidget {
   State<AnalyticsScreen> createState() => AnalyticsScreenState();
 }
 
-// This is the function that will be used to get the data from the database
-// Future<String> getDBInfo() async {
-//   // get the data from the database
-//   final cosmosDB = CosmosDbServer(
-//     'https://slamm-db.documents.azure.com:443/', 
-//     masterKey: 'g8fIw65q7HkzLwxPzJcv01uFKEDCRjAVdrwCpYkuW6qr55MsAWa3uF3LV8xCOr3WbJdtGpiewrsiACDbaK3pBQ==');
-//     // get all documents from a collection
-//     final documents = cosmosDB.documents.list('SampleDB', 'myContainer');
-//     return documents;
-// }
+// a reference to the collection of users in the database
+CollectionReference db = FirebaseFirestore.instance.collection('Users');
+
+
 
 class AnalyticsScreenState extends State<AnalyticsScreen> {
+
+  String getWords(String userName) {
+    print("in the function-------------------------------------------");
+    String words = "";
+    db.get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        if (doc["Users"] == userName) {
+          words = doc["words"];
+        }
+      });
+    });
+    return words;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +55,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Analytics',
+                  getWords("Alex517"),
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                       fontSize: 36),
