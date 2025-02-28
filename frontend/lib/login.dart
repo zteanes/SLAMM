@@ -29,75 +29,125 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Log In'),
-      ),
       body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Form(
               key: _formKey,
-              child: Column(
+              child: 
+              Padding(padding: const EdgeInsets.all(20),
+              child: Column(                
                 children: <Widget>[
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'Email'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter an email';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      _email = value!;
-                    },
+                    // Title of the page
+                    Text(
+                    'Login',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
-                  TextFormField(
-                    decoration: InputDecoration(labelText: 'Password'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a password';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      _password = value!;
-                    },
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        try {
-                          await _auth.signInWithEmailAndPassword(
-                              email: _email, password: _password);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AnalyticsScreen(),
-                            ),
-                          );
-                        } on FirebaseAuthException catch (e) {
-                          setState(() {
-                            _error = e.message!;
-                          });
+
+                    TextFormField(
+                      decoration: InputDecoration(labelText: 'Email'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter an email';
                         }
-                      }
-                    },
-                    child: Text('Log In'),
-                  ),
-                  Text(_error),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Signup(),
-                        ),
-                      );
-                    },
-                    child: Text('Sign Up'),
-                  ),
-                ],
+                        return null;
+                      },
+                      onSaved: (value) {
+                        _email = value!;
+                      },
+                    ),
+                    TextFormField(
+                      decoration: InputDecoration(labelText: 'Password'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a password';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        _password = value!;
+                      },
+                    ),
+
+                    // spacing 
+                    const SizedBox(height: 10),
+
+                    // login button
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          try {
+                            await _auth.signInWithEmailAndPassword(
+                                email: _email, password: _password);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AnalyticsScreen(),
+                              ),
+                            );
+                          } on FirebaseAuthException catch (e) {
+                            setState(() {
+                              _error = e.message!;
+                            });
+                          }
+                        }
+                      },
+                      child: Text('Login', 
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontSize: 20),
+                          ),
+                    ),
+                    Text(_error),
+
+                    // spacing
+                    const SizedBox(height: 20),
+
+                    // button to navigate to the signup page
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.secondary,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Signup(),
+                          ),
+                        );
+                      },
+                      child: Text('Don\'t have an account? Sign up!', 
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontSize: 12),
+                          ),
+                    ),
+
+                    // return to the welcome screen
+                    TextButton( 
+                      style: TextButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, "welcome");
+                      },
+                      child: Text('Return to Welcome Screen', 
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontSize: 12),
+                          ),
+                    )
+                  ],
+                ),
               ),
             ),
           ],
