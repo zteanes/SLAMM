@@ -1,7 +1,7 @@
 /// This is the main file used to launch our application.
 ///
 /// Authors: Alex Charlot and Zach Eanes
-/// Date: 12/06/2024
+/// Date: 02/25/2025
 library;
 
 import 'package:flutter/material.dart';
@@ -15,6 +15,8 @@ import 'package:camera/camera.dart';
 import 'signup.dart';
 import 'login.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 // Define a ValueNotifier for theme mode
 final themeNotifier = ValueNotifier(ThemeMode.system);
@@ -29,7 +31,15 @@ Future<void> main() async {
   /// This function initializes the cameras available on the device.
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
-  runApp(MyApp());
+
+  // initialize the firebase application
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // start the app
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
