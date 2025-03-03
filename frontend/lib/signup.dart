@@ -12,6 +12,8 @@ import 'package:frontend/login.dart';
 
 /// Class to create the signup screen
 class Signup extends StatefulWidget {
+  const Signup({super.key});
+
   @override
   _SignupState createState() => _SignupState();
 }
