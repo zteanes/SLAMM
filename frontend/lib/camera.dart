@@ -246,7 +246,7 @@ class CameraScreenState extends State<CameraScreen> {
   void showPrediction(Map<String, String> predictionSet) {
 
     Color getColor(double confidence) {
-       if (confidence > 0.7) {
+      if (confidence > 0.7) {
         return Colors.green;
       } else if (confidence > 0.35) {
         return Colors.yellow;
