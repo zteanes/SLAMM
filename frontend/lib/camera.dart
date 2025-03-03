@@ -19,6 +19,7 @@ import 'package:torch_light/torch_light.dart';
 /// This is general default values for all phones as far as we know, needs confirmation
 const FRONT_CAMERA = 1;
 const BACK_CAMERA = 0;
+int currentCamera = BACK_CAMERA;
 
 // integer representation of the first album in the gallery
 const FIRST_ALBUM = 0;
@@ -122,10 +123,13 @@ class CameraScreenState extends State<CameraScreen> {
   /// Initializes the camera controller
   void _initializeCamera(int cameraPos) {
     try{
-    controller = CameraController(
-      cameras[cameraPos],
-      ResolutionPreset.high,
-    );
+      controller = CameraController(
+        cameras[cameraPos],
+        ResolutionPreset.high,
+      );
+
+      // switch the current camera value
+      currentCamera = cameraPos;
     controller.initialize().then((_) {
       // makes sure the camera exists
       if (!mounted) {
@@ -424,7 +428,6 @@ class CameraScreenState extends State<CameraScreen> {
 
                   if (_isRecording) {
                     // show popup that video was recorded
-                    // wait like 200 milliseconds
                     Future.delayed(const Duration(milliseconds: 200), () {
                       showVideoSaved("Video recorded!", videoPath);
                     });
@@ -463,15 +466,41 @@ class CameraScreenState extends State<CameraScreen> {
                   await _recordVideo(true);
 
                   // flashes camera to indicate that another word should be presented
-                  await TorchLight.enableTorch();
-                  await Future.delayed(const Duration(milliseconds: 300));
-                  await TorchLight.disableTorch();
+                  if (currentCamera == BACK_CAMERA) { // only flash if the back camera is in use
+                    await TorchLight.enableTorch();
+                    await Future.delayed(const Duration(milliseconds: 150));
+                    await TorchLight.disableTorch();
+                  }
                 },
-                style: ElevatedButton.styleFrom(
-                  shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(20),
-                  backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
-                  side: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 1.5)
+                style: ButtonStyle(
+                  
+                  shape: WidgetStateProperty.all(const CircleBorder()),
+                  padding: WidgetStateProperty.all(const EdgeInsets.all(20)),
+                  backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                    (Set<WidgetState> states) {
+                      if (states.contains(WidgetState.pressed)) {
+                        // visually dimmer when pressed
+                        return Theme.of(context).colorScheme.primary.withAlpha(1); 
+                      }
+                      return Theme.of(context).colorScheme.primary.withAlpha(125);
+                      },
+                    ),
+                  overlayColor: WidgetStateColor.resolveWith(
+                    (Set<WidgetState> states) {
+                      if (states.contains(WidgetState.pressed)) {
+                        return Colors.transparent; // Prevents unwanted overlay color
+                      }
+                      return Theme.of(context).colorScheme.secondary.withAlpha(50);
+                      },
+                  ),
+                  side: WidgetStateProperty.resolveWith<BorderSide?>(
+                    (Set<WidgetState> states) {
+                      if (states.contains(WidgetState.pressed)) {
+                        return BorderSide(color: Theme.of(context).colorScheme.secondary.withAlpha(100), width: 1.5);
+                      }
+                      return BorderSide(color: Theme.of(context).colorScheme.secondary, width: 1.5);
+                    }
+                  ),
                 ),
                 child: Icon(
                         Icons.arrow_forward_ios, size: 20,
@@ -479,7 +508,7 @@ class CameraScreenState extends State<CameraScreen> {
                       ),
               ),
             ),
-          )
+          ),
         ],
       ),
       // bottom navigation bar to navigate between screens
