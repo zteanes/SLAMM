@@ -452,60 +452,66 @@ class CameraScreenState extends State<CameraScreen> {
               ),
             ),
           ),
-          Align(
-            // sets up the button to record/stop recording a video
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              // padding to make sure button is correctly placed
-              padding: const EdgeInsets.all(20),
-              child: ElevatedButton(
-                onPressed: () async {
-                  // begin the recording precess
-                  await _recordVideo(true);
-                  uploadVideo(File(videoPath), BUFFER); // don't need return value to continue recording
-                  await _recordVideo(true);
-
-                  // flashes camera to indicate that another word should be presented
-                  if (currentCamera == BACK_CAMERA) { // only flash if the back camera is in use
-                    await TorchLight.enableTorch();
-                    await Future.delayed(const Duration(milliseconds: 150));
-                    await TorchLight.disableTorch();
-                  }
-                },
-                style: ButtonStyle(
-                  
-                  shape: WidgetStateProperty.all(const CircleBorder()),
-                  padding: WidgetStateProperty.all(const EdgeInsets.all(20)),
-                  backgroundColor: WidgetStateProperty.resolveWith<Color>(
-                    (Set<WidgetState> states) {
-                      if (states.contains(WidgetState.pressed)) {
-                        // visually dimmer when pressed
-                        return Theme.of(context).colorScheme.primary.withAlpha(1); 
-                      }
-                      return Theme.of(context).colorScheme.primary.withAlpha(125);
-                      },
-                    ),
-                  overlayColor: WidgetStateColor.resolveWith(
-                    (Set<WidgetState> states) {
-                      if (states.contains(WidgetState.pressed)) {
-                        return Colors.transparent; // Prevents unwanted overlay color
-                      }
-                      return Theme.of(context).colorScheme.secondary.withAlpha(50);
-                      },
-                  ),
-                  side: WidgetStateProperty.resolveWith<BorderSide?>(
-                    (Set<WidgetState> states) {
-                      if (states.contains(WidgetState.pressed)) {
-                        return BorderSide(color: Theme.of(context).colorScheme.secondary.withAlpha(100), width: 1.5);
-                      }
-                      return BorderSide(color: Theme.of(context).colorScheme.secondary, width: 1.5);
+          Visibility(
+            visible: _isRecording,
+            child: Align(
+              // sets up the button to record/stop recording a video
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                // padding to make sure button is correctly placed
+                padding: const EdgeInsets.all(20),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    // begin the recording precess
+                    await _recordVideo(true);
+                    uploadVideo(File(videoPath), BUFFER); // ignore return value to continue
+                    await _recordVideo(true);
+            
+                    // flashes camera to indicate that another word should be presented
+                    if (currentCamera == BACK_CAMERA) { // only flash if the back camera is in use
+                      await TorchLight.enableTorch();
+                      await Future.delayed(const Duration(milliseconds: 150));
+                      await TorchLight.disableTorch();
                     }
-                  ),
-                ),
-                child: Icon(
-                        Icons.arrow_forward_ios, size: 20,
-                        color: Theme.of(context).colorScheme.secondary,
+                  },
+                  style: ButtonStyle(
+                    shape: WidgetStateProperty.all(const CircleBorder()),
+                    padding: WidgetStateProperty.all(const EdgeInsets.all(20)),
+            
+                    // color of the button changes based on the state
+                    backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                      (Set<WidgetState> states) {
+                        if (states.contains(WidgetState.pressed)) {
+                          // visually dimmer when pressed
+                          return Theme.of(context).colorScheme.primary.withAlpha(1); 
+                        }
+                        return Theme.of(context).colorScheme.primary.withAlpha(125);
+                        },
                       ),
+                    overlayColor: WidgetStateColor.resolveWith(
+                      (Set<WidgetState> states) {
+                        if (states.contains(WidgetState.pressed)) {
+                          return Colors.transparent; // Prevents unwanted overlay color
+                        }
+                        return Theme.of(context).colorScheme.secondary.withAlpha(50);
+                        },
+                    ),
+            
+                    // border for the button 
+                    side: WidgetStateProperty.resolveWith<BorderSide?>(
+                      (Set<WidgetState> states) {
+                        if (states.contains(WidgetState.pressed)) {
+                          return BorderSide(color: Theme.of(context).colorScheme.secondary.withAlpha(100), width: 1.5);
+                        }
+                        return BorderSide(color: Theme.of(context).colorScheme.secondary, width: 1.5);
+                      }
+                    ),
+                  ),
+                  child: Icon(
+                          Icons.arrow_forward_ios, size: 20,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                ),
               ),
             ),
           ),
