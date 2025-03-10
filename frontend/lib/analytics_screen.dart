@@ -6,6 +6,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:frontend/DB/db_service.dart';
 import 'package:frontend/tabs_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -23,18 +24,10 @@ CollectionReference db = FirebaseFirestore.instance.collection('Users');
 
 
 class AnalyticsScreenState extends State<AnalyticsScreen> {
+  final DbService _db_service = DbService();
 
   String getWords(String userName) {
-    print("in the function-------------------------------------------");
-    String words = "";
-    db.get().then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        if (doc["Users"] == userName) {
-          words = doc["words"];
-        }
-      });
-    });
-    return words;
+    return "Hi";
   }
 
   @override
@@ -54,12 +47,21 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  getWords("Alex517"),
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 36),
+                //gets the number of users from the db and displays it on screen
+               StreamBuilder<QuerySnapshot>(
+                  stream: _db_service.getUsers(),
+                  builder: (context, snapshot){
+                    List users = snapshot.data?.docs ?? [];
+                    if (users.isEmpty) {
+                      return const Text("No users found");
+                    }
+                    return Text(
+                      "Users: ${users.length}",
+                      style: const TextStyle(fontSize: 30, color: Colors.white),
+                    );
+                  }
                 ),
+
                 const SizedBox(height: 220), // temporary height spacing for skeleton screen
                 SizedBox(
                   width: 300,

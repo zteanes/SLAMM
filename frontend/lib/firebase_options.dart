@@ -65,4 +65,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'slamm-app-496.firebasestorage.app',
     iosBundleId: 'com.example.frontend.RunnerTests',
   );
+
 }
