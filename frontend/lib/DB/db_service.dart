@@ -16,8 +16,8 @@ class DbService {
         toFirestore: (Users, _) => Users.toJson());
   }
 
-  Stream<QuerySnapshot> getUsers() {
-    return _usersRef.snapshots();
+  Stream<DocumentSnapshot> getUser(userid) {
+    return _usersRef.doc(userid).snapshots();
   }
 
   void addUser(Users user) async {
