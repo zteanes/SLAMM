@@ -19,11 +19,17 @@ class AnalyticsScreen extends StatefulWidget {
 }
 
 // a reference to the collection of users in the database
+
 CollectionReference db = FirebaseFirestore.instance.collection('Users');
 
-
+int viewSwitcher = 0;
 
 class AnalyticsScreenState extends State<AnalyticsScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   final DbService _db_service = DbService();
 
   String getWords(String userName) {
@@ -49,6 +55,13 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
       ),
     );
   }
+
+  Text getNumWords(List<String> words) {
+    return Text("Number of words: ${words.length}",
+      style: const TextStyle(fontSize: 20, color: Colors.white),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +92,11 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
                       // get the list of words from the user document
                       List<String> words = doc?.get('words').cast<String>() ?? [];
                       // print the list of words to the console for debugging purposes
-                      return listOfWords(words);
+                      if(viewSwitcher == 0){
+                        return listOfWords(words);
+                      } else {
+                        return getNumWords(words);
+                      }
                     }
                   }, 
                 ),
@@ -96,11 +113,13 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: const Text("Go back",
+                    child: const Text("Switch Stats",
                         style: TextStyle(fontSize: 20, color: Colors.black)),
                     // go back to the welcome/landing page
                     onPressed: () {
-                      Navigator.pushNamed(context, "welcome");
+                      setState(() {
+                        viewSwitcher = (viewSwitcher + 1) % 2; // toggle between the two views  
+                      });
                     },
                   ),
                 ),
