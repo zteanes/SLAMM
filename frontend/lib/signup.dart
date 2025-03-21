@@ -58,7 +58,6 @@ class _SignupState extends State<Signup> {
                   child: Column(
                     children: <Widget>[
                       TextFormField(
-                        cursorWidth: BorderSide.strokeAlignCenter,
                         decoration: const InputDecoration(labelText: 'First Name'),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -149,7 +148,7 @@ class _SignupState extends State<Signup> {
                                              'Please check your internet connection and try again.';
                                     break;
                                   default:
-                                    _error = 'An unexpected error occurred. Please try again.';
+                                    _error = '${e.code}: ${e.message}';
                                 }
                               });
                             }
