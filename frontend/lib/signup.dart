@@ -98,6 +98,7 @@ class _SignupState extends State<Signup> {
                         },
                       ),
                       TextFormField(
+                        obscureText: true, // don't show the password they're typing
                         decoration: const InputDecoration(labelText: 'Password'),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -129,8 +130,27 @@ class _SignupState extends State<Signup> {
                                   MaterialPageRoute(
                                       builder: (context) => const AnalyticsScreen()));
                             } on FirebaseAuthException catch (e) {
-                              setState(() {
-                                _error = e.message!;
+                                setState(() {
+                                switch (e.code) {
+                                  case 'email-already-in-use':
+                                    _error = 'This email is already in use. ' 
+                                             'Please log in or use a different email.';
+                                    break;
+                                  case 'invalid-email':
+                                    _error = 'Invalid email format. ' 
+                                             'Please enter a valid email address.';
+                                    break;
+                                  case 'weak-password':
+                                    _error = 'Password is too weak. Use at least 8 characters with'
+                                             ' a mix of letters, numbers, and symbols.';
+                                    break;
+                                  case 'network-request-failed':
+                                    _error = 'Network error. ' 
+                                             'Please check your internet connection and try again.';
+                                    break;
+                                  default:
+                                    _error = 'An unexpected error occurred. Please try again.';
+                                }
                               });
                             }
                           }
@@ -165,8 +185,8 @@ class _SignupState extends State<Signup> {
                       ),
 
                       // return to the welcome screen
-                      TextButton( 
-                        style: TextButton.styleFrom(
+                      ElevatedButton( 
+                        style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).colorScheme.primary,
                         ),
                         onPressed: () {

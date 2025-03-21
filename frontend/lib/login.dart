@@ -125,7 +125,7 @@ class _LoginState extends State<Login> {
                           ),
                         );
                       },
-                      child: Text('Don\'t have an account? Sign up!', 
+                      child: Text("Don't have an account? Sign up!", 
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.primary,
                               fontSize: 12),
