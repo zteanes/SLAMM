@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'slamm-app-496.firebasestorage.app',
     measurementId: 'G-38TMSRYRCW',
   );
+
 }

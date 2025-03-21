@@ -379,7 +379,7 @@ class CameraScreenState extends State<CameraScreen> {
             Center(
               // box to hold the camera preview
               child: SizedBox(
-                // .3 and .4 are ratios used to fit the camera to the screen without stretching.
+                // .5 and .45 are ratios used to fit the camera to the screen without stretching.
                 // they were found by guessing and checking
                 width: controller.value.aspectRatio * WIDTH_RATIO * .5, 
                 height: controller.value.aspectRatio * HEIGHT_RATIO * .45,
