@@ -62,6 +62,7 @@ class _LoginState extends State<Login> {
                       },
                     ),
                     TextFormField(
+                      obscureText: true, // don't show the password they're typing
                       decoration: InputDecoration(labelText: 'Password'),
                       validator: (value) {
                         if (value == null || value.isEmpty) {

@@ -17,6 +17,7 @@ import 'login.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 // Define a ValueNotifier for theme mode
 final themeNotifier = ValueNotifier(ThemeMode.system);
@@ -36,7 +37,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-  );
+  );  
 
   // start the app
   runApp(const MyApp());
