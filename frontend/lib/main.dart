@@ -4,6 +4,7 @@
 /// Date: 02/25/2025
 library;
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/settings.dart';
 import 'analytics_screen.dart';
@@ -32,11 +33,15 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
 
-  // initialize the firebase application
+  // initialize the firebase/firestore application
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );  
+
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true
+  );
 
   // start the app
   runApp(const MyApp());

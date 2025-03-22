@@ -6,7 +6,10 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:frontend/DB/db_service.dart';
 import 'package:frontend/tabs_bar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -15,7 +18,101 @@ class AnalyticsScreen extends StatefulWidget {
   State<AnalyticsScreen> createState() => AnalyticsScreenState();
 }
 
+// a reference to the collection of users in the database
+
+CollectionReference db = FirebaseFirestore.instance.collection('Users');
+
 class AnalyticsScreenState extends State<AnalyticsScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  final DbService _db_service = DbService();
+
+  String getWords(String userName) {
+    return "Hi";
+  }
+
+  Container listOfSats(DocumentSnapshot? doc, List<String> words) {
+    return Container(
+      height: 500, // Set a fixed height for vertical scrolling // Set a fixed width for horizontal scrolling (adjust as needed)
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.white),
+      ),
+      child: Scrollbar( // Optional: Adds a scrollbar for better UX
+        child: ListView(
+          children: <Widget>[
+            const Text("All Words Signed:",
+              style: TextStyle(fontSize: 30, color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+
+            for (var word in words)
+              getWord(word),
+
+            const Text("\nNumber of Words:",
+              style: TextStyle(fontSize: 30, color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+            getNumWords(words),
+            const Text("\nMost Used Word:",
+              style: TextStyle(fontSize: 30, color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+            getMostUsedWord(words),
+            
+          ]
+        ),
+      ),
+    );
+  }
+
+  Text getNumWords(List<String> words) {
+    return Text("${words.length}",
+      style: const TextStyle(fontSize: 20, color: Colors.white),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Text getWord(word){
+    return Text(word,
+      style: const TextStyle(fontSize: 20, color: Colors.white),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Text getMostUsedWord(List<String> words) {
+    Map<String, int> wordCount = {};
+    for (var word in words) { 
+      wordCount[word] = (wordCount[word] ?? 0) + 1;
+    }
+
+    String mostUsedWord = "";
+    int maxCount = 0;
+    
+    wordCount.forEach((word, int count) {
+      if (count > maxCount) {
+        maxCount = count;
+        mostUsedWord = word;
+      }
+    });
+
+    if (mostUsedWord == ""){
+      return const Text("No words signed yet!",
+          style: TextStyle(fontSize: 20, color: Colors.white),
+          textAlign: TextAlign.center,
+        );
+    } else{ 
+      return Text(mostUsedWord,
+          style: const TextStyle(fontSize: 20, color: Colors.white),
+          textAlign: TextAlign.center,
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,13 +130,24 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Analytics',
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 36),
+              const Text("SLAMM Analytics", style: TextStyle(fontSize: 40, color: Colors.white)),
+                //gets the number of users from the db and displays it on screen
+               StreamBuilder(
+                  stream: _db_service.getUser("Alex517"), // gets the user that is signed in !!HARD CODED FOR TESTING PURPOSES!!
+                  builder: (context, snapshot){
+                    if (!snapshot.hasData) {
+                      return const CircularProgressIndicator();
+                    } else {
+                      DocumentSnapshot<Object?>? doc = snapshot.data;
+                      // get the list of words from the user document
+                      List<String> words = doc?.get('words').cast<String>() ?? [];
+                      
+                      return listOfSats(doc,words);
+                    }
+                  }, 
                 ),
-                const SizedBox(height: 220), // temporary height spacing for skeleton screen
+
+                const SizedBox(height: 80), // temporary height spacing for skeleton screen
                 SizedBox(
                   width: 300,
                   child: ElevatedButton(
