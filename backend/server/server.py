@@ -35,6 +35,7 @@ from I3D.pytorch_i3d import InceptionI3d
 # from dotenv import load_dotenv
 # from itertools import chain
 # import pickle
+from gpt4all import GPT4All
 
 # load the environment variables for CUDA device necessary
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -123,8 +124,8 @@ def run_on_tensor(ip_tensor):
     out_labels = np.argsort(predictions.cpu().detach().numpy()[0])
     arr = predictions.cpu().detach().numpy()[0] 
 
-    log(float(max(F.softmax(torch.from_numpy(arr[0]), dim=0))))
-    log(wlasl_dict[out_labels[0][-1]])
+    log(f"Confidence in prediction: {float(max(F.softmax(torch.from_numpy(arr[0]), dim=0)))}")
+    log(f"Prediction: {wlasl_dict[out_labels[0][-1]]}")
     
     """
     
@@ -132,7 +133,7 @@ def run_on_tensor(ip_tensor):
     
     """
     if max(F.softmax(torch.from_numpy(arr[0]), dim=0)) > 0.0: # if it's 25% confident return it
-        return wlasl_dict[out_labels[0][-1]]
+        return (wlasl_dict[out_labels[0][-1]], float(max(F.softmax(torch.from_numpy(arr[0]), dim=0))))
     else:
         return " " 
 
@@ -171,10 +172,14 @@ def load_rgb_frames_from_video(video_path):
 
     # convert to tensor and pass through model
     frames_tensor = torch.from_numpy(np.asarray(frames, dtype=np.float32).transpose([3, 0, 1, 2]))
-    predicted_text = run_on_tensor(frames_tensor)
+    text_and_confidence = run_on_tensor(frames_tensor)
+
+    # get the predicted text
+    predicted_text = text_and_confidence[0].strip()
+    conf = text_and_confidence[1]
 
     # return the predicted term
-    return predicted_text.strip() 
+    return (predicted_text, conf) 
 
 
 def create_WLASL_dictionary():
@@ -199,34 +204,6 @@ def create_WLASL_dictionary():
                 value = split_list[1]
             wlasl_dict[key] = value
 
-# def load_TGCN_model():
-#     """
-#     Load the TGCN model from WLASL for communication with frontend.
-#     """
-#     # change root and subset accordingly.
-#     root = os.getcwd();
-#     trained_on = 'asl100'
-
-#     # config file for all information used to load model
-#     config_file = os.path.join(root, 'backend/TGCN/configs/{}.ini'.format(trained_on, trained_on))
-#     configs = Config(config_file)
-
-#     # necessary variables we get from the config
-#     num_samples = configs.num_samples
-#     hidden_size = configs.hidden_size
-#     drop_p = configs.drop_p
-#     num_stages = configs.num_stages
-
-#     # load the model
-#     log(Fore.CYAN + "Loading model...")
-#     model = GCN_muti_att(input_feature=num_samples * 2, hidden_feature=hidden_size,
-#                          num_class=int(trained_on[3:]), p_dropout=drop_p, 
-#                          num_stage=num_stages).cuda()
-#     log(Fore.CYAN + "Finish loading model!")
-
-#     # return the loaded model
-#     return model
-
 
 ########### end methods for debugging and loading model ###########
 
@@ -235,9 +212,17 @@ app = FastAPI(redirect_slashes=False)
 
 # initialize and load the model if available
 if torch.cuda.is_available():
+    # load the machine learning model first, as well as dictionary 
     load_I3D_model()
     create_WLASL_dictionary()
     log(Fore.GREEN + "-"*20 + "Model loaded successfully!" + "-"*20)
+
+    # load the LLM model 
+    model = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf") # downloads / loads a 4.66GB LLM
+    with model.chat_session():
+        msg = "say a sweet message about how you've been properly loaded on a server."
+        log(Fore.GREEN + model.generate(msg, max_tokens=1024))
+
 else:
     log(Fore.RED + "-"*20 
         + "CUDA is not available. Please ensure cuda is available before running the server." 
@@ -255,6 +240,7 @@ async def root():
     
 
 words = []
+confidences = []
 @app.post("/predict_video")
 async def predict_video(file: UploadFile = File(...), buffer: int = Form(...)):
     """ 
@@ -263,7 +249,7 @@ async def predict_video(file: UploadFile = File(...), buffer: int = Form(...)):
     Args:
         file: UploadFile - the video received and to be predicted
     """
-    global words
+    global words, confidences
 
     # read the video in from uploaded 
     video_bytes = await file.read()
@@ -273,23 +259,44 @@ async def predict_video(file: UploadFile = File(...), buffer: int = Form(...)):
     print(path)
     with open(path, "wb") as f:
         f.write(video_bytes)
-    
-    # print the int 
-    print(buffer)
 
     # pass to function to process and predict
-    predicted_text = load_rgb_frames_from_video(path)
+    text_and_conf = load_rgb_frames_from_video(path)
+    predicted_text = text_and_conf[0]
+    conf = text_and_conf[1]
 
+    # store the words and confidences
     words.append(predicted_text)
+    confidences.append(conf)
 
     # delete the video
     os.remove(path)
 
     # return the predicted text
     if buffer == 1: # if it's one, we're storing words for the time being, so just return current one
-        return {"message": predicted_text}
+        return {"message": predicted_text, "confidence" : conf}
     else: # if it's zero, we're done storing words and return all of them 
-        toReturn = " ".join(words)
+        # create a string of all the words, clear the list
+        translations = " ".join(words)
         words = []
-        return {"message": toReturn}
+
+        avg_conf = str(sum(confidences) / len(confidences))
+        log(f"Average value of our confidences: {avg_conf}")
+        confidences = []
+
+        # ask llm to reinterpret the words into a more coherent sentence
+        to_ask = ("You're assisting me in translating sign language, specifically ASL. Using a "
+                 + "machine learning model to predict signs, the following words have been " 
+                 + "translated: " + translations + "\n\nPlease provide a SINGLE, COHERENT sentence"
+                 + "that summarizes the message being conveyed. Keep it simple and understandable "
+                 + "language, as well as concise. Do not include any other words or phrases other"
+                 + "than the translated sentence. I only want the sentence that summarizes the "
+                 + "translated terms.")
+
+        # ask the llm to generate a response
+        with model.chat_session():
+            llm_message = model.generate(to_ask, max_tokens=1024)
+        log(llm_message)
+
+        return {"message": translations, "llm_message" : llm_message, "confidence" : avg_conf}
         

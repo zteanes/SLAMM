@@ -18,6 +18,7 @@ import 'package:torch_light/torch_light.dart';
 /// This is general default values for all phones as far as we know, needs confirmation
 const FRONT_CAMERA = 1;
 const BACK_CAMERA = 0;
+int currentCamera = BACK_CAMERA;
 
 // integer representation of the first album in the gallery
 const FIRST_ALBUM = 0;
@@ -35,7 +36,7 @@ String videoPath = "";
 /// boolean used to check when camera is in use
 bool _isRecording = false;
 
-Future<Set<String>> uploadVideo(File videoFile, int bufferVal) async {
+Future<Map<String, String>> uploadVideo(File videoFile, int bufferVal) async {
   /// This function uploads a video to the server, and returns the prediction 
   /// that is received.
   /// 
@@ -61,23 +62,26 @@ Future<Set<String>> uploadVideo(File videoFile, int bufferVal) async {
 
   // decode the response as a json object
   var jsonResponse = json.decode(responseString);
+  print("Response we got from the server is: $jsonResponse");
 
   // return object to be displayed
-  var responseText = <String>{};
+  var responseText = Map<String, String>();
 
   // if the prediction was empty, return an error message
   if (jsonResponse['message'] == "") {
-    responseText.add("Error processing the video, please re-record and try again.");
-  }
-
+    responseText.addEntries({
+      const MapEntry('message', "Error processing the video, please re-record and try again."),
+      const MapEntry('llm_message', ""),
+      const MapEntry('confidence', "0.0")
+    });
+  } 
   else { // otherwise get the prediction/message
-    responseText.add(jsonResponse['message']);
-    responseText.add(jsonResponse['llm_message']);
+    responseText.addEntries({
+      MapEntry('message', jsonResponse['message']),
+      MapEntry('llm_message', jsonResponse['llm_message']),
+      MapEntry('confidence', jsonResponse['confidence'])
+    });
   }
-
-  // display the prediction
-  print(responseText.join("\t"));
-
   // return the prediction
   return responseText;
 }
@@ -115,10 +119,13 @@ class CameraScreenState extends State<CameraScreen> {
   /// Initializes the camera controller
   void _initializeCamera(int cameraPos) {
     try{
-    controller = CameraController(
-      cameras[cameraPos],
-      ResolutionPreset.high,
-    );
+      controller = CameraController(
+        cameras[cameraPos],
+        ResolutionPreset.high,
+      );
+
+      // switch the current camera value
+      currentCamera = cameraPos;
     controller.initialize().then((_) {
       // makes sure the camera exists
       if (!mounted) {
@@ -152,7 +159,10 @@ class CameraScreenState extends State<CameraScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
-          title: Text(text),
+          title: Text(
+                    textAlign: TextAlign.center, 
+                    text
+                ),
           actions: <Widget>[
             TextButton(
               // ok button to clear the popup
@@ -211,6 +221,7 @@ class CameraScreenState extends State<CameraScreen> {
         return  AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
           title: Text(
+            textAlign: TextAlign.center,
             "Getting the translation...",
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
@@ -221,19 +232,58 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   /// Displays a dialog box of the prediction the model received
-  void showPrediction(Set<String> prediction) {
+  void showPrediction(Map<String, String> predictionSet) {
+
+    Color getColor(double confidence) {
+      if (confidence > 0.7) {
+        return Colors.green;
+      } else if (confidence > 0.35) {
+        return Colors.yellow;
+      } else {
+        return Colors.red;
+      }
+    }
     if (!mounted) { return; }
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
-          title: Text(
-            "True Prediction: ${prediction.elementAt(0)}\n\n" 
-            "LLM Prediction: ${prediction.elementAt(1)}",
-            style: TextStyle(color: Theme.of(context).colorScheme.secondary,
-                             fontSize: 18),
-            ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                textAlign: TextAlign.center,
+                "True Prediction:",
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary,
+                                 fontSize: 22),
+                ),
+
+              Text( 
+                textAlign: TextAlign.center,
+                predictionSet['message']!,
+                style: TextStyle(color: getColor(double.parse(predictionSet['confidence']!)),
+                                 fontSize: 18),
+                ),
+
+              // some space between the two predictions
+              const SizedBox(height: 20),
+
+              Text(
+                textAlign: TextAlign.center,
+                "LLM Reinterpretation:",
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary,
+                                 fontSize: 22),
+                ),
+
+              Text(
+                textAlign: TextAlign.center,
+                predictionSet['llm_message']!,
+                style: TextStyle(color: getColor(double.parse(predictionSet['confidence']!)),
+                                 fontSize: 18),
+                ),
+            ],
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -297,7 +347,7 @@ class CameraScreenState extends State<CameraScreen> {
             Center(
               // box to hold the camera preview
               child: SizedBox(
-                // .3 and .4 are ratios used to fit the camera to the screen without stretching.
+                // .5 and .45 are ratios used to fit the camera to the screen without stretching.
                 // they were found by guessing and checking
                 width: controller.value.aspectRatio * WIDTH_RATIO * .5, 
                 height: controller.value.aspectRatio * HEIGHT_RATIO * .45,
@@ -346,7 +396,6 @@ class CameraScreenState extends State<CameraScreen> {
 
                   if (_isRecording) {
                     // show popup that video was recorded
-                    // wait like 200 milliseconds
                     Future.delayed(const Duration(milliseconds: 200), () {
                       showVideoSaved("Video recorded!", videoPath);
                     });
@@ -371,37 +420,69 @@ class CameraScreenState extends State<CameraScreen> {
               ),
             ),
           ),
-          Align(
-            // sets up the button to record/stop recording a video
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              // padding to make sure button is correctly placed
-              padding: const EdgeInsets.all(20),
-              child: ElevatedButton(
-                onPressed: () async {
-                  // begin the recording precess
-                  await _recordVideo(true);
-                  uploadVideo(File(videoPath), BUFFER); // don't need return value to continue recording
-                  await _recordVideo(true);
-
-                  // flashes camera to indicate that another word should be presented
-                  await TorchLight.enableTorch();
-                  await Future.delayed(const Duration(milliseconds: 300));
-                  await TorchLight.disableTorch();
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(20),
-                  backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
-                  side: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 1.5)
-                ),
-                child: Icon(
-                        Icons.arrow_forward_ios, size: 20,
-                        color: Theme.of(context).colorScheme.secondary,
+          Visibility(
+            visible: _isRecording,
+            child: Align(
+              // sets up the button to record/stop recording a video
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                // padding to make sure button is correctly placed
+                padding: const EdgeInsets.all(20),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    // begin the recording precess
+                    await _recordVideo(true);
+                    uploadVideo(File(videoPath), BUFFER); // ignore return value to continue
+                    await _recordVideo(true);
+            
+                    // flashes camera to indicate that another word should be presented
+                    if (currentCamera == BACK_CAMERA) { // only flash if the back camera is in use
+                      await TorchLight.enableTorch();
+                      await Future.delayed(const Duration(milliseconds: 150));
+                      await TorchLight.disableTorch();
+                    }
+                  },
+                  style: ButtonStyle(
+                    shape: WidgetStateProperty.all(const CircleBorder()),
+                    padding: WidgetStateProperty.all(const EdgeInsets.all(20)),
+            
+                    // color of the button changes based on the state
+                    backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                      (Set<WidgetState> states) {
+                        if (states.contains(WidgetState.pressed)) {
+                          // visually dimmer when pressed
+                          return Theme.of(context).colorScheme.primary.withAlpha(1); 
+                        }
+                        return Theme.of(context).colorScheme.primary.withAlpha(125);
+                        },
                       ),
+                    overlayColor: WidgetStateColor.resolveWith(
+                      (Set<WidgetState> states) {
+                        if (states.contains(WidgetState.pressed)) {
+                          return Colors.transparent; // Prevents unwanted overlay color
+                        }
+                        return Theme.of(context).colorScheme.secondary.withAlpha(50);
+                        },
+                    ),
+            
+                    // border for the button 
+                    side: WidgetStateProperty.resolveWith<BorderSide?>(
+                      (Set<WidgetState> states) {
+                        if (states.contains(WidgetState.pressed)) {
+                          return BorderSide(color: Theme.of(context).colorScheme.secondary.withAlpha(100), width: 1.5);
+                        }
+                        return BorderSide(color: Theme.of(context).colorScheme.secondary, width: 1.5);
+                      }
+                    ),
+                  ),
+                  child: Icon(
+                          Icons.arrow_forward_ios, size: 20,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
       // bottom navigation bar to navigate between screens
