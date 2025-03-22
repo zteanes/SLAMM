@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frontend/DB/users.dart';
+import 'package:SLAMM/DB/users.dart';
 
 const String usersCollectionRef = "Users";
 
