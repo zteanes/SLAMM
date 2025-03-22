@@ -36,11 +36,10 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
   Container listOfSats(DocumentSnapshot? doc, List<String> words) {
     return Container(
-      height: 500, // Set a fixed height for vertical scrolling // Set a fixed width for horizontal scrolling (adjust as needed)
+      height: 600, // Set a fixed height for vertical scrolling // Set a fixed width for horizontal scrolling (adjust as needed)
       decoration: BoxDecoration(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white),
       ),
       child: Scrollbar( // Optional: Adds a scrollbar for better UX
         child: ListView(
@@ -145,27 +144,6 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
                       return listOfSats(doc,words);
                     }
                   }, 
-                ),
-
-                const SizedBox(height: 80), // temporary height spacing for skeleton screen
-                SizedBox(
-                  width: 300,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 60, vertical: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: const Text("Go back",
-                        style: TextStyle(fontSize: 20, color: Colors.black)),
-                    // go back to the welcome/landing page
-                    onPressed: () {
-                      Navigator.pushNamed(context, "welcome");
-                    },
-                  ),
                 ),
               ],
             ),
