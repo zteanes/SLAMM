@@ -4,6 +4,7 @@
 /// Date: 12/06/2024
 library;
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/settings.dart';
 import 'analytics_screen.dart';
@@ -12,6 +13,8 @@ import 'theme.dart';
 import 'welcome.dart';
 import 'explanation.dart';
 import 'package:camera/camera.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 // Define a ValueNotifier for theme mode
 final themeNotifier = ValueNotifier(ThemeMode.system);
@@ -26,6 +29,14 @@ Future<void> main() async {
   /// This function initializes the cameras available on the device.
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true
+    );
   // gets the path and creates the temp directory
   //tempDirectoryPath = await CameraScreenState().tempDirPath();
   // delete anything left over from a previous run
@@ -33,7 +44,7 @@ Future<void> main() async {
   // remake it for this run
   //tempDirectoryPath = await CameraScreenState().tempDirPath();
   print("about to run the app");
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "353258999896",
+    "project_id": "slamm-app-496",
+    "storage_bucket": "slamm-app-496.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:353258999896:android:e5251d09482ccb479bfa2d",
+        "android_client_info": {
+          "package_name": "com.example.frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY-OGsPtaAFp1Siz6wHAd5RCOF-EMQKls"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
