@@ -7,8 +7,8 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:frontend/analytics_screen.dart';
-import 'package:frontend/login.dart';
+import 'package:SLAMM/analytics_screen.dart';
+import 'package:SLAMM/login.dart';
 
 /// Class to create the signup screen
 class Signup extends StatefulWidget {

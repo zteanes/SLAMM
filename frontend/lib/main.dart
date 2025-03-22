@@ -6,7 +6,7 @@ library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/settings.dart';
+import 'package:SLAMM/settings.dart';
 import 'analytics_screen.dart';
 import 'camera.dart';
 import 'theme.dart';

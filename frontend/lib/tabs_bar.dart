@@ -5,9 +5,9 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:frontend/analytics_screen.dart';
-import 'package:frontend/camera.dart';
-import 'package:frontend/settings.dart';
+import 'package:SLAMM/analytics_screen.dart';
+import 'package:SLAMM/camera.dart';
+import 'package:SLAMM/settings.dart';
 
 class BottomTabBar extends StatefulWidget {
   /// This widget is used to create the bottom tab bar for the application.
