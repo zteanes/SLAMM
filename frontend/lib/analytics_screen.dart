@@ -6,8 +6,8 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:frontend/DB/db_service.dart';
-import 'package:frontend/tabs_bar.dart';
+import 'package:SLAMM/DB/db_service.dart';
+import 'package:SLAMM/tabs_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 

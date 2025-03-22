@@ -7,8 +7,8 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:frontend/analytics_screen.dart';
-import 'package:frontend/signup.dart';
+import 'package:SLAMM/analytics_screen.dart';
+import 'package:SLAMM/signup.dart';
 
 class Login extends StatefulWidget {
   @override

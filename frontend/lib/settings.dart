@@ -6,7 +6,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:frontend/tabs_bar.dart';
+import 'package:SLAMM/tabs_bar.dart';
 
 /// used for the theme notifier
 import 'main.dart';
