@@ -42,10 +42,6 @@ dependencies:
   path_provider: ^2.0.11
   torch_light: ^1.1.0
 
-  ffmpeg_kit_flutter: ^6.0.3 # used to process video files
-  azure_cosmosdb: ^3.0.0
-  torch_light: ^1.1.0
-
   image: ^4.0.15
   http: ^1.3.0
   
