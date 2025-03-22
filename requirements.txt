@@ -28,7 +28,7 @@ idna==3.10
 iopath==0.1.10
 jax==0.4.31
 jaxlib==0.4.31
-Jinja2==3.1.5
+Jinja2==3.1.6
 joblib==1.4.2
 kiwisolver==1.4.7
 langcodes==3.4.1
