@@ -10,7 +10,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/main.dart';
 import 'package:frontend/tabs_bar.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:torch_light/torch_light.dart';
@@ -75,9 +74,7 @@ Future<Map<String, String>> uploadVideo(File videoFile, int bufferVal) async {
       const MapEntry('llm_message', ""),
       const MapEntry('confidence', "0.0")
     });
-  }
-
-  
+  } 
   else { // otherwise get the prediction/message
     responseText.addEntries({
       MapEntry('message', jsonResponse['message']),
@@ -85,7 +82,6 @@ Future<Map<String, String>> uploadVideo(File videoFile, int bufferVal) async {
       MapEntry('confidence', jsonResponse['confidence'])
     });
   }
-
   // return the prediction
   return responseText;
 }
@@ -154,17 +150,6 @@ class CameraScreenState extends State<CameraScreen> {
     
     // initialize a new controller
     _initializeCamera(isCameraFront ? FRONT_CAMERA : BACK_CAMERA);
-  }
-
-  void didChangeDependencies() {
-    // safely dispose our controller
-    super.didChangeDependencies();
-    _navigator = Navigator.of(context);
-  }
-
-  void dispose() {
-    controller.dispose();
-    super.dispose();
   }
 
   /// Displays a temporary popup message that video was saved to the phone
@@ -258,7 +243,6 @@ class CameraScreenState extends State<CameraScreen> {
         return Colors.red;
       }
     }
-
     if (!mounted) { return; }
     showDialog(
       context: context,
@@ -316,18 +300,6 @@ class CameraScreenState extends State<CameraScreen> {
     );
   }
 
-  Future<String> tempDirPath() async {
-    final Directory tempDir = await getTemporaryDirectory();
-    return tempDir.path;
-  }
-
-  void deleteTempDir() {
-    final Directory tempDir = Directory(tempDirectoryPath);
-    if (tempDir.existsSync()) {
-      tempDir.deleteSync(recursive: true);
-    }
-  }
-
 
   /// Records the video and saves it to the camera roll
   Future<String> _recordVideo(bool newWord) async {
@@ -359,10 +331,6 @@ class CameraScreenState extends State<CameraScreen> {
       await controller.startVideoRecording();
 
       // delete the temp directory
-      if (!newWord){
-        //deleteTempDir();
-        tempDirectoryPath = await tempDirPath();
-      }
       setState(() => _isRecording = true);
       return "Started";
     }
