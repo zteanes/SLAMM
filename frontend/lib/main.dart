@@ -1,7 +1,7 @@
 /// This is the main file used to launch our application.
 ///
 /// Authors: Alex Charlot and Zach Eanes
-/// Date: 12/06/2024
+/// Date: 02/25/2025
 library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,6 +13,9 @@ import 'theme.dart';
 import 'welcome.dart';
 import 'explanation.dart';
 import 'package:camera/camera.dart';
+import 'signup.dart';
+import 'login.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -29,21 +32,18 @@ Future<void> main() async {
   /// This function initializes the cameras available on the device.
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
+
+  // initialize the firebase/firestore application
   WidgetsFlutterBinding.ensureInitialized();
-  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-  );
+  );  
+
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true
-    );
-  // gets the path and creates the temp directory
-  //tempDirectoryPath = await CameraScreenState().tempDirPath();
-  // delete anything left over from a previous run
-  //CameraScreenState().deleteTempDir();
-  // remake it for this run
-  //tempDirectoryPath = await CameraScreenState().tempDirPath();
-  print("about to run the app");
+  );
+
+  // start the app
   runApp(const MyApp());
 }
 
@@ -71,6 +71,8 @@ class MyApp extends StatelessWidget {
             "camera": (context) => const CameraScreen(),
             "settings": (context) => const SettingsScreen(),
             "explanation": (context) => const ExplanationScreen(),
+            "signup" : (context) => Signup(),
+            "login" : (context) => Login(),
           },
         );
       },

@@ -95,7 +95,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                     // open our next page, the analytics page
                     onPressed: () {
-                      Navigator.of(context).pushNamed("analytics");
+                      Navigator.of(context).pushNamed("signup");
                     },
                   ),
                 ),
@@ -118,9 +118,17 @@ class WelcomeScreenState extends State<WelcomeScreen> {
                           color: Theme.of(context).colorScheme.primary,
                         )
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pushNamed("login");
+                    },
                   ),
-                )
+                ),
+                // testing button just to go straight to the analytics page
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed("analytics");
+                  }, child: const Text("Analytics"),
+                ),
               ],
             ),
           ),
