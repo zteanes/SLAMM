@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:SLAMM/DB/db_service.dart';
 import 'package:SLAMM/tabs_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 
 class AnalyticsScreen extends StatefulWidget {
@@ -19,8 +20,10 @@ class AnalyticsScreen extends StatefulWidget {
 }
 
 // a reference to the collection of users in the database
-
 CollectionReference db = FirebaseFirestore.instance.collection('Users');
+
+// reference to the user authentication 
+final auth = FirebaseAuth.instance;
 
 class AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
@@ -34,7 +37,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
     return "Hi";
   }
 
-  Container listOfSats(DocumentSnapshot? doc, List<String> words) {
+  Container listOfStats(DocumentSnapshot? doc, List<String> words) {
     return Container(
       height: 600, // Set a fixed height for vertical scrolling // Set a fixed width for horizontal scrolling (adjust as needed)
       decoration: BoxDecoration(
@@ -44,6 +47,11 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
       child: Scrollbar( // Optional: Adds a scrollbar for better UX
         child: ListView(
           children: <Widget>[
+            Text("${doc?.get("firstName")}'s Analytics", 
+              style: const TextStyle(fontSize: 28, color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+
             const Text("All Words Signed:",
               style: TextStyle(fontSize: 30, color: Colors.white),
               textAlign: TextAlign.center,
@@ -129,19 +137,20 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-              const Text("SLAMM Analytics", style: TextStyle(fontSize: 40, color: Colors.white)),
                 //gets the number of users from the db and displays it on screen
-               StreamBuilder(
-                  stream: _db_service.getUser("Alex517"), // gets the user that is signed in !!HARD CODED FOR TESTING PURPOSES!!
+                StreamBuilder(
+                  stream: _db_service.getUser(auth.currentUser?.uid), // gets the user that is signed in !!HARD CODED FOR TESTING PURPOSES!!
                   builder: (context, snapshot){
                     if (!snapshot.hasData) {
                       return const CircularProgressIndicator();
                     } else {
+                      // display the user's name from the db
                       DocumentSnapshot<Object?>? doc = snapshot.data;
+
                       // get the list of words from the user document
                       List<String> words = doc?.get('words').cast<String>() ?? [];
                       
-                      return listOfSats(doc,words);
+                      return listOfStats(doc,words);
                     }
                   }, 
                 ),

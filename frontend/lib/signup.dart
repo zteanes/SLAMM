@@ -5,6 +5,7 @@
 /// Version: 1.0
 library;
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:SLAMM/analytics_screen.dart';
@@ -21,17 +22,20 @@ class Signup extends StatefulWidget {
 /// State class for the signup screen
 class _SignupState extends State<Signup> {
   // create the FirebaseAuth instance and key
-  final _auth = FirebaseAuth.instance;
-  final _formKey = GlobalKey<FormState>();
+  final auth = FirebaseAuth.instance;
+  final formKey = GlobalKey<FormState>();
+
+  // database instance
+  final db = FirebaseFirestore.instance;
 
   // variables for necessary user information
-  String _email = '';
-  String _password = '';
-  String _error = '';
+  String email = '';
+  String password = '';
+  String error = '';
 
   // TODO: store these in a user object associated with the UID
-  String _firstName = '';
-  String _lastName = '';
+  String firstName = '';
+  String lastName = '';
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +58,7 @@ class _SignupState extends State<Signup> {
                 ),
 
                 Form(
-                  key: _formKey,
+                  key: formKey,
                   child: Column(
                     children: <Widget>[
                       TextFormField(
@@ -66,7 +70,7 @@ class _SignupState extends State<Signup> {
                           return null;
                         },
                         onSaved: (value) {
-                          _firstName = value!;
+                          firstName = value!;
                         },
                       ),
 
@@ -79,7 +83,7 @@ class _SignupState extends State<Signup> {
                           return null;
                         },
                         onSaved: (value) {
-                          _lastName = value!;
+                          lastName = value!;
                         },
                       ),
 
@@ -93,7 +97,7 @@ class _SignupState extends State<Signup> {
                           return null;
                         },
                         onSaved: (value) {
-                          _email = value!;
+                          email = value!;
                         },
                       ),
                       TextFormField(
@@ -106,7 +110,7 @@ class _SignupState extends State<Signup> {
                           return null;
                         },
                         onSaved: (value) {
-                          _password = value!;
+                          password = value!;
                         },
                       ),
 
@@ -119,11 +123,17 @@ class _SignupState extends State<Signup> {
                           backgroundColor: Theme.of(context).colorScheme.primary,
                         ),
                         onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            _formKey.currentState!.save();
+                          if (formKey.currentState!.validate()) {
+                            formKey.currentState!.save();
                             try {
-                              await _auth.createUserWithEmailAndPassword(
-                                  email: _email, password: _password);
+                              await auth.createUserWithEmailAndPassword(
+                                      email: email, password: password
+                              );
+                              await db.collection('Users').doc(auth.currentUser!.uid).set({
+                                'firstName': firstName,
+                                'lastName': lastName,
+                                'email': email,
+                              });
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
@@ -132,23 +142,23 @@ class _SignupState extends State<Signup> {
                                 setState(() {
                                 switch (e.code) {
                                   case 'email-already-in-use':
-                                    _error = 'This email is already in use. ' 
+                                    error = 'This email is already in use. ' 
                                              'Please log in or use a different email.';
                                     break;
                                   case 'invalid-email':
-                                    _error = 'Invalid email format. ' 
+                                    error = 'Invalid email format. ' 
                                              'Please enter a valid email address.';
                                     break;
                                   case 'weak-password':
-                                    _error = 'Password is too weak. Use at least 8 characters with'
+                                    error = 'Password is too weak. Use at least 8 characters with'
                                              ' a mix of letters, numbers, and symbols.';
                                     break;
                                   case 'network-request-failed':
-                                    _error = 'Network error. ' 
+                                    error = 'Network error. ' 
                                              'Please check your internet connection and try again.';
                                     break;
                                   default:
-                                    _error = '${e.code}: ${e.message}';
+                                    error = '${e.code}: ${e.message}';
                                 }
                               });
                             }
@@ -199,7 +209,7 @@ class _SignupState extends State<Signup> {
                             ),
                       ),
 
-                      Text(_error),
+                      Text(error),
                     ],
                 ),
               ),
