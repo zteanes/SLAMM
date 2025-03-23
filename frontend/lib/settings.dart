@@ -7,9 +7,13 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:SLAMM/tabs_bar.dart';
+import 'package:SLAMM/theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// used for the theme notifier
 import 'main.dart';
+
+FirebaseAuth auth = FirebaseAuth.instance;
 
 class SettingsScreen extends StatefulWidget {
   /// Sets up the settings screen for the application
@@ -126,25 +130,23 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
                 const SizedBox(height: 220), // temporary height spacing for skeleton screen
-                // makes the button to go back to the welcome page
-                SizedBox(
-                  width: 300,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 60, vertical: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: const Text("Go back",
-                        style: TextStyle(fontSize: 20, color: Colors.black)),
-                    // go back to the welcome/landing page
-                    onPressed: () {
-                      Navigator.pushNamed(context, "welcome");
-                    },
+
+                // button to sign out of the application
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
                   ),
+                  onPressed: () {
+                    // sign out of the application
+                    auth.signOut();
+                    // navigate to the welcome screen
+                    Navigator.pushReplacementNamed(context, "welcome");
+                  },
+                  child: Text('Sign Out',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 20,
+                      )),
                 ),
               ],
             ),
