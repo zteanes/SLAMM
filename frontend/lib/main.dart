@@ -5,6 +5,7 @@
 library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:SLAMM/settings.dart';
 import 'analytics_screen.dart';
@@ -56,6 +57,7 @@ class MyApp extends StatelessWidget {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeNotifier,
       builder: (context, currentTheme, _) {
+        User? user = FirebaseAuth.instance.currentUser;
         return MaterialApp(
           title: 'Welcome Screen',
           // sets the themed modes for the application
@@ -63,7 +65,8 @@ class MyApp extends StatelessWidget {
           darkTheme: darkmode,
           // sets the mode to the system mode
           themeMode: currentTheme,
-          home: const WelcomeScreen(),
+          // go to the analytics screen if a user is logged in, otherwise the welcome screen
+          home: user != null ? const AnalyticsScreen() : const WelcomeScreen(),
           routes: {
             // routes to every screen in the application
             "analytics": (context) => const AnalyticsScreen(),
@@ -71,7 +74,7 @@ class MyApp extends StatelessWidget {
             "camera": (context) => const CameraScreen(),
             "settings": (context) => const SettingsScreen(),
             "explanation": (context) => const ExplanationScreen(),
-            "signup" : (context) => Signup(),
+            "signup" : (context) => const Signup(),
             "login" : (context) => Login(),
           },
         );
