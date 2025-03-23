@@ -14,6 +14,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:torch_light/torch_light.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 /// cameras used within the app; int representations of the cameras
 /// This is general default values for all phones as far as we know, needs confirmation
 const FRONT_CAMERA = 1;
@@ -35,6 +38,10 @@ String videoPath = "";
 
 /// boolean used to check when camera is in use
 bool _isRecording = false;
+
+// instance of user auth and db
+final auth = FirebaseAuth.instance;
+final db = FirebaseFirestore.instance;
 
 Future<Map<String, String>> uploadVideo(File videoFile, int bufferVal) async {
   /// This function uploads a video to the server, and returns the prediction 
@@ -233,6 +240,8 @@ class CameraScreenState extends State<CameraScreen> {
 
   /// Displays a dialog box of the prediction the model received
   void showPrediction(Map<String, String> predictionSet) {
+
+    // TODO: store prediction probably around here into the db
 
     Color getColor(double confidence) {
       if (confidence > 0.7) {
