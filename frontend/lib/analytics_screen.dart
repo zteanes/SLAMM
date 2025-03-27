@@ -11,7 +11,11 @@ import 'package:SLAMM/tabs_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-
+// how to change: 
+//  - add a pie chart with the most used words, listing the 5 most used words beside it
+//  - total number of words translated 
+//  - ability to list/scroll through all the words translated
+//  - ...
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
 
