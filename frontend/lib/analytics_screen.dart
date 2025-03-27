@@ -143,7 +143,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
               children: [
                 //gets the number of users from the db and displays it on screen
                 StreamBuilder(
-                  stream: _db_service.getUser(auth.currentUser?.uid), // gets the user that is signed in !!HARD CODED FOR TESTING PURPOSES!!
+                  stream: _db_service.getUser(auth.currentUser?.uid), // gets the user that is signed in
                   builder: (context, snapshot){
                     if (!snapshot.hasData) {
                       return const CircularProgressIndicator();
