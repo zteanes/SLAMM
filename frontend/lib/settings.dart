@@ -135,6 +135,8 @@ class SettingsScreenState extends State<SettingsScreen> {
       Share.shareXFiles([XFile(file.path)]);
     } else {
       // get android specific directory to save to 
+      // the directory that it saves to is really out of the way
+      // /storage/emulated/0/Android/data/com.example.frontend/files/SLAMM_Data_Export.pdf
       output = await getExternalStorageDirectory();
       final file = File('${output?.path}/SLAMM_Data_Export.pdf');
       await file.writeAsBytes(await pdf.save());
