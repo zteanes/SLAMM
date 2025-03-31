@@ -88,7 +88,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
     );
   }
 
-  Text getWord(word){
+  Text getWord(String word){
     return Text(word,
       style: const TextStyle(fontSize: 20, color: Colors.white),
       textAlign: TextAlign.center,
