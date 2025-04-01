@@ -72,6 +72,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
                       DocumentSnapshot<Object?>? doc = snapshot.data;
 
                       return Text("${doc?.get("firstName")}'s Analytics", 
+                        softWrap: true,
                         style: const TextStyle(fontSize: 30, color: Colors.white),
                         textAlign: TextAlign.center,
                       );
@@ -124,7 +125,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
           children: <Widget>[
 
             // most common words signed with a pie chart
-            Text("Most Common Words Signed:",
+            Text("Most Common Words:",
               style: TextStyle(fontSize: 26, color: Theme.of(context).primaryColor),
               textAlign: TextAlign.center,
             ),
@@ -143,9 +144,12 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
               textAlign: TextAlign.center,
             ),
             getMostUsedWord(words),
+
+            // space
+            const SizedBox(height: 20),
             
             // list of all words signed by the user
-            Text("All Words Signed:",
+            Text("All Words:",
               style: TextStyle(fontSize: 26, color: Theme.of(context).primaryColor),
               textAlign: TextAlign.center,
             ),
@@ -162,7 +166,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
   /// 
   /// @param words: the list of words that the user has signed
   /// @return a Text widget that displays the most common words signed by the user
-  Text getMostCommonWords(List<String> words) {
+  Row getMostCommonWords(List<String> words) {
     // map the count of each word
     Map<String, int> wordCount = {};
 
@@ -185,34 +189,82 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
     // if no words are signed, display a message
     if (mostCommonWords.isEmpty){
-      return Text("No words signed yet!",
-          style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
-          textAlign: TextAlign.center,
-        );
+      return Row(
+        children: [
+          Text("No words signed yet!",
+              style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
+              textAlign: TextAlign.center,
+            ),
+        ],
+      );
     }
 
-    // make a pie chart of the most common words
-    // return PieChart(
-    //   PieChartData(
-    //     sections: List.generate(mostCommonWords.length, (index) {
-    //       return PieChartSectionData(
-    //         color: Colors.primaries[index % Colors.primaries.length],
-    //         value: wordCount.values.elementAt(index).toDouble(),
-    //         title: mostCommonWords[index],
-    //         radius: 100,
-    //       );
-    //     }),
-    //   ),
-    // );
+    // list of colors to use be used for the pie chart
+    const List<Color> col = [
+      Color.fromARGB(255, 7, 80, 86),
+      Color.fromARGB(255, 10, 114, 123),
+      Color.fromARGB(255, 13, 147, 159),
+      Color.fromARGB(255, 15, 178, 193),
+      Color.fromARGB(255, 18, 209, 227),
+    ];
 
-    // return common words as both a pie chart and a list
-    return Text(mostCommonWords.toString().replaceAll("[", "").replaceAll("]", ""),
-      style: TextStyle(fontSize: 18, color: Theme.of(context).primaryColor),
-      textAlign: TextAlign.center,
+    // make a pie chart of the most common words
+    var pie = SizedBox(
+      height: 200,
+      width: 200,
+      child: PieChart(
+        PieChartData(
+          sections: List.generate(mostCommonWords.length, (i) {
+            return PieChartSectionData(
+              // get a color from the list of primary colors
+              color: col[i % col.length],
+
+              // set the value of the pie chart to the count of the word
+              value: wordCount[mostCommonWords[i].split(" ")[0]]!.toDouble(),
+
+              // set the title of the pie chart to the word
+              title: mostCommonWords[i].split(" ")[0],
+
+              // set the radius of the pie chart
+              radius: 100,
+            );
+          }),
+        ),
+      
+      ),
     );
 
+    // refactor the words to read like "1) Word - count"
+    var wordList = mostCommonWords.asMap().entries.map((entry) {
+      int index = entry.key + 1;
+      String word = entry.value.split(" ")[0]; // Extract only the word, not count
 
-  }
+      return Text("$index) $word - ${wordCount[word]}",
+        style: TextStyle(fontSize: 18, color: Theme.of(context).primaryColor),
+        textAlign: TextAlign.left, // Ensure text is left-aligned
+      );
+    }).toList();
+
+    // combine all the formatted words into a column
+    var finalWords = Column(
+      crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
+      children: wordList.map((word) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0), // Add some spacing
+        child: word,
+      )).toList(),
+    );
+
+    // return text and pie chart side by side
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start, // Aligns both pie chart and text at the top
+      children: [
+        pie,
+        const SizedBox(width: 16), // Add spacing between the chart and text
+        finalWords,
+      ],
+    );
+  } // end getMostCommonWords
+
 
   /// Creates a Text widget that displays the number of words signed by the user.
   /// 
