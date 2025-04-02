@@ -128,7 +128,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     if (Platform.isIOS) {
       // get ios specific directory to save to
       output = await getApplicationSupportDirectory();
-      final file = File('${output?.path}/SLAMM_Data_Export.pdf');
+      final file = File('${output.path}/SLAMM_Data_Export.pdf');
       await file.writeAsBytes(await pdf.save());
 
       // prompts on iphone for the user to save/share the file where ever they please

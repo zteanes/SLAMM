@@ -6,6 +6,7 @@
 library;
 
 import 'dart:io';
+import 'package:SLAMM/DB/db_service.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:SLAMM/main.dart';
@@ -42,6 +43,7 @@ bool _isRecording = false;
 // instance of user auth and db
 final auth = FirebaseAuth.instance;
 final db = FirebaseFirestore.instance;
+final DbService _db_service = DbService();
 
 Future<Map<String, String>> uploadVideo(File videoFile, int bufferVal) async {
   /// This function uploads a video to the server, and returns the prediction 
@@ -197,13 +199,10 @@ class CameraScreenState extends State<CameraScreen> {
                   var prediction = await uploadVideo(File(path), NO_BUFFER);
                   // get the uid of the current user
                   String? uid = auth.currentUser?.uid;
-                  // add info to the database
-                  await db.collection('Users').doc(uid).update({
-                    // add the word to the list
-                    'words': FieldValue.arrayUnion([{ prediction['message']! }]),
-                    // add the LLM to the list
-                    'LLM': FieldValue.arrayUnion([{ prediction['llm_message']! }]),
-                  });
+                  // add new word to the database
+                  _db_service.updateArray(uid!, "words", prediction['message']!);
+                  // add new LLM prediction to the database
+                  _db_service.updateArray(uid, "LLM", prediction['llm_message']!);
 
                   // remove the loading dialog
                   if (mounted) {
