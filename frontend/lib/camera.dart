@@ -195,6 +195,15 @@ class CameraScreenState extends State<CameraScreen> {
                   
                   // upload the video
                   var prediction = await uploadVideo(File(path), NO_BUFFER);
+                  // get the uid of the current user
+                  String? uid = auth.currentUser?.uid;
+                  // add info to the database
+                  await db.collection('Users').doc(uid).update({
+                    // add the word to the list
+                    'words': FieldValue.arrayUnion([{ prediction['message']! }]),
+                    // add the LLM to the list
+                    'LLM': FieldValue.arrayUnion([{ prediction['llm_message']! }]),
+                  });
 
                   // remove the loading dialog
                   if (mounted) {

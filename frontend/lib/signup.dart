@@ -134,6 +134,7 @@ class _SignupState extends State<Signup> {
                                 'lastName': lastName,
                                 'email': email,
                                 'words': [],
+                                'LLM': [],
                               });
                               Navigator.pushReplacement(
                                   context,
