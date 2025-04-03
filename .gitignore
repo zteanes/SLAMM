@@ -15,3 +15,4 @@ backend/TGCN/archived/asl*/._*
 frontend/ios/* 
 frontend/pubspec.lock
 frontend/windows/*
+.idea/
