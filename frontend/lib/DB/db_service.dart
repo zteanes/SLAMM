@@ -23,4 +23,10 @@ class DbService {
   void addUser(Users user) async {
     _usersRef.add(user);
   }
+
+  void updateArray (String uid, String field, String data,) async {
+    _usersRef.doc(uid).update({
+      field : FieldValue.arrayUnion([data]),
+    });
+  }
 }
