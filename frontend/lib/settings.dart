@@ -37,10 +37,10 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class SettingsScreenState extends State<SettingsScreen> {
-  DbService _dbService = DbService();
   Map<String, dynamic>? userData; // Store user data, setup in initialization
 
   @override
+  /// This function is used to initialize the state of the settings screen.
   void initState() {
     super.initState();
     fetchUserData();
