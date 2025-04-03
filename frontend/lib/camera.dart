@@ -214,7 +214,7 @@ class CameraScreenState extends State<CameraScreen> {
                   // upload the video
                   var prediction = await uploadVideo(File(path), NO_BUFFER);
 
-                  try{
+                  try {
                     // get the uid of the current user and a reference to their data
                     String? uid = auth.currentUser?.uid;
                     var userDoc = await db.collection('Users').doc(uid).get();
@@ -226,14 +226,13 @@ class CameraScreenState extends State<CameraScreen> {
                     List<dynamic> currentWords = userDoc.data()?['words'] ?? [];
                     // add new word to the database;
                     for (var i = 0; i < words.length; i++) {
-                      print("adding word to db: ${words[i]}");
                       // append the word to the list
                       currentWords.add(words[i]);
                     
                       // update the database with the new word
-                      userDoc.reference.update({
-                        'words': currentWords
-                      });
+                      userDoc.reference.update( {
+                        'words': currentWords 
+                      } );
                     }
 
                     // reference to the LLM data from the database and add the new message
@@ -244,7 +243,7 @@ class CameraScreenState extends State<CameraScreen> {
                     userDoc.reference.update({
                       'LLM': currentLLM
                     });
-                    
+
                   } catch (e) {
                     print("Error adding word to database: $e");
                   }
