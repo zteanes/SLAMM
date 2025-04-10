@@ -47,15 +47,9 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.6, // set the opacity of the background image
-              child: Image.asset('assets/images/temp-splash.jpg',
-              fit: BoxFit.cover),
-            ),
-          ),
           Align(
             alignment: Alignment.center,
             child: Column(
@@ -73,7 +67,9 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
                       return Text("${doc?.get("firstName")}'s Analytics", 
                         softWrap: true,
-                        style: const TextStyle(fontSize: 30, color: Colors.white),
+                        style:  TextStyle(
+                          fontSize: 30,
+                          color: Theme.of(context).colorScheme.secondary),
                         textAlign: TextAlign.center,
                       );
                     }
@@ -126,21 +122,21 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
             // most common words signed with a pie chart
             Text("Most Common Words:",
-              style: TextStyle(fontSize: 26, color: Theme.of(context).primaryColor),
+              style: TextStyle(fontSize: 26, color: Theme.of(context).colorScheme.secondary),
               textAlign: TextAlign.center,
             ),
             getMostCommonWords(words),
 
             // number of words signed by the user
             Text("\nNumber of Words:",
-              style: TextStyle(fontSize: 26, color: Theme.of(context).primaryColor),
+              style: TextStyle(fontSize: 26, color: Theme.of(context).colorScheme.secondary),
               textAlign: TextAlign.center,
             ),
             getNumWords(words),
             
             // most used word by the user
             Text("\nMost Used Word:",
-              style: TextStyle(fontSize: 26, color: Theme.of(context).primaryColor),
+              style: TextStyle(fontSize: 26, color: Theme.of(context).colorScheme.secondary),
               textAlign: TextAlign.center,
             ),
             getMostUsedWord(words),
@@ -150,7 +146,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
             
             // list of all words signed by the user
             Text("All Words:",
-              style: TextStyle(fontSize: 26, color: Theme.of(context).primaryColor),
+              style: TextStyle(fontSize: 26, color: Theme.of(context).colorScheme.secondary),
               textAlign: TextAlign.center,
             ),
             getAllWords(words),
@@ -192,7 +188,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
       return Row(
         children: [
           Text("No words signed yet!",
-              style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
+              style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.secondary),
               textAlign: TextAlign.center,
             ),
         ],
@@ -240,7 +236,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
       String word = entry.value.split(" ")[0]; // Extract only the word, not count
 
       return Text("$index) $word - ${wordCount[word]}",
-        style: TextStyle(fontSize: 18, color: Theme.of(context).primaryColor),
+        style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.secondary),
         textAlign: TextAlign.left, // Ensure text is left-aligned
       );
     }).toList();
@@ -272,7 +268,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
   /// @return a Text widget that displays the number of words signed by the user
   Text getNumWords(List<String> words) {
     return Text("${words.length}",
-      style: TextStyle(fontSize: 18, color: Theme.of(context).primaryColor),
+      style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.secondary),
       textAlign: TextAlign.center,
     );
   } // end getNumWords
@@ -287,7 +283,7 @@ Widget getAllWords(List<String> words) {
   if (words.isEmpty) {
     return Text(
       "No words signed yet!",
-      style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
+      style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.secondary),
       textAlign: TextAlign.center,
     );
   }
@@ -308,7 +304,7 @@ Widget getAllWords(List<String> words) {
                   width: columnWidth - 10,
                   child: Text(
                     word,
-                    style: TextStyle(fontSize: 18, color: Theme.of(context).primaryColor),
+                    style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.secondary),
                     textAlign: TextAlign.center,
                   ),
                 ))
@@ -344,14 +340,14 @@ Widget getAllWords(List<String> words) {
 
     // if no words are signed, display a message
     if (mostUsedWord == ""){
-      return const Text("No words signed yet!",
-          style: TextStyle(fontSize: 20, color: Colors.white),
+      return  Text("No words signed yet!",
+          style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.secondary),
           textAlign: TextAlign.center,
         );
     } else { 
       // otherwise, return the most used word as a widget
       return Text(mostUsedWord,
-          style: const TextStyle(fontSize: 20, color: Colors.white),
+          style:  TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.secondary),
           textAlign: TextAlign.center,
         );
     }
