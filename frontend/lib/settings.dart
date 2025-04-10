@@ -7,7 +7,6 @@ library;
 
 import 'dart:io';
 
-import 'package:SLAMM/DB/db_service.dart';
 import 'package:flutter/material.dart';
 import 'package:SLAMM/tabs_bar.dart';
 import 'package:flutter/services.dart';
@@ -24,6 +23,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// used for the theme notifier
 import 'main.dart';
 
+/// instance of the firebase auth and firestore
 FirebaseAuth auth = FirebaseAuth.instance;
 CollectionReference db = FirebaseFirestore.instance.collection('Users');
 
@@ -71,7 +71,7 @@ class SettingsScreenState extends State<SettingsScreen> {
           backgroundColor: Theme.of(context).colorScheme.secondary,
           content: Text(
             "No data available to export!",
-            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         )
       );
@@ -167,16 +167,9 @@ class SettingsScreenState extends State<SettingsScreen> {
     }
     // The scaffold is the main container for the settings screen
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
-          // background image
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.6,
-              child: Image.asset('assets/images/temp-splash.jpg',
-                  fit: BoxFit.cover),
-            ),
-          ),
           // button to explain what application is
           Align(
             alignment: Alignment.topRight,
@@ -208,7 +201,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   'Settings',
                   style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 36),
                 ),
                 // spacing box to separate elements
@@ -265,6 +258,13 @@ class SettingsScreenState extends State<SettingsScreen> {
                 ElevatedButton( 
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.secondary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2,
+                      ),
+                    ),
                   ),
                   onPressed: () {
                     exportToPDF();
@@ -280,6 +280,13 @@ class SettingsScreenState extends State<SettingsScreen> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.secondary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2,
+                      ),
+                    ),
                   ),
                   onPressed: () {
                     // sign out of the application

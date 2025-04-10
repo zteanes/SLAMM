@@ -187,7 +187,7 @@ class CameraScreenState extends State<CameraScreen> {
           title: Text(
                     textAlign: TextAlign.center, 
                     text
-                ),
+          ),
           actions: <Widget>[
             TextButton(
               // ok button to clear the popup

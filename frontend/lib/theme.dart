@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 ThemeData lightmode = ThemeData(
   // sets the brightness and colors for light mode
   brightness: Brightness.light,
-  scaffoldBackgroundColor: const Color.fromARGB(255, 203, 198, 161),
+  scaffoldBackgroundColor: const Color.fromARGB(255, 208, 208, 208),
   colorScheme: const ColorScheme.light(
     // title text and icon color
     primary: Color.fromARGB(199, 255, 255, 255),
