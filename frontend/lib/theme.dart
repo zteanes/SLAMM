@@ -13,7 +13,7 @@ ThemeData lightmode = ThemeData(
   colorScheme: const ColorScheme.light(
     // title text and icon color
     primary: Color.fromARGB(199, 255, 255, 255),
-    secondary: Color.fromARGB(255, 8, 93, 100),
+    secondary: Color.fromARGB(255, 6, 70, 75),
     surface: Color.fromARGB(255, 220, 214, 209),
   ),
   fontFamily: 'MonoLisa',

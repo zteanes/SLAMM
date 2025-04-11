@@ -96,7 +96,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             pw.Center(
               child: pw.Text('SLAMM Data Export', 
               style: pw.TextStyle(
-                fontSize: 30, 
+                fontSize: 26, 
                 font: ttf, 
                 color: const PdfColor.fromInt(0x085D64),
                 decoration: pw.TextDecoration.underline,
@@ -109,17 +109,18 @@ class SettingsScreenState extends State<SettingsScreen> {
 
             // subheading about the user specific data
             pw.Text("${userData!["firstName"]} ${userData!["lastName"]}'s Data:", 
-              style: pw.TextStyle(fontSize: 20, font: ttf)
+              style: pw.TextStyle(fontSize: 18, font: ttf)
             ),
 
             // iterate every user key and value and add to the pdf
-            for (var key in userData!.keys)
-              pw.Text('\n$key: ${userData![key]}', style: pw.TextStyle(fontSize: 16, font: ttf)),
+            for (var key in userData!.keys) 
+                pw.Text('\n$key: ${userData![key]}', style: pw.TextStyle(fontSize: 12, font: ttf)),
             ],
           );
         },
       ),
     );
+    
 
     // save the pdf to the device
     Directory? output;
