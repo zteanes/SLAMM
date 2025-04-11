@@ -179,7 +179,8 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
     List<String> mostCommonWords = [];
     int count = 0;
     while (count < 5 && count < wordCount.length) {
-      mostCommonWords.add("${wordCount.keys.elementAt(count)} (${wordCount.values.elementAt(count)})");
+      mostCommonWords.add("${wordCount.keys.elementAt(count)} "
+                         "(${wordCount.values.elementAt(count)})");
       count++;
     }
 
@@ -220,13 +221,13 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
               // set the title of the pie chart to the word
               title: mostCommonWords[i].split(" ")[0],
+              titleStyle: const TextStyle(fontSize: 16,color: Colors.white),
 
               // set the radius of the pie chart
               radius: 100,
             );
           }),
         ),
-      
       ),
     );
 
@@ -299,7 +300,7 @@ Widget getAllWords(List<String> words) {
         alignment: WrapAlignment.center,
         spacing: 6,
         runSpacing: 6,
-        children: words
+        children: words.reversed // reverse the order, so the most recent is up first 
             .map((word) => SizedBox(
                   width: columnWidth - 10,
                   child: Text(
