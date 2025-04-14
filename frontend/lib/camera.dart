@@ -2,7 +2,7 @@
 /// application.
 ///
 /// Authors: Alex Charlot and Zach Eanes
-/// Date: 02/07/2025
+/// Date: 04/14/2025
 library;
 
 import 'dart:io';
@@ -25,14 +25,14 @@ const FRONT_CAMERA = 1;
 const BACK_CAMERA = 0;
 int currentCamera = BACK_CAMERA;
 
-// integer representation of the first album in the gallery
+/// integer representation of the first album in the gallery
 const FIRST_ALBUM = 0;
 
-// integer representations for whether to buffer a video in the server or not
+/// integer representations for whether to buffer a video in the server or not
 const int BUFFER = 1;
 const int NO_BUFFER = 0;
 
-// ratios for the camera preview
+/// ratios for the camera preview
 const WIDTH_RATIO = 1920;
 const HEIGHT_RATIO = 1080;
 
@@ -40,22 +40,24 @@ const HEIGHT_RATIO = 1080;
 String videoPath = "";
 
 /// boolean used to check when camera is in use
-bool _isRecording = false;
+bool isRecording = false;
 
-// instance of user auth and db
+/// instance of user authentication system
 final auth = FirebaseAuth.instance;
+
+/// instance of the database used to store user data
 final db = FirebaseFirestore.instance;
 
+/// This function uploads a video to the server, and returns the prediction 
+/// that is received.
+/// 
+/// Parameters:
+///  videoFile: the video file to be uploaded
+///  buffer: 0 if nothing else needs to be buffered, 1 if the prediction should be buffered
+/// 
+/// Returns:
+///  A map containing the prediction and the LLM message
 Future<Map<String, String>> uploadVideo(File videoFile, int bufferVal) async {
-  /// This function uploads a video to the server, and returns the prediction 
-  /// that is received.
-  /// 
-  /// Parameters:
-  ///  videoFile: the video file to be uploaded
-  ///  buffer: 0 if nothing else needs to be buffered, 1 if the prediction should be buffered
-  /// 
-  /// Returns:
-  ///  A map containing the prediction and the LLM message
   
   // create the request
   // NOTE: HAVE TO CHANGE THE IP ADDRESS TO WHATEVER NGROK IS USING TO HOST
@@ -101,18 +103,16 @@ Future<Map<String, String>> uploadVideo(File videoFile, int bufferVal) async {
 
 /// --------------- BEGIN CAMERA SCREEN CREATION --------------- ///
 
-
+/// Sets up the camera screen for the application
 class CameraScreen extends StatefulWidget {
-  /// Sets up the camera screen for the application
   const CameraScreen({super.key});
 
   @override
   State<CameraScreen> createState() => CameraScreenState();
 }
 
-// CameraAppState is the state of the CameraApp widget
+/// CameraAppState is the state of the CameraApp widget
 class CameraScreenState extends State<CameraScreen> {
-  /// CameraAppState is the state of the CameraApp widget
   /// controller used to control the camera
   late CameraController controller;
 
@@ -170,6 +170,7 @@ class CameraScreenState extends State<CameraScreen> {
   /// NOTE: this cannot be removed or it breaks the camera screen. this is called is called right
   ///       after initState() and before the build. this is responsible for setting up the 
   ///       navigation state of our popups and such.
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
@@ -269,7 +270,7 @@ class CameraScreenState extends State<CameraScreen> {
     );
   }
 
-  /// displays a loading dialog box while the video is being processed
+  /// Displays a loading dialog box while the video is being processed.
   void showLoadingDialog() {
     // only show the dialog if the screen is mounted
     if (!mounted) { return; }
@@ -293,8 +294,9 @@ class CameraScreenState extends State<CameraScreen> {
   /// Displays a dialog box of the prediction the model received
   void showPrediction(Map<String, String> predictionSet) {
 
-    // TODO: store prediction probably around here into the db
-
+    /// determine the color to display the prediction in, showing the confidence
+    /// 
+    /// @param: confidence the confidence of the prediction
     Color getColor(double confidence) {
       if (confidence > 0.7) {
         return Colors.green;
@@ -304,6 +306,7 @@ class CameraScreenState extends State<CameraScreen> {
         return Colors.red;
       }
     }
+
     if (!mounted) { return; }
     showDialog(
       context: context,
@@ -363,8 +366,9 @@ class CameraScreenState extends State<CameraScreen> {
 
 
   /// Records the video and saves it to the camera roll
-  Future<String> _recordVideo(bool newWord) async {
-    if (_isRecording) {
+  /// 
+Future<String> _recordVideo() async {
+    if (isRecording) {
       try {
         // waits for the video to stop recording
         final file = await controller.stopVideoRecording();
@@ -378,12 +382,12 @@ class CameraScreenState extends State<CameraScreen> {
 
         await File(file.path).copy(videoPath);
 
-        setState(() => _isRecording = false);
+        setState(() => isRecording = false);
       } catch (e) {
         // show popup that video was not saved, pass "" as path to close it 
         showVideoSaved("Error recording/saving video, please try again.", "");
         setState(() {
-          _isRecording = false;
+          isRecording = false;
         });
       }
       return "Stopped";
@@ -394,7 +398,7 @@ class CameraScreenState extends State<CameraScreen> {
       await controller.startVideoRecording();
 
       // delete the temp directory
-      setState(() => _isRecording = true);
+      setState(() => isRecording = true);
       return "Started";
     }
   }
@@ -455,9 +459,9 @@ class CameraScreenState extends State<CameraScreen> {
               padding: const EdgeInsets.all(20),
               child: ElevatedButton(
                 onPressed: () {
-                  _recordVideo(false);
+                  _recordVideo();
 
-                  if (_isRecording) {
+                  if (isRecording) {
                     // show popup that video was recorded
                     Future.delayed(const Duration(milliseconds: 200), () {
                       showVideoSaved("Video recorded!", videoPath);
@@ -471,7 +475,7 @@ class CameraScreenState extends State<CameraScreen> {
                   side: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 1.5)
 
                 ),
-                child: _isRecording
+                child: isRecording
                     ? Icon(
                         Icons.stop_circle_outlined, size: 20,
                         color: Theme.of(context).colorScheme.secondary,
@@ -484,7 +488,7 @@ class CameraScreenState extends State<CameraScreen> {
             ),
           ),
           Visibility(
-            visible: _isRecording,
+            visible: isRecording,
             child: Align(
               // sets up the button to record/stop recording a video
               alignment: Alignment.bottomLeft,
@@ -494,9 +498,9 @@ class CameraScreenState extends State<CameraScreen> {
                 child: ElevatedButton(
                   onPressed: () async {
                     // begin the recording precess
-                    await _recordVideo(true);
+                    await _recordVideo();
                     uploadVideo(File(videoPath), BUFFER); // ignore return value to continue
-                    await _recordVideo(true);
+                    await _recordVideo();
             
                     // flashes camera to indicate that another word should be presented
                     if (currentCamera == BACK_CAMERA) { // only flash if the back camera is in use

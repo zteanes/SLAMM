@@ -1,8 +1,11 @@
 /// This file contains the AnalyticsScreen widget, which is the screen that displays
 /// the analytics page.
+/// 
+/// This includes statistics that are user specific, including the most common words 
+/// that are signed, number of words, most used word, and all word signed.
 ///
 /// Authors: Zach Eanes and Alex Charlot
-/// Date: 12/06/2024
+/// Date: 04/14/2025
 library;
 
 import 'package:flutter/material.dart';
@@ -14,11 +17,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 // used for a pie chart 
 import 'package:fl_chart/fl_chart.dart';
 
-// how to change: 
-//  - add a pie chart with the most used words, listing the 5 most used words beside it
-//  - total number of words translated 
-//  - ability to list/scroll through all the words translated
-//  - ...
+
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
 
@@ -32,18 +31,25 @@ CollectionReference db = FirebaseFirestore.instance.collection('Users');
 // reference to the user authentication 
 final auth = FirebaseAuth.instance;
 
-
+/// Establishes the state of the analytics screen.
 class AnalyticsScreenState extends State<AnalyticsScreen> {
+
+  /// Initializes the state of the analytics screen.
   @override
   void initState() {
     super.initState();
   }
 
   // instance of the db to reference throughout this screen
-  final DbService _db_service = DbService();
+  final DbService dbService = DbService();
 
   // screen is an entire scrollable container, with a static header of user's name 
   // and a list of their analytics
+
+  /// Builds the analytics screen by returning the widget tree.
+  /// 
+  /// @param context: the build context of the widget
+  /// @return a widget that displays the analytics screen
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +63,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
               children: [
                 // static header 
                 StreamBuilder(
-                  stream: _db_service.getUser(auth.currentUser?.uid), // gets the user that is signed in
+                  stream: dbService.getUser(auth.currentUser?.uid), // gets user that is signed in
                   builder: (context, snapshot){
                     if (!snapshot.hasData) {
                       return const CircularProgressIndicator();
@@ -78,7 +84,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
                 // gets the number of users from the db and displays it on screen
                 StreamBuilder(
-                  stream: _db_service.getUser(auth.currentUser?.uid), // gets the user that is signed in
+                  stream: dbService.getUser(auth.currentUser?.uid), // gets the user that is signed in
                   builder: (context, snapshot){
                     if (!snapshot.hasData) {
                       return const CircularProgressIndicator();
@@ -89,6 +95,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
                       // get the list of words from the user document
                       List<String> words = doc?.get('words').cast<String>() ?? [];
                       
+                      // get the entire list of stats we want from the user
                       return listOfStats(doc,words);
                     }
                   }, 
@@ -187,6 +194,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
     // if no words are signed, display a message
     if (mostCommonWords.isEmpty){
       return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text("No words signed yet!",
               style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.secondary),
