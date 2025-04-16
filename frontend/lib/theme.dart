@@ -1,11 +1,12 @@
 /// This file contains the theme data and colorings we use through our application.
 ///
 /// Authors: Alex Charlot and Zach Eanes
-/// Date: 12/06/2024
+/// Date: 04/16/2025
 library;
 
 import 'package:flutter/material.dart';
 
+/// Lightmode coloring used throughout our application
 ThemeData lightmode = ThemeData(
   // sets the brightness and colors for light mode
   brightness: Brightness.light,
@@ -19,10 +20,11 @@ ThemeData lightmode = ThemeData(
   fontFamily: 'MonoLisa',
 );
 
+/// Darkmode coloring used throughout our application
 ThemeData darkmode = ThemeData(
   // sets the brightness and colors for dark mode
   brightness: Brightness.dark,
-  scaffoldBackgroundColor: Color.fromARGB(255, 2, 38, 41),
+  scaffoldBackgroundColor: const Color.fromARGB(255, 2, 38, 41),
   colorScheme: const ColorScheme.dark(
     // title text and icon color
     primary: Color.fromARGB(255, 9, 143, 156),

@@ -2,7 +2,7 @@
 /// application.
 ///
 /// Authors: Alex Charlot and Zach Eanes
-/// Date: 04/14/2025
+/// Date: 04/16/2025
 library;
 
 import 'dart:io';
@@ -131,6 +131,9 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   /// Initializes the camera controller
+  /// 
+  /// Parameters:
+  ///  cameraPos: integer representation of which camera to use
   void _initializeCamera(int cameraPos) {
     try{
       controller = CameraController(
@@ -179,6 +182,10 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   /// Displays a temporary popup message that video was saved to the phone
+  /// 
+  /// Parameters:
+  ///  text: the text to display in the popup
+  ///  path: the path to the video file
   void showVideoSaved(String text, String path) {
     showDialog(
       context: context,
@@ -292,11 +299,15 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   /// Displays a dialog box of the prediction the model received
+  /// 
+  /// Parameters:
+  ///  predictionSet: a map of the prediction, reinterpretation, and confidence
   void showPrediction(Map<String, String> predictionSet) {
 
     /// determine the color to display the prediction in, showing the confidence
     /// 
-    /// @param: confidence the confidence of the prediction
+    /// Parameters:
+    ///  confidence: the confidence of the prediction
     Color getColor(double confidence) {
       if (confidence > 0.7) {
         return Colors.green;
@@ -366,8 +377,7 @@ class CameraScreenState extends State<CameraScreen> {
 
 
   /// Records the video and saves it to the camera roll
-  /// 
-Future<String> _recordVideo() async {
+  Future<String> _recordVideo() async {
     if (isRecording) {
       try {
         // waits for the video to stop recording
@@ -404,6 +414,12 @@ Future<String> _recordVideo() async {
   }
 
   /// Builds the camera screen
+  /// 
+  /// Parameters:
+  ///  context of the application
+  /// 
+  /// Returns:
+  ///  A widget that contains the camera preview and the buttons to record and switch cameras
   @override
   Widget build(BuildContext context) {
     return Scaffold(

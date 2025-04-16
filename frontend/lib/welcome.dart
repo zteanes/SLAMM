@@ -2,25 +2,32 @@
 /// application.
 ///
 /// Authors: Alex Charlot and Zach Eanes
-/// Date: 12/06/2024
+/// Date: 04/16/2025
 library;
 
 import 'package:flutter/material.dart';
 
+/// This file contains all the logic and widgets used to create the Welcome screen in our
+/// application.
 class WelcomeScreen extends StatefulWidget {
-  /// This widget is used to create the welcome screen for the application.
   const WelcomeScreen({super.key});
 
   @override
   State<WelcomeScreen> createState() => WelcomeScreenState();
 }
 
+/// State class for the Welcome screen
 class WelcomeScreenState extends State<WelcomeScreen> {
+
+  /// Builds the welcome screen
+  /// 
+  /// Parameters:
+  ///  context - the build context for the widget
+  /// 
+  /// Returns:
+  ///  A widget that is used to build the welcome screen
   @override
   Widget build(BuildContext context) {
-    // used to check if we're in light or dark mode
-    // var brightness = MediaQuery.of(context).platformBrightness;
-    // bool isDarkMode = brightness == Brightness.dark;
     return Scaffold(
       body: Stack(
         children: [
@@ -28,7 +35,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
             // background image
             child: Opacity(
               opacity: 0.6,
-              child: Image.asset('assets/images/temp-splash.jpg',
+              child: Image.asset('assets/images/splash.jpg',
                   fit: BoxFit.cover),
             ),
           ),
@@ -54,6 +61,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
           ),
+          
           Align(
             alignment: Alignment.center,
             // Title welcome text
