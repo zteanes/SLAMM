@@ -1,7 +1,7 @@
 /// This file outlines the tab bar used through every screen of our application.
 ///
 /// Authors: Alex Charlot and Zach Eanes
-/// Date: 12/06/2024
+/// Date: 04/16/2025
 library;
 
 import 'package:flutter/material.dart';
@@ -9,6 +9,7 @@ import 'package:SLAMM/analytics_screen.dart';
 import 'package:SLAMM/camera.dart';
 import 'package:SLAMM/settings.dart';
 
+/// This file outlines the tab bar used through every screen of our application.
 class BottomTabBar extends StatefulWidget {
   /// This widget is used to create the bottom tab bar for the application.
   const BottomTabBar({super.key});
@@ -17,9 +18,16 @@ class BottomTabBar extends StatefulWidget {
   State<BottomTabBar> createState() => BottomTabBarState();
 }
 
+/// State of the tab bar
 class BottomTabBarState extends State<BottomTabBar> {
-  /// Sets up the bottom tab bar for the application
+
   /// Builds the bottom tab bar
+  /// 
+  /// Parameters:
+  ///  context - the build context for the widget
+  /// 
+  /// Returns:
+  ///  A widget that is used to build the bottom tab bar
   @override
   Widget build(BuildContext context) {
     return SizedBox(

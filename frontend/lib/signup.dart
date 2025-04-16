@@ -2,7 +2,7 @@
 /// to create a new user account. The user is then redirected to the analytics page.
 /// 
 /// Authors: Zach Eanes
-/// Version: 1.0
+/// date: 04/16/2025
 library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -32,11 +32,16 @@ class _SignupState extends State<Signup> {
   String email = '';
   String password = '';
   String error = '';
-
-  // TODO: store these in a user object associated with the UID
   String firstName = '';
   String lastName = '';
 
+  /// Builds the signup screen
+  /// 
+  /// Parameters:
+  ///  context - the build context for the widget
+  /// 
+  /// Returns:
+  ///  the widget for our signup screen
   @override
   Widget build(BuildContext context) {
     return Scaffold(
