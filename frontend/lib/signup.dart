@@ -66,6 +66,7 @@ class _SignupState extends State<Signup> {
                   key: formKey,
                   child: Column(
                     children: <Widget>[
+                      // Text field where for the user to enter their first name
                       TextFormField(
                         decoration: const InputDecoration(labelText: 'First Name'),
                         validator: (value) {
@@ -79,6 +80,7 @@ class _SignupState extends State<Signup> {
                         },
                       ),
 
+                      // Text field where for the user to enter their last name
                       TextFormField(
                         decoration: const InputDecoration(labelText: 'Last Name'),
                         validator: (value) {
@@ -134,6 +136,7 @@ class _SignupState extends State<Signup> {
                               await auth.createUserWithEmailAndPassword(
                                       email: email, password: password
                               );
+                              // initializes the users documents upon creation of a new user
                               await db.collection('Users').doc(auth.currentUser!.uid).set({
                                 'firstName': firstName,
                                 'lastName': lastName,
@@ -147,9 +150,10 @@ class _SignupState extends State<Signup> {
                                       builder: (context) => const AnalyticsScreen()));
                             } on FirebaseAuthException catch (e) {
                                 setState(() {
+                                // Error codes from FirebaseAuthException
                                 switch (e.code) {
                                   case 'email-already-in-use':
-                                    error = 'This email is already in use. ' 
+                                    error = 'This email is already in use1. ' 
                                              'Please log in or use a different email.';
                                     break;
                                   case 'invalid-email':
