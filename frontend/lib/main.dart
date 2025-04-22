@@ -8,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:SLAMM/settings.dart';
+import 'package:lock_orientation_screen/lock_orientation_screen.dart';
 import 'analytics_screen.dart';
 import 'camera.dart';
 import 'theme.dart';
@@ -62,33 +63,35 @@ class MyApp extends StatelessWidget {
   ///  Either the welcome page or analytics page depending on if a user is logged in.
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<ThemeMode>(
-      valueListenable: themeNotifier,
-      builder: (context, currentTheme, _) {
-        User? user = FirebaseAuth.instance.currentUser;
-        return MaterialApp(
-          title: 'Welcome Screen',
-          // sets the themed modes for the application
-          theme: lightmode,
-          darkTheme: darkmode,
-
-          // sets the mode to the system mode
-          themeMode: currentTheme,
-
-          // go to the analytics screen if a user is logged in, otherwise the welcome screen
-          home: user != null ? const AnalyticsScreen() : const WelcomeScreen(),
-          routes: {
-            // routes to every screen in the application
-            "analytics": (context) => const AnalyticsScreen(),
-            "welcome": (context) => const WelcomeScreen(),
-            "camera": (context) => const CameraScreen(),
-            "settings": (context) => const SettingsScreen(),
-            "explanation": (context) => const ExplanationScreen(),
-            "signup" : (context) => const Signup(),
-            "login" : (context) => Login(),
-          },
-        );
-      },
+    return LockOrientation (
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: themeNotifier,
+        builder: (context, currentTheme, _) {
+          User? user = FirebaseAuth.instance.currentUser;
+          return MaterialApp(
+            title: 'Welcome Screen',
+            // sets the themed modes for the application
+            theme: lightmode,
+            darkTheme: darkmode,
+      
+            // sets the mode to the system mode
+            themeMode: currentTheme,
+      
+            // go to the analytics screen if a user is logged in, otherwise the welcome screen
+            home: user != null ? const AnalyticsScreen() : const WelcomeScreen(),
+            routes: {
+              // routes to every screen in the application
+              "analytics": (context) => const AnalyticsScreen(),
+              "welcome": (context) => const WelcomeScreen(),
+              "camera": (context) => const CameraScreen(),
+              "settings": (context) => const SettingsScreen(),
+              "explanation": (context) => const ExplanationScreen(),
+              "signup" : (context) => const Signup(),
+              "login" : (context) => Login(),
+            },
+          );
+        },
+      ),
     );
   }
 }
