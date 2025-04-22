@@ -48,7 +48,7 @@ const HOW_TO_USE =
     "bottom-left of the screen. This is our \"next word\" button, and it allows you to begin"
     "signing a new word without having to stop the recording. In essence, it allows you to "
     "translation a sentence in a single video! Whenever you're done recording, simply click the "
-    "the \"stop recording\" button in the bottom-middle of the screen. This will stop the "
+    "\"stop recording\" button in the bottom-middle of the screen. This will stop the "
     "recording and can then hit translate to receive a translation! \n\n";
 
 
