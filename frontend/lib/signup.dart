@@ -153,7 +153,7 @@ class _SignupState extends State<Signup> {
                                 // Error codes from FirebaseAuthException
                                 switch (e.code) {
                                   case 'email-already-in-use':
-                                    error = 'This email is already in use1. ' 
+                                    error = 'This email is already in use. ' 
                                              'Please log in or use a different email.';
                                     break;
                                   case 'invalid-email':
