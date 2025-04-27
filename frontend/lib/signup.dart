@@ -2,7 +2,7 @@
 /// to create a new user account. The user is then redirected to the analytics page.
 /// 
 /// Authors: Zach Eanes
-/// Version: 1.0
+/// date: 04/16/2025
 library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -32,11 +32,16 @@ class _SignupState extends State<Signup> {
   String email = '';
   String password = '';
   String error = '';
-
-  // TODO: store these in a user object associated with the UID
   String firstName = '';
   String lastName = '';
 
+  /// Builds the signup screen
+  /// 
+  /// Parameters:
+  ///  context - the build context for the widget
+  /// 
+  /// Returns:
+  ///  the widget for our signup screen
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,6 +66,7 @@ class _SignupState extends State<Signup> {
                   key: formKey,
                   child: Column(
                     children: <Widget>[
+                      // Text field where for the user to enter their first name
                       TextFormField(
                         decoration: const InputDecoration(labelText: 'First Name'),
                         validator: (value) {
@@ -74,6 +80,7 @@ class _SignupState extends State<Signup> {
                         },
                       ),
 
+                      // Text field where for the user to enter their last name
                       TextFormField(
                         decoration: const InputDecoration(labelText: 'Last Name'),
                         validator: (value) {
@@ -129,6 +136,7 @@ class _SignupState extends State<Signup> {
                               await auth.createUserWithEmailAndPassword(
                                       email: email, password: password
                               );
+                              // initializes the users documents upon creation of a new user
                               await db.collection('Users').doc(auth.currentUser!.uid).set({
                                 'firstName': firstName,
                                 'lastName': lastName,
@@ -142,6 +150,7 @@ class _SignupState extends State<Signup> {
                                       builder: (context) => const AnalyticsScreen()));
                             } on FirebaseAuthException catch (e) {
                                 setState(() {
+                                // Error codes from FirebaseAuthException
                                 switch (e.code) {
                                   case 'email-already-in-use':
                                     error = 'This email is already in use. ' 
