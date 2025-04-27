@@ -2,7 +2,7 @@
 /// The user is then redirected to the analytics page.
 /// 
 /// Authors: Zach Eanes
-/// Version: 1.0
+/// date: 04/14/2025
 library;
 
 import 'package:flutter/material.dart';
@@ -10,11 +10,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:SLAMM/analytics_screen.dart';
 import 'package:SLAMM/signup.dart';
 
+/// This screen is the login page. It uses Firebase Authentication to log in a user.
 class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
 }
 
+/// Class state for the login page.
 class _LoginState extends State<Login> {
 
   // create the FirebaseAuth instance and key
@@ -26,6 +28,10 @@ class _LoginState extends State<Login> {
   String _password = '';
   String _error = '';
 
+  /// This function builds the login screen.
+  /// 
+  /// Returns:
+  ///  A widget that is used to build the login screen.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

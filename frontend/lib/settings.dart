@@ -2,7 +2,7 @@
 /// necessary logic associated with it.
 ///
 /// Authors: Zach Eanes and Alex Charlot
-/// Date: 12/06/2024
+/// Date: 04/16/2025
 library;
 
 import 'dart:io';
@@ -18,8 +18,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
-
 /// used for the theme notifier
 import 'main.dart';
 
@@ -27,20 +25,20 @@ import 'main.dart';
 FirebaseAuth auth = FirebaseAuth.instance;
 CollectionReference db = FirebaseFirestore.instance.collection('Users');
 
-
+/// Class for the settings screen
 class SettingsScreen extends StatefulWidget {
-  /// Sets up the settings screen for the application
   const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => SettingsScreenState();
 }
 
+/// Class state for the settings screen
 class SettingsScreenState extends State<SettingsScreen> {
   Map<String, dynamic>? userData; // Store user data, setup in initialization
-
-  @override
+  
   /// This function is used to initialize the state of the settings screen.
+  @override
   void initState() {
     super.initState();
     fetchUserData();
@@ -96,7 +94,7 @@ class SettingsScreenState extends State<SettingsScreen> {
             pw.Center(
               child: pw.Text('SLAMM Data Export', 
               style: pw.TextStyle(
-                fontSize: 30, 
+                fontSize: 26, 
                 font: ttf, 
                 color: const PdfColor.fromInt(0x085D64),
                 decoration: pw.TextDecoration.underline,
@@ -109,17 +107,18 @@ class SettingsScreenState extends State<SettingsScreen> {
 
             // subheading about the user specific data
             pw.Text("${userData!["firstName"]} ${userData!["lastName"]}'s Data:", 
-              style: pw.TextStyle(fontSize: 20, font: ttf)
+              style: pw.TextStyle(fontSize: 18, font: ttf)
             ),
 
             // iterate every user key and value and add to the pdf
-            for (var key in userData!.keys)
-              pw.Text('\n$key: ${userData![key]}', style: pw.TextStyle(fontSize: 16, font: ttf)),
+            for (var key in userData!.keys) 
+                pw.Text('\n$key: ${userData![key]}', style: pw.TextStyle(fontSize: 12, font: ttf)),
             ],
           );
         },
       ),
     );
+    
 
     // save the pdf to the device
     Directory? output;
@@ -155,9 +154,12 @@ class SettingsScreenState extends State<SettingsScreen> {
   }
 
   /// Builds the settings screen including all buttons, text, options
+  /// 
+  /// returns:
+  ///  The settings screen with all the options and buttons
   @override
   Widget build(BuildContext context) {
-    /// Get the system brightness
+    // Get the system brightness
     var brightness = MediaQuery.of(context).platformBrightness;
 
     // change the value of the themeNotifier based on the system brightness

@@ -1,8 +1,11 @@
 /// This file contains the AnalyticsScreen widget, which is the screen that displays
 /// the analytics page.
+/// 
+/// This includes statistics that are user specific, including the most common words 
+/// that are signed, number of words, most used word, and all word signed.
 ///
 /// Authors: Zach Eanes and Alex Charlot
-/// Date: 12/06/2024
+/// Date: 04/14/2025
 library;
 
 import 'package:flutter/material.dart';
@@ -14,11 +17,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 // used for a pie chart 
 import 'package:fl_chart/fl_chart.dart';
 
-// how to change: 
-//  - add a pie chart with the most used words, listing the 5 most used words beside it
-//  - total number of words translated 
-//  - ability to list/scroll through all the words translated
-//  - ...
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
 
@@ -26,24 +24,31 @@ class AnalyticsScreen extends StatefulWidget {
   State<AnalyticsScreen> createState() => AnalyticsScreenState();
 }
 
-// a reference to the collection of users in the database
+/// a reference to the collection of users in the database
 CollectionReference db = FirebaseFirestore.instance.collection('Users');
 
-// reference to the user authentication 
+/// reference to the user authentication 
 final auth = FirebaseAuth.instance;
 
-
+/// Establishes the state of the analytics screen.
 class AnalyticsScreenState extends State<AnalyticsScreen> {
+
+  /// Initializes the state of the analytics screen.
   @override
   void initState() {
     super.initState();
   }
 
   // instance of the db to reference throughout this screen
-  final DbService _db_service = DbService();
+  final DbService dbService = DbService();
 
   // screen is an entire scrollable container, with a static header of user's name 
   // and a list of their analytics
+
+  /// Builds the analytics screen by returning the widget tree.
+  /// 
+  /// Parameters:
+  ///  context: the build context of the widget
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +62,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
               children: [
                 // static header 
                 StreamBuilder(
-                  stream: _db_service.getUser(auth.currentUser?.uid), // gets the user that is signed in
+                  stream: dbService.getUser(auth.currentUser?.uid), // gets user that is signed in
                   builder: (context, snapshot){
                     if (!snapshot.hasData) {
                       return const CircularProgressIndicator();
@@ -78,7 +83,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
                 // gets the number of users from the db and displays it on screen
                 StreamBuilder(
-                  stream: _db_service.getUser(auth.currentUser?.uid), // gets the user that is signed in
+                  stream: dbService.getUser(auth.currentUser?.uid), // gets the user that is signed in
                   builder: (context, snapshot){
                     if (!snapshot.hasData) {
                       return const CircularProgressIndicator();
@@ -89,6 +94,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
                       // get the list of words from the user document
                       List<String> words = doc?.get('words').cast<String>() ?? [];
                       
+                      // get the entire list of stats we want from the user
                       return listOfStats(doc,words);
                     }
                   }, 
@@ -106,9 +112,12 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
   /// Creates a container that holds the list of analytics for the user.
   /// 
-  /// @param doc: the user's document from the database
-  /// @param words: the list of words that the user has signed
-  /// @return a container that holds the list of analytics for the user
+  /// Parameters:
+  ///  doc: the document snapshot of the user
+  ///  words: the list of words that the user has signed
+  /// 
+  /// Returns:
+  ///  a container that holds the list of analytics for the user
   Container listOfStats(DocumentSnapshot? doc, List<String> words) {
     return Container(
       height: 600, // Set a fixed height for vertical scrolling (adjust as needed)
@@ -160,8 +169,11 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
   /// Creates a Text widget that displays the most common words signed by the user.
   /// 
-  /// @param words: the list of words that the user has signed
-  /// @return a Text widget that displays the most common words signed by the user
+  /// Parameters: 
+  ///  words: the list of words that the user has signed
+  /// 
+  /// Returns:
+  ///  a Text widget that displays the most common words signed by the user
   Row getMostCommonWords(List<String> words) {
     // map the count of each word
     Map<String, int> wordCount = {};
@@ -179,13 +191,15 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
     List<String> mostCommonWords = [];
     int count = 0;
     while (count < 5 && count < wordCount.length) {
-      mostCommonWords.add("${wordCount.keys.elementAt(count)} (${wordCount.values.elementAt(count)})");
+      mostCommonWords.add("${wordCount.keys.elementAt(count)} "
+                         "(${wordCount.values.elementAt(count)})");
       count++;
     }
 
     // if no words are signed, display a message
     if (mostCommonWords.isEmpty){
       return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text("No words signed yet!",
               style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.secondary),
@@ -220,13 +234,13 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
               // set the title of the pie chart to the word
               title: mostCommonWords[i].split(" ")[0],
+              titleStyle: const TextStyle(fontSize: 16,color: Colors.white),
 
               // set the radius of the pie chart
               radius: 100,
             );
           }),
         ),
-      
       ),
     );
 
@@ -264,8 +278,11 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
   /// Creates a Text widget that displays the number of words signed by the user.
   /// 
-  /// @param words: the list of words that the user has signed
-  /// @return a Text widget that displays the number of words signed by the user
+  /// Parameters: 
+  ///   words: the list of words that the user has signed
+  ///
+  /// Returns: 
+  ///   a Text widget that displays the number of words signed by the user
   Text getNumWords(List<String> words) {
     return Text("${words.length}",
       style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.secondary),
@@ -276,8 +293,11 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
 /// Creates a widget that displays all the words signed by the user.
 /// 
-/// @param words: the list of words that the user has signed
-/// @return a widget that displays all the words signed by the user
+/// Parameters:
+///  words: the list of words that the user has signed
+/// 
+/// Returns:
+///  a widget that displays all the words signed by the user
 Widget getAllWords(List<String> words) {
   // ensure user has signed words, if not display a message
   if (words.isEmpty) {
@@ -299,7 +319,7 @@ Widget getAllWords(List<String> words) {
         alignment: WrapAlignment.center,
         spacing: 6,
         runSpacing: 6,
-        children: words
+        children: words.reversed // reverse the order, so the most recent is up first 
             .map((word) => SizedBox(
                   width: columnWidth - 10,
                   child: Text(
@@ -316,8 +336,11 @@ Widget getAllWords(List<String> words) {
 
   /// Creates a Text widget that displays the most used word by the user.
   /// 
-  /// @param words: the list of words that the user has signed
-  /// @return a Text widget that displays the most used word by the user
+  /// Parameters: 
+  ///  words: the list of words that the user has signed
+  /// 
+  /// Returns:
+  ///  a Text widget that displays the most used word by the user
   Text getMostUsedWord(List<String> words) {
     Map<String, int> wordCount = {};
 

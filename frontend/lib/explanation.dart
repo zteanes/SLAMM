@@ -2,7 +2,7 @@
 /// the explanations such as how to use the application and it's intended purpose.
 ///
 /// Authors: Zach Eanes and Alex Charlot
-/// Date: 12/17/2024
+/// Date: 04/16/2025
 library;
 
 import 'package:flutter/material.dart';
@@ -29,16 +29,27 @@ const HOW_TO_USE =
     "by recording short videos of a person signing a single term, and then receiving a prediction "
     "from a machine learning model trained to recognize ASL. \n\n"
 
-    "We recommend recording videos which are 2-3 seconds in length of the user repeating their term, "
-    "and recording from a few feet away. Please avoid recording close or far away as these videos "
-    "will not be clear enough for the model to recognize. Along with this, ensure the lighting of "
-    "the video is the best you can make it, as too dark or bright may also affect model "
-    "recognition. \n\n"
+    "We recommend recording a video which contains only one sign at a time, and ensuring that " 
+    "as much of the sign is in the video as possible. Try to eliminate as much video and after "
+    "the sign to sure the highest level of accuracy. This is because the model is trained to "
+    "recognize a single sign, and if there is \"dead space\" in the video, it will confuse the "
+    "model and lead to a lower accuracy or a wrong translation. \n\n"
+
+    "Whenever you receive a translation and reinterpretation back, you'll notice the coloring of "
+    "the text. The text is colored so that a user will know how confident the model is in its "
+    "prediction. The colors are as follows: \n\n"
+    "Green: The model is very confident in its prediction. (70%+) \n"
+    "Yellow: The model is somewhat confident in its prediction. (35%-69%) \n"
+    "Red: The model is not confident in its prediction. (0%-34%) \n\n"
 
     "Otherwise, simply navigate to the camera screen, use the camera switch button in the upper-right "
     "to select the camera you wish to use. Then, click the button in the bottom-middle of the screen "
-    "to begin recording, and click it again when you want to end the recording. From there, hit the "
-    "translate option to see what the model predicts! \n";
+    "to begin recording! Once you begin recording, you'll notice a new button appears in the "
+    "bottom-left of the screen. This is our \"next word\" button, and it allows you to begin"
+    "signing a new word without having to stop the recording. In essence, it allows you to "
+    "translation a sentence in a single video! Whenever you're done recording, simply click the "
+    "\"stop recording\" button in the bottom-middle of the screen. This will stop the "
+    "recording and can then hit translate to receive a translation! \n\n";
 
 
 
