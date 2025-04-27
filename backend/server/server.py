@@ -197,27 +197,26 @@ def create_WLASL_dictionary():
 
 ########### FastAPI setup and model loading ###########
 
-if __name__ == "__main__":
-    # initialize the FastAPI
-    app = FastAPI(redirect_slashes=False)
+# initialize the FastAPI
+app = FastAPI(redirect_slashes=False)
 
-    # initialize and load the model if available
-    if torch.cuda.is_available():
-        # load the machine learning model first, as well as dictionary 
-        load_I3D_model()
-        create_WLASL_dictionary()
-        log(Fore.GREEN + "-"*20 + "Model loaded successfully!" + "-"*20)
+# initialize and load the model if available
+if torch.cuda.is_available():
+    # load the machine learning model first, as well as dictionary 
+    load_I3D_model()
+    create_WLASL_dictionary()
+    log(Fore.GREEN + "-"*20 + "Model loaded successfully!" + "-"*20)
 
-        # load the LLM model 
-        model = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf") # downloads / loads a 4.66GB LLM
-        with model.chat_session():
-            msg = setup_msg
-            log(Fore.GREEN + model.generate(msg, max_tokens=1024))
-    else: # we can't load the model so this is bad
-        log(Fore.RED + "-"*20 
-            + "CUDA is not available. Please ensure cuda is available before running the server." 
-            + "-"*20)
-        exit(1)
+    # load the LLM model 
+    model = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf") # downloads / loads a 4.66GB LLM
+    with model.chat_session():
+        msg = setup_msg
+        log(Fore.GREEN + model.generate(msg, max_tokens=1024))
+else: # we can't load the model so this is bad
+    log(Fore.RED + "-"*20 
+        + "CUDA is not available. Please ensure cuda is available before running the server." 
+        + "-"*20)
+    exit(1)
 
 
 ########### Below are the valid routes through the FastAPI ###########
