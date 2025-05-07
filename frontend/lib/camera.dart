@@ -1,8 +1,17 @@
 /// This file contains all the logic and widgets used to create the Camera screen in our
 /// application.
+/// 
+/// This includes the necessary communication with server to send the video, receive the 
+/// prediction/reinterpretation/confidence, and display the results to the user.
+/// 
+/// Along with this, we have a "multi-term" video recording system that allows a user
+/// to chain together multiple videos and words in a single conversation. This is done by
+/// recording a video, stopping it/sending it to the server/starting a new video, and 
+/// repeating this process until the user ends the video.
 ///
 /// Authors: Alex Charlot and Zach Eanes
-/// Date: 04/16/2025
+/// Date: 05/07/2025
+/// Version: 1.0
 library;
 
 import 'dart:io';
@@ -13,10 +22,8 @@ import 'package:SLAMM/tabs_bar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:torch_light/torch_light.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:path_provider/path_provider.dart';
 
 /// cameras used within the app; int representations of the cameras
@@ -77,7 +84,6 @@ Future<Map<String, String>> uploadVideo(File videoFile, int bufferVal) async {
 
   // decode the response as a json object
   var jsonResponse = json.decode(responseString);
-  print("Response we got from the server is: $jsonResponse");
 
   // return object to be displayed
   var responseText = Map<String, String>();
@@ -473,6 +479,8 @@ class CameraScreenState extends State<CameraScreen> {
             child: Padding(
               // padding to make sure button is correctly placed
               padding: const EdgeInsets.all(20),
+              
+              // button to record/stop recording a video
               child: ElevatedButton(
                 onPressed: () {
                   _recordVideo();
@@ -511,6 +519,8 @@ class CameraScreenState extends State<CameraScreen> {
               child: Padding(
                 // padding to make sure button is correctly placed
                 padding: const EdgeInsets.all(20),
+
+                // button that allows user to chain together terms into a single conversation
                 child: ElevatedButton(
                   onPressed: () async {
                     // begin the recording precess
