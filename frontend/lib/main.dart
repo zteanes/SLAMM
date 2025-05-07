@@ -2,6 +2,7 @@
 ///
 /// Authors: Alex Charlot and Zach Eanes
 /// Date: 04/16/2025
+/// Version: 1.0
 library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,7 +18,6 @@ import 'explanation.dart';
 import 'package:camera/camera.dart';
 import 'signup.dart';
 import 'login.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -70,6 +70,7 @@ class MyApp extends StatelessWidget {
           User? user = FirebaseAuth.instance.currentUser;
           return MaterialApp(
             title: 'Welcome Screen',
+            
             // sets the themed modes for the application
             theme: lightmode,
             darkTheme: darkmode,
@@ -87,7 +88,7 @@ class MyApp extends StatelessWidget {
               "settings": (context) => const SettingsScreen(),
               "explanation": (context) => const ExplanationScreen(),
               "signup" : (context) => const Signup(),
-              "login" : (context) => Login(),
+              "login" : (context) => const Login(),
             },
           );
         },

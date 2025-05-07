@@ -2,6 +2,7 @@
 ///
 /// Authors: Alex Charlot and Zach Eanes
 /// Date: 04/16/2025
+/// Version: 1.0
 library;
 
 import 'package:flutter/material.dart';

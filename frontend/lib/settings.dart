@@ -3,10 +3,10 @@
 ///
 /// Authors: Zach Eanes and Alex Charlot
 /// Date: 04/16/2025
+/// Version: 1.0
 library;
 
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:SLAMM/tabs_bar.dart';
 import 'package:flutter/services.dart';
@@ -14,11 +14,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart'; 
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-/// used for the theme notifier
 import 'main.dart';
 
 /// instance of the firebase auth and firestore
@@ -206,8 +203,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                       color: Theme.of(context).colorScheme.secondary,
                       fontSize: 36),
                 ),
+
                 // spacing box to separate elements
                 const SizedBox(height: 20), 
+
                 // Text that says "Toggle between Light and Dark mode"
                 Text(
                   'Toggle between Light and Dark mode',
@@ -215,6 +214,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                       color: Theme.of(context).colorScheme.secondary,
                       fontSize: 16),
                 ),
+
                 // listen to the theme notifier and update the switch accordingly
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

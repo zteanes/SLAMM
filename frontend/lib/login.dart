@@ -3,6 +3,7 @@
 /// 
 /// Authors: Zach Eanes
 /// date: 04/14/2025
+/// Version: 1.0
 library;
 
 import 'package:flutter/material.dart';
@@ -12,6 +13,8 @@ import 'package:SLAMM/signup.dart';
 
 /// This screen is the login page. It uses Firebase Authentication to log in a user.
 class Login extends StatefulWidget {
+  const Login({super.key});
+
   @override
   _LoginState createState() => _LoginState();
 }
@@ -67,6 +70,7 @@ class _LoginState extends State<Login> {
                         _email = value!;
                       },
                     ),
+
                     TextFormField(
                       obscureText: true, // don't show the password they're typing
                       decoration: InputDecoration(labelText: 'Password'),
