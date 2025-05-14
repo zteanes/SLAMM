@@ -1,7 +1,4 @@
 # SLAMM
-<<<<<<< HEAD
-=======
-
 **S**ign **L**anguage **A**nalytics and **M**obile **M**achine Learning.
 
 This project is a part of WCU's Capstone projects for the 2024-2025 academic year.
@@ -96,5 +93,3 @@ translate to receive a translation!
 This project would not have been possible with the amazing work of WLASL, which can be found 
 [here](https://github.com/dxli94/WLASL). This served as the backbone for our project, as their I3D Model for 
 recognition of ASL terms.
-
->>>>>>> capstone/main
