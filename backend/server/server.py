@@ -18,7 +18,6 @@ from colorama import Fore
 import cv2
 from I3D.pytorch_i3d import InceptionI3d
 import os
-import argparse
 import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
@@ -29,27 +28,8 @@ from gpt4all import GPT4All
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
-# setup the argument parser for the model
-# TODO: check if this is needed as well
-parser = argparse.ArgumentParser()
-parser.add_argument('-mode', type=str, help='rgb or flow')
-parser.add_argument('-save_model', type=str)
-parser.add_argument('-root', type=str)
-
-root = os.getcwd() + '/data/WLASL100' # root directory for the model info 
 i3d = None # model itself so we can reference it throughout the entire server
-
-# TODO: see if these can safely be deleted
-# # global variables used for model setup later
-# mode = 'rgb' # mode used for the model
-# num_classes = 100 # number of classes for the model
-# save_model = './models' # save the model
-# root = os.getcwd() + '/data/WLASL100' # root directory for the model info 
-# train_split = 'preprocess/nslt_100.json' # training split for the model
-# # weights for the model
-# weights = (os.getcwd() + 
-#     '/I3D/archived/asl100/FINAL_nslt_100_iters=896_top1=65.89_top5=84.11_top10=89.92.pt')
-# i3d = None # model itself so we can reference it throughout the entire server
+llm = None # LLM model so we can reference it throughout the entire server
 
 ########### Methods for debugging and loading model ###########
 
@@ -77,6 +57,8 @@ def load_I3D_model():
     i3d.load_state_dict(torch.load(weights)) 
     i3d.cuda()
     i3d = nn.DataParallel(i3d)
+
+    # set to evaluation mode, ready for use
     i3d.eval()
 
 def run_on_tensor(ip_tensor):
@@ -105,6 +87,7 @@ def run_on_tensor(ip_tensor):
     
     # return the predictions, no matter the confidence
     return (wlasl_dict[out_labels[0][-1]], float(max(F.softmax(torch.from_numpy(arr[0]), dim=0))))
+
 def load_frames(video_path):
     """ 
     This function was adapted from: 
@@ -112,26 +95,31 @@ def load_frames(video_path):
 
     Load RGB frames from a video file to be processed by the model.
     """
-    vidcap = cv2.VideoCapture(video_path)  # Open the video file
 
-    frames = []
+
+    video = cv2.VideoCapture(video_path) # video itself to be processed
+    frames = [] # frames from the video 
 
     # loop through the video frame by frame and resize properly
     while True:
-        ret, frame1 = vidcap.read()
-        if not ret:  # If no more frames, break
+        ret, frame1 = video.read()
+
+        # break if we reach the end of the video 
+        if not ret:
             break
 
+        # resize the frame to correct dimensions
         w, h, c = frame1.shape
         sc = 224 / w
         sx = 224 / h
         frame = cv2.resize(frame1, dsize=(0, 0), fx=sx, fy=sc)
+        frame = (frame / 255.) * 2 - 1 
 
-        frame = (frame / 255.) * 2 - 1  # Normalize frame
+        # add frame to the list of frames
         frames.append(frame)
 
     # release video since it's no longer needed
-    vidcap.release()
+    video.release()
 
     # ensure that we have frames to process
     if len(frames) == 0:
@@ -160,7 +148,10 @@ def create_WLASL_dictionary():
     global wlasl_dict 
     wlasl_dict = {}
     
+    # open the class list and read in our values for the dictionary
     with open('I3D/preprocess/wlasl_class_list.txt') as file:
+
+        # iterate each line in the file and split it into a key and value
         for line in file:
             split_list = line.split()
             if len(split_list) != 2:
@@ -169,6 +160,8 @@ def create_WLASL_dictionary():
             else:
                 key = int(split_list[0])
                 value = split_list[1]
+            
+            # add the key and value to the dictionary
             wlasl_dict[key] = value
 
 
@@ -185,6 +178,7 @@ def init():
     into a single, coherent sentence. The sentence should be simple, understandable, and concise. 
     Do not include any other words, reinforcements, or explanations beyond the translated sentence.
     """
+    global llm
 
     # initialize and load the model if available
     if torch.cuda.is_available():
@@ -194,10 +188,10 @@ def init():
         log(Fore.GREEN + "-"*20 + "Model loaded successfully!" + "-"*20)
 
         # load the LLM model 
-        model = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf") # downloads / loads a 4.66GB LLM
-        with model.chat_session():
+        llm = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf") # downloads / loads a 4.66GB LLM
+        with llm.chat_session():
             msg = setup_msg
-            log(Fore.GREEN + model.generate(msg, max_tokens=1024))
+            log(Fore.GREEN + llm.generate(msg, max_tokens=1024))
     else: # we can't load the model so this is bad
         log(Fore.RED + "-"*20 
             + "CUDA is not available. Please ensure cuda is available before running the server." 
@@ -205,6 +199,7 @@ def init():
         exit(1)
 
 ########### end methods for debugging and loading model ###########
+
 
 
 ########### FastAPI setup and model loading ###########
@@ -221,7 +216,7 @@ async def root():
     Basic landing screen for the FastAPI backend of SLAMM.
     """
     return {"message": "This is the working backend for SLAMM."}
-    
+
 
 words = [] # list of the word to be buffered until user needs them 
 confidences = [] # list of the confidence values for the words to be buffered
@@ -278,12 +273,11 @@ async def predict_video(file: UploadFile = File(...), buffer: int = Form(...)):
 
             Respond only with the sentence. Do not include any other words, explanations, or code.
 
-            Here is the list of words: """  
-            + translations
+            Here is the list of words: """ + translations
 
         # ask the llm to generate a response
-        with model.chat_session():
-            llm_message = model.generate(to_ask, max_tokens=1024)
+        with llm.chat_session():
+            llm_message = llm.generate(to_ask, max_tokens=1024)
         log(llm_message)
 
         return {"message": translations, "llm_message" : llm_message, "confidence" : avg_conf}
