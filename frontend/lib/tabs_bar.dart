@@ -2,6 +2,7 @@
 ///
 /// Authors: Alex Charlot and Zach Eanes
 /// Date: 04/16/2025
+/// Version: 1.0
 library;
 
 import 'package:flutter/material.dart';
@@ -37,10 +38,12 @@ class BottomTabBarState extends State<BottomTabBar> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
+
             // sets the button for analytics
             IconButton(
                 color: Theme.of(context).colorScheme.secondary,
                 icon: const Icon(Icons.analytics),
+
                 // navigate to screen unless we're only on that screen
                 onPressed: () {
                   if (ModalRoute.of(context)?.settings.name != "analytics") {
@@ -50,7 +53,7 @@ class BottomTabBarState extends State<BottomTabBar> {
                       pageBuilder: (context, animation, 
                                     secondaryAnimation) => const AnalyticsScreen(), 
                       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                        const begin = Offset(-0.8, 0.0); // Left-to-right transition
+                        const begin = Offset(-0.8, 0.0); // left-to-right transition
                         const end = Offset.zero;
                         const curve = Curves.easeInOut;
 
@@ -74,6 +77,7 @@ class BottomTabBarState extends State<BottomTabBar> {
                 icon: const Icon(Icons.camera_alt_outlined),
                 onPressed: () {
                   if (ModalRoute.of(context)?.settings.name != "camera") {
+                    // we're navigating to the analytics screen, so slide screen in accordingly
                     if (ModalRoute.of(context)?.settings.name == "analytics") {
                       Navigator.of(context).push(PageRouteBuilder(
                         settings: const RouteSettings(name: "camera"),
@@ -81,7 +85,7 @@ class BottomTabBarState extends State<BottomTabBar> {
                         pageBuilder: (context, animation, 
                                       secondaryAnimation) => const CameraScreen(), 
                         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                          const begin = Offset(0.8, 0.0); // Right-to-left transition
+                          const begin = Offset(0.8, 0.0); // left-to-right transition
                           const end = Offset.zero;
                           const curve = Curves.easeInOut;
 

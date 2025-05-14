@@ -5,7 +5,8 @@
 /// that are signed, number of words, most used word, and all word signed.
 ///
 /// Authors: Zach Eanes and Alex Charlot
-/// Date: 04/14/2025
+/// Date: 05/07/2025
+/// Version: 1.0
 library;
 
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 // used for a pie chart 
 import 'package:fl_chart/fl_chart.dart';
 
+/// The AnalyticsScreen widget is a StatefulWidget that displays the analytics page.
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
 
@@ -41,9 +43,6 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
   // instance of the db to reference throughout this screen
   final DbService dbService = DbService();
-
-  // screen is an entire scrollable container, with a static header of user's name 
-  // and a list of their analytics
 
   /// Builds the analytics screen by returning the widget tree.
   /// 
@@ -83,7 +82,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
 
                 // gets the number of users from the db and displays it on screen
                 StreamBuilder(
-                  stream: dbService.getUser(auth.currentUser?.uid), // gets the user that is signed in
+                  stream: dbService.getUser(auth.currentUser?.uid), // get the user that's signed in
                   builder: (context, snapshot){
                     if (!snapshot.hasData) {
                       return const CircularProgressIndicator();
@@ -192,7 +191,7 @@ class AnalyticsScreenState extends State<AnalyticsScreen> {
     int count = 0;
     while (count < 5 && count < wordCount.length) {
       mostCommonWords.add("${wordCount.keys.elementAt(count)} "
-                         "(${wordCount.values.elementAt(count)})");
+                          "(${wordCount.values.elementAt(count)})");
       count++;
     }
 

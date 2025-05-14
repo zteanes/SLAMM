@@ -3,6 +3,7 @@
 /// 
 /// Authors: Zach Eanes
 /// date: 04/16/2025
+/// Version: 1.0
 library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -52,7 +53,7 @@ class _SignupState extends State<Signup> {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                // Title of the page
+                // title of the page
                 Text(
                   'Sign Up',
                   style: TextStyle(
@@ -66,7 +67,7 @@ class _SignupState extends State<Signup> {
                   key: formKey,
                   child: Column(
                     children: <Widget>[
-                      // Text field where for the user to enter their first name
+                      // text field where for the user to enter their first name
                       TextFormField(
                         decoration: const InputDecoration(labelText: 'First Name'),
                         validator: (value) {
@@ -80,7 +81,7 @@ class _SignupState extends State<Signup> {
                         },
                       ),
 
-                      // Text field where for the user to enter their last name
+                      // text field where for the user to enter their last name
                       TextFormField(
                         decoration: const InputDecoration(labelText: 'Last Name'),
                         validator: (value) {
@@ -94,7 +95,7 @@ class _SignupState extends State<Signup> {
                         },
                       ),
 
-                      // Text form fields for email and password
+                      // text form fields for email 
                       TextFormField(
                         decoration: const InputDecoration(labelText: 'Email'),
                         validator: (value) {
@@ -107,6 +108,8 @@ class _SignupState extends State<Signup> {
                           email = value!;
                         },
                       ),
+
+                      // text form field for the user to enter their password
                       TextFormField(
                         obscureText: true, // don't show the password they're typing
                         decoration: const InputDecoration(labelText: 'Password'),
