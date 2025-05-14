@@ -18,11 +18,16 @@ Alexander Charlot - [GitHub](https://github.com/Al-Charlot) - [LinkedIn](https:/
 ## Table of Contents
 
 - [SLAMM](#slamm)
+  - [Poster Overview](#poster-overview)
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Installation](#installation)
   - [How to Use](#how-to-use)
   - [Thanks and Recognition](#thanks-and-recognition)
+ 
+## Poster Overview
+
+![slamm_poster_FINAL](https://github.com/user-attachments/assets/67931838-1c74-4085-9433-16cc921a84e0)
 
 ## Introduction
 
