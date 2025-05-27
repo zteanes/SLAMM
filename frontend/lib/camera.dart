@@ -291,14 +291,44 @@ class CameraScreenState extends State<CameraScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return  AlertDialog(
+        return AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
           title: Text(
             textAlign: TextAlign.center,
             "Getting the translation...",
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
-          content: const LinearProgressIndicator(),
+          content: const SizedBox(
+            height: 140, // hard number since content is constant 
+            child:  Column(
+              children: [
+                LinearProgressIndicator(),
+                SizedBox(height: 20),
+            
+                // explanation of the confidence 
+                Text(
+                  textAlign: TextAlign.center,
+                  "Confidence Levels:",
+                  style: TextStyle(fontSize: 20, color: Colors.white70),
+                ),
+                Text(
+                  textAlign: TextAlign.center,
+                  "High: 70%+",
+                  style: TextStyle(color: Colors.green, fontSize: 16),
+                ),
+                Text( 
+                  textAlign: TextAlign.center,
+                  "Medium: 35% to 70%",
+                  style: TextStyle(color: Colors.yellow, fontSize: 16),
+                ),
+                Text( 
+                  textAlign: TextAlign.center,
+                  "Low: 0% to 35%",
+                  style: TextStyle(color: Colors.red, fontSize: 16),
+                ),
+              ],
+            ),
+          ),          
         );
       },
     );
@@ -314,21 +344,34 @@ class CameraScreenState extends State<CameraScreen> {
     /// 
     /// Parameters:
     ///  confidence: the confidence of the prediction
-    Color getColor(double confidence) {
+    (Color, String) getColor(double confidence) {
       if (confidence > 0.7) {
-        return Colors.green;
+        return (Colors.green, "High");
       } else if (confidence > 0.35) {
-        return Colors.yellow;
+        return (Colors.yellow, "Medium");
       } else {
-        return Colors.red;
+        return (Colors.red, "Low");
       }
     }
+
+    // round confidence to 2 decimal places
+    double confidence = double.parse(predictionSet['confidence']!);
+    double newConfidence = double.parse((confidence).toStringAsFixed(4));
+
+    // display has to be made separately, as multiplying by 100 later leads to imprecision due
+    // to floating point arithmetic 
+    String displayConf = (double.parse(predictionSet['confidence']!) * 100).toStringAsFixed(2);
+
+    // get the color to display the prediction in
+    var (Color color, String confText) = getColor(newConfidence);
 
     if (!mounted) { return; }
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          actionsPadding: const EdgeInsets.symmetric(vertical: 2),
+          contentPadding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 10.0), // reduce bottom padding
           backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -336,16 +379,15 @@ class CameraScreenState extends State<CameraScreen> {
               Text(
                 textAlign: TextAlign.center,
                 "True Prediction:",
-                style: TextStyle(color: Theme.of(context).colorScheme.secondary,
-                                 fontSize: 22),
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 22),
+              ),
 
+              // display the prediction message
               Text( 
                 textAlign: TextAlign.center,
                 predictionSet['message']!,
-                style: TextStyle(color: getColor(double.parse(predictionSet['confidence']!)),
-                                 fontSize: 18),
-                ),
+                style: TextStyle(color: color, fontSize: 18),
+              ),
 
               // some space between the two predictions
               const SizedBox(height: 20),
@@ -353,16 +395,24 @@ class CameraScreenState extends State<CameraScreen> {
               Text(
                 textAlign: TextAlign.center,
                 "LLM Reinterpretation:",
-                style: TextStyle(color: Theme.of(context).colorScheme.secondary,
-                                 fontSize: 22),
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 22),
+              ),
 
+              // display the LLM message
               Text(
                 textAlign: TextAlign.center,
                 predictionSet['llm_message']!,
-                style: TextStyle(color: getColor(double.parse(predictionSet['confidence']!)),
-                                 fontSize: 18),
-                ),
+                style: TextStyle(color: color, fontSize: 18),
+              ),
+
+              const SizedBox(height: 30),
+
+              // display the confidence of the prediction
+              Text(
+                textAlign: TextAlign.center,
+                "Confidence ($confText): $displayConf%",
+                style: TextStyle(color: color, fontSize: 16),
+              ),
             ],
           ),
           actions: <Widget>[
