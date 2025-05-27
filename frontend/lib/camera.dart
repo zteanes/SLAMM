@@ -107,6 +107,49 @@ Future<Map<String, String>> uploadVideo(File videoFile, int bufferVal) async {
   return responseText;
 }
 
+/// determine the color to display the prediction in, showing the confidence
+/// 
+/// Parameters:
+///  confidence: the confidence of the prediction
+/// 
+/// Returns:
+/// (Color, String): a tuple containing the color to display the prediction in and 
+///                  the confidence text representing high, medium, or low
+(Color, String) getColor(double confidence) {
+  // get the current color blindness mode
+  final mode = colorBlindnessNotifier.value;
+  
+  // colors to represent the different modes 
+  Color high, medium, low;
+
+  // Define colors based on mode
+  switch (mode) {
+    case 1: // protanopia-safe colors
+      high = const Color(0xFF0072B2);   // Blue
+      medium = const Color(0xFFE69F00); // Orange
+      low = const Color(0xFF999999);    // Gray
+      break;
+    case 2: // deuteranopia-safe colors
+      high = const Color(0xFF56B4E9);   // Sky blue
+      medium = const Color(0xFFD55E00); // Burnt orange
+      low = const Color(0xFF999999);    // Gray
+      break;
+    default: // normal vision
+      high = Colors.green;
+      medium = Colors.yellow;
+      low = Colors.red;
+  }
+
+  // default to return if confidence is not high or medium
+  (Color, String) toReturn = (low, "low");
+
+  // determine the color to display the prediction in based on the confidence
+  if (confidence > 0.7) { toReturn = (high, "High"); } 
+  else if (confidence > 0.35) { toReturn = (medium, "Medium"); }
+
+  return toReturn;
+}
+
 /// --------------- BEGIN CAMERA SCREEN CREATION --------------- ///
 
 /// Sets up the camera screen for the application
@@ -298,15 +341,15 @@ class CameraScreenState extends State<CameraScreen> {
             "Getting the translation...",
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
-          content: const SizedBox(
+          content: SizedBox(
             height: 140, // hard number since content is constant 
             child:  Column(
               children: [
-                LinearProgressIndicator(),
-                SizedBox(height: 20),
+                const LinearProgressIndicator(),
+                const SizedBox(height: 20),
             
                 // explanation of the confidence 
-                Text(
+                const Text(
                   textAlign: TextAlign.center,
                   "Confidence Levels:",
                   style: TextStyle(fontSize: 20, color: Colors.white70),
@@ -314,17 +357,17 @@ class CameraScreenState extends State<CameraScreen> {
                 Text(
                   textAlign: TextAlign.center,
                   "High: 70%+",
-                  style: TextStyle(color: Colors.green, fontSize: 16),
+                  style: TextStyle(color: getColor(0.75).$1, fontSize: 16),
                 ),
                 Text( 
                   textAlign: TextAlign.center,
                   "Medium: 35% to 70%",
-                  style: TextStyle(color: Colors.yellow, fontSize: 16),
+                  style: TextStyle(color: getColor(0.50).$1, fontSize: 16),
                 ),
                 Text( 
                   textAlign: TextAlign.center,
                   "Low: 0% to 35%",
-                  style: TextStyle(color: Colors.red, fontSize: 16),
+                  style: TextStyle(color: getColor(0.10).$1, fontSize: 16),
                 ),
               ],
             ),
@@ -339,21 +382,6 @@ class CameraScreenState extends State<CameraScreen> {
   /// Parameters:
   ///  predictionSet: a map of the prediction, reinterpretation, and confidence
   void showPrediction(Map<String, String> predictionSet) {
-
-    /// determine the color to display the prediction in, showing the confidence
-    /// 
-    /// Parameters:
-    ///  confidence: the confidence of the prediction
-    (Color, String) getColor(double confidence) {
-      if (confidence > 0.7) {
-        return (Colors.green, "High");
-      } else if (confidence > 0.35) {
-        return (Colors.yellow, "Medium");
-      } else {
-        return (Colors.red, "Low");
-      }
-    }
-
     // round confidence to 2 decimal places
     double confidence = double.parse(predictionSet['confidence']!);
     double newConfidence = double.parse((confidence).toStringAsFixed(4));

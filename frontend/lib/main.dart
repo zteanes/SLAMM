@@ -24,6 +24,10 @@ import 'firebase_options.dart';
 /// Define a ValueNotifier for theme mode
 final themeNotifier = ValueNotifier(ThemeMode.system);
 
+/// 0 = Normal, 1 = Protanopia, 2 = Deuteranopia
+/// Shared notifier to keep track of the color blindness mode
+final colorBlindnessNotifier = ValueNotifier<int>(0);
+
 /// list of the cameras available
 List<CameraDescription> cameras = [];
 

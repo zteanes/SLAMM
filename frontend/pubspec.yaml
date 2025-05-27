@@ -54,6 +54,7 @@ dependencies:
   share_plus: ^10.1.4
   fl_chart: ^0.70.2
   lock_orientation_screen: ^0.0.4
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:
