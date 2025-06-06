@@ -351,22 +351,22 @@ class CameraScreenState extends State<CameraScreen> {
                 // explanation of the confidence 
                 const Text(
                   textAlign: TextAlign.center,
-                  "Confidence Levels:",
+                  "Categories:",
                   style: TextStyle(fontSize: 20, color: Colors.white70),
                 ),
                 Text(
                   textAlign: TextAlign.center,
-                  "High: 70%+",
+                  "High: Value > 70%",
                   style: TextStyle(color: getColor(0.75).$1, fontSize: 16),
                 ),
                 Text( 
                   textAlign: TextAlign.center,
-                  "Medium: 35% to 70%",
+                  "Medium: 70% >= Value >= 35%",
                   style: TextStyle(color: getColor(0.50).$1, fontSize: 16),
                 ),
                 Text( 
                   textAlign: TextAlign.center,
-                  "Low: 0% to 35%",
+                  "Low: Value < 35%",
                   style: TextStyle(color: getColor(0.10).$1, fontSize: 16),
                 ),
               ],
@@ -406,7 +406,7 @@ class CameraScreenState extends State<CameraScreen> {
             children: [
               Text(
                 textAlign: TextAlign.center,
-                "True Prediction:",
+                "Prediction:",
                 style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 22),
               ),
 
@@ -422,7 +422,7 @@ class CameraScreenState extends State<CameraScreen> {
 
               Text(
                 textAlign: TextAlign.center,
-                "LLM Reinterpretation:",
+                "Sentence:",
                 style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 22),
               ),
 
