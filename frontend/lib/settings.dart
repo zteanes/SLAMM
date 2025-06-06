@@ -302,7 +302,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 12.0),
-                          child: Text("RGCB"),
+                          child: Text("GCB"),
                         ),
                       ],
                     );
