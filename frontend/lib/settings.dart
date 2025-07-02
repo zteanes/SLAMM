@@ -17,6 +17,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// instance of the firebase auth and firestore
 FirebaseAuth auth = FirebaseAuth.instance;
@@ -33,6 +34,7 @@ class SettingsScreen extends StatefulWidget {
 /// Class state for the settings screen
 class SettingsScreenState extends State<SettingsScreen> {
   Map<String, dynamic>? userData; // Store user data, setup in initialization
+  List<bool> colorBlindModes = [true, false, false]; // Normal by default
   
   /// This function is used to initialize the state of the settings screen.
   @override
@@ -254,7 +256,60 @@ class SettingsScreenState extends State<SettingsScreen> {
                     const Icon(Icons.dark_mode),
                   ],
                 ),
-                const SizedBox(height: 220), // temporary height spacing for skeleton screen
+
+                const SizedBox(height: 30),
+
+                Text(
+                  'Select a Color Mode (Accessibility)',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 16,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // three buttons for the different color blindness modes for confidence
+                ValueListenableBuilder(
+                  valueListenable: colorBlindnessNotifier,
+                  builder: (context, currentIndex, _) {
+                    // Create the selection state dynamically based on currentIndex
+                    List<bool> colorBlindModes = List.generate(3, (i) => i == currentIndex);
+
+                    return ToggleButtons(
+                      isSelected: colorBlindModes,
+                      borderRadius: BorderRadius.circular(10),
+                      selectedColor: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.secondary,
+                      fillColor: Theme.of(context).colorScheme.secondary,
+                      borderColor: Theme.of(context).colorScheme.primary,
+                      selectedBorderColor: Theme.of(context).colorScheme.primary,
+                      onPressed: (int index) async {
+                        colorBlindnessNotifier.value = index;
+
+                        // Persist the value
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setInt('color_blind_mode', index);
+                      },
+                      children: const [
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12.0),
+                          child: Text("Normal"),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12.0),
+                          child: Text("RCB"),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12.0),
+                          child: Text("GCB"),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 50),
 
                 // button to export data to a pdf
                 ElevatedButton( 

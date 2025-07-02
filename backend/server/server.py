@@ -187,7 +187,7 @@ def init():
         create_WLASL_dictionary()
         log(Fore.GREEN + "-"*20 + "Model loaded successfully!" + "-"*20)
 
-        # load the LLM model 
+        # load the LLM model
         llm = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf") # downloads / loads a 4.66GB LLM
         with llm.chat_session():
             msg = setup_msg

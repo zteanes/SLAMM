@@ -107,6 +107,49 @@ Future<Map<String, String>> uploadVideo(File videoFile, int bufferVal) async {
   return responseText;
 }
 
+/// determine the color to display the prediction in, showing the confidence
+/// 
+/// Parameters:
+///  confidence: the confidence of the prediction
+/// 
+/// Returns:
+/// (Color, String): a tuple containing the color to display the prediction in and 
+///                  the confidence text representing high, medium, or low
+(Color, String) getColor(double confidence) {
+  // get the current color blindness mode
+  final mode = colorBlindnessNotifier.value;
+  
+  // colors to represent the different modes 
+  Color high, medium, low;
+
+  // Define colors based on mode
+  switch (mode) {
+    case 1: // protanopia-safe colors
+      high = const Color(0xFF0072B2);   // Blue
+      medium = const Color(0xFFE69F00); // Orange
+      low = const Color(0xFF999999);    // Gray
+      break;
+    case 2: // deuteranopia-safe colors
+      high = const Color(0xFF56B4E9);   // Sky blue
+      medium = const Color(0xFFD55E00); // Burnt orange
+      low = const Color(0xFF999999);    // Gray
+      break;
+    default: // normal vision
+      high = Colors.green;
+      medium = Colors.yellow;
+      low = Colors.red;
+  }
+
+  // default to return if confidence is not high or medium
+  (Color, String) toReturn = (low, "low");
+
+  // determine the color to display the prediction in based on the confidence
+  if (confidence > 0.7) { toReturn = (high, "High"); } 
+  else if (confidence > 0.35) { toReturn = (medium, "Medium"); }
+
+  return toReturn;
+}
+
 /// --------------- BEGIN CAMERA SCREEN CREATION --------------- ///
 
 /// Sets up the camera screen for the application
@@ -291,14 +334,44 @@ class CameraScreenState extends State<CameraScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return  AlertDialog(
+        return AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
           title: Text(
             textAlign: TextAlign.center,
             "Getting the translation...",
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
-          content: const LinearProgressIndicator(),
+          content: SizedBox(
+            height: 140, // hard number since content is constant 
+            child:  Column(
+              children: [
+                const LinearProgressIndicator(),
+                const SizedBox(height: 20),
+            
+                // explanation of the confidence 
+                const Text(
+                  textAlign: TextAlign.center,
+                  "Categories:",
+                  style: TextStyle(fontSize: 20, color: Colors.white70),
+                ),
+                Text(
+                  textAlign: TextAlign.center,
+                  "High: Value > 70%",
+                  style: TextStyle(color: getColor(0.75).$1, fontSize: 16),
+                ),
+                Text( 
+                  textAlign: TextAlign.center,
+                  "Medium: 70% >= Value >= 35%",
+                  style: TextStyle(color: getColor(0.50).$1, fontSize: 16),
+                ),
+                Text( 
+                  textAlign: TextAlign.center,
+                  "Low: Value < 35%",
+                  style: TextStyle(color: getColor(0.10).$1, fontSize: 16),
+                ),
+              ],
+            ),
+          ),          
         );
       },
     );
@@ -309,60 +382,65 @@ class CameraScreenState extends State<CameraScreen> {
   /// Parameters:
   ///  predictionSet: a map of the prediction, reinterpretation, and confidence
   void showPrediction(Map<String, String> predictionSet) {
+    // round confidence to 2 decimal places
+    double confidence = double.parse(predictionSet['confidence']!);
+    double newConfidence = double.parse((confidence).toStringAsFixed(4));
 
-    /// determine the color to display the prediction in, showing the confidence
-    /// 
-    /// Parameters:
-    ///  confidence: the confidence of the prediction
-    Color getColor(double confidence) {
-      if (confidence > 0.7) {
-        return Colors.green;
-      } else if (confidence > 0.35) {
-        return Colors.yellow;
-      } else {
-        return Colors.red;
-      }
-    }
+    // display has to be made separately, as multiplying by 100 later leads to imprecision due
+    // to floating point arithmetic 
+    String displayConf = (double.parse(predictionSet['confidence']!) * 100).toStringAsFixed(2);
+
+    // get the color to display the prediction in
+    var (Color color, String confText) = getColor(newConfidence);
 
     if (!mounted) { return; }
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          actionsPadding: const EdgeInsets.symmetric(vertical: 2),
+          contentPadding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 10.0), // reduce bottom padding
           backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(125),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 textAlign: TextAlign.center,
-                "True Prediction:",
-                style: TextStyle(color: Theme.of(context).colorScheme.secondary,
-                                 fontSize: 22),
-                ),
+                "Prediction:",
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 22),
+              ),
 
+              // display the prediction message
               Text( 
                 textAlign: TextAlign.center,
                 predictionSet['message']!,
-                style: TextStyle(color: getColor(double.parse(predictionSet['confidence']!)),
-                                 fontSize: 18),
-                ),
+                style: TextStyle(color: color, fontSize: 18),
+              ),
 
               // some space between the two predictions
               const SizedBox(height: 20),
 
               Text(
                 textAlign: TextAlign.center,
-                "LLM Reinterpretation:",
-                style: TextStyle(color: Theme.of(context).colorScheme.secondary,
-                                 fontSize: 22),
-                ),
+                "Sentence:",
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 22),
+              ),
 
+              // display the LLM message
               Text(
                 textAlign: TextAlign.center,
                 predictionSet['llm_message']!,
-                style: TextStyle(color: getColor(double.parse(predictionSet['confidence']!)),
-                                 fontSize: 18),
-                ),
+                style: TextStyle(color: color, fontSize: 18),
+              ),
+
+              const SizedBox(height: 30),
+
+              // display the confidence of the prediction
+              Text(
+                textAlign: TextAlign.center,
+                "Confidence ($confText): $displayConf%",
+                style: TextStyle(color: color, fontSize: 16),
+              ),
             ],
           ),
           actions: <Widget>[
