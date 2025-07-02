@@ -1,5 +1,4 @@
 # SLAMM
-
 **S**ign **L**anguage **A**nalytics and **M**obile **M**achine Learning.
 
 This project is a part of WCU's Capstone projects for the 2024-2025 academic year.
@@ -19,11 +18,16 @@ Alexander Charlot - [GitHub](https://github.com/Al-Charlot) - [LinkedIn](https:/
 ## Table of Contents
 
 - [SLAMM](#slamm)
+  - [Poster Overview](#poster-overview)
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Installation](#installation)
   - [How to Use](#how-to-use)
   - [Thanks and Recognition](#thanks-and-recognition)
+ 
+## Poster Overview
+
+![slamm_poster_FINAL](https://github.com/user-attachments/assets/67931838-1c74-4085-9433-16cc921a84e0)
 
 ## Introduction
 
@@ -94,4 +98,3 @@ translate to receive a translation!
 This project would not have been possible with the amazing work of WLASL, which can be found 
 [here](https://github.com/dxli94/WLASL). This served as the backbone for our project, as their I3D Model for 
 recognition of ASL terms.
-
